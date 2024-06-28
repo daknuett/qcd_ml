@@ -1,4 +1,5 @@
-import torch, numpy, pytest
+import torch
+import numpy as np 
 
 from qcd_ml.operations import SU3_group_compose, v_gauge_transform, link_gauge_transform 
 from qcd_ml.hop import v_hop
@@ -32,7 +33,7 @@ def test_link_gauge_transform(config_1500, config_1200, config_1500_gtrans_1200m
     got = link_gauge_transform(config_1500, config_1200[0])
 
     for mu in range(4):
-        assert torch.allclose(got[mu], config_1500_gtrans_1200mu0)
+        assert torch.allclose(got[mu], config_1500_gtrans_1200mu0[mu])
 
 
 def test_v_hop_Uid(config_1500, psi_test):
