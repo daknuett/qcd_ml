@@ -1,0 +1,20 @@
+[project]
+name="qcd_ml"
+authors = [
+    {name="Daniel Knüttel", email="daniel.knuettel@physik.uni-regensburg.de"}
+]
+description = "Machine learning tools for QCD"
+requires-python=">=3.4"
+readme="README.rst"
+dependencies=['numpy', 'torch']
+
+version="0.0.1"
+
+[project.urls]
+repository="https://github.com/daknuett/qcd_ml"
+homepage="https://github.com/daknuett/qcd_ml"
+
+[build-system]
+requires = ["meson-python", "ninja"]
+build-backend = 'mesonpy'
+
