@@ -2,7 +2,32 @@
 
 import torch
 
-gamma = [torch.tensor([[1,0,0,0],[0,1,0,0],[0,0,-1,0],[0,0,0,-1]]),
-         torch.tensor([[0,0,0,1],[0,0,1,0],[0,-1,0,0],[-1,0,0,0]]),
-         torch.tensor([[0.j,0.j,0.j,-1.j],[0.j,0.j,1.j,0.j],[0.j,1.j,0.j,0.j],[-1.j,0.j,0.j,0.j]]),
-         torch.tensor([[0,0,1,0],[0,0,0,-1],[-1,0,0,0],[0,1,0,0]])]
+gamma = [torch.complex(
+             torch.tensor([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]], dtype=torch.double),
+             torch.tensor([[0,0,0,1]
+                           ,[0,0,1,0]
+                           ,[0,-1,0,0]
+                           ,[-1,0,0,0]], dtype=torch.double)
+             )
+         , torch.complex(
+             torch.tensor([[0,0,0,-1]
+                           ,[0,0,1,0]
+                           ,[0,1,0,0]
+                           ,[-1,0,0,0]], dtype=torch.double),
+             torch.tensor([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]], dtype=torch.double)
+             )
+         , torch.complex(
+             torch.tensor([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]], dtype=torch.double),
+             torch.tensor([[0,0,1,0]
+                           ,[0,0,0,-1]
+                           ,[-1,0,0,0]
+                           ,[0,1,0,0]], dtype=torch.double)
+             )
+         , torch.complex(
+             torch.tensor([[0,0,1,0]
+                           ,[0,0,0,1]
+                           ,[1,0,0,0]
+                           ,[0,1,0,0]], dtype=torch.double),
+             torch.tensor([[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]], dtype=torch.double)
+             )
+         ]

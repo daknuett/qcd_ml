@@ -76,3 +76,8 @@ def config_1500_gtrans_1200mu0():
 @pytest.fixture 
 def V_1500mu0_1500mu2():
     return torch.tensor(np.load(os.path.join(os.path.dirname(__file__), "assets","V_1500mu0_1500mu2.npy")))
+
+
+@pytest.fixture 
+def psi_Dw1500_m0p5_psitest():
+    return torch.tensor(np.load(os.path.join(os.path.dirname(__file__), "assets","psi_Dw1500_m0p5_psitest.npy")))
