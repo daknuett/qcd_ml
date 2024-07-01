@@ -14,5 +14,6 @@ def v_evaluate_path(U, path, v):
         else:
             direction = 1
 
-        v = v_hop(U, mu, direction, v)
+        for _ in range(nhops):
+            v = v_hop(U, mu, direction, v)
     return v
