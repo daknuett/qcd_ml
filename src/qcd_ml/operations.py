@@ -24,3 +24,6 @@ def link_gauge_transform(U, V):
     for mu, U_transmu in enumerate(U_trans):
         U_trans[mu] = SU3_group_compose(U_transmu, torch.roll(Vdg, -1, mu))
     return U_trans
+
+def mspin_const_group_compose(A, B):
+    return torch.einsum("ij,jk->ik", A, B)

@@ -81,3 +81,6 @@ def V_1500mu0_1500mu2():
 @pytest.fixture 
 def psi_Dw1500_m0p5_psitest():
     return torch.tensor(np.load(os.path.join(os.path.dirname(__file__), "assets","psi_Dw1500_m0p5_psitest.npy")))
+@pytest.fixture 
+def psi_Dwc1500_m0p5_psitest():
+    return torch.tensor(np.load(os.path.join(os.path.dirname(__file__), "assets","psi_Dwc1500_m0p5_psitest.npy")))
