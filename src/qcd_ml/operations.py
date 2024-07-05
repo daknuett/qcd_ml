@@ -18,6 +18,14 @@ def v_spin_const_transform(M, v):
     return torch.einsum("ij,abcdjG->abcdiG", M, v)
 
 
+def v_ng_spin_transform(M, v):
+    return torch.einsum("abcdij,abcdj->abcdi", M, v)
+
+
+def v_ng_spin_const_transform(M, v):
+    return torch.einsum("ij,abcdj->abcdi", M, v)
+
+
 def link_gauge_transform(U, V):
     Vdg = V.adjoint()
     U_trans = [SU3_group_compose(V, Umu) for Umu in U]

@@ -12,3 +12,6 @@ def v_hop(U, mu, direction, v):
         Umudg = U[mu].adjoint()
         result = v_gauge_transform(Umudg, v)
         return torch.roll(result, 1, mu)
+
+def v_ng_hop(mu, direction, v):
+    return torch.roll(v, direction,  mu)
