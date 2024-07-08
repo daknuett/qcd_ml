@@ -1,6 +1,19 @@
 import gpt as g
 import numpy as np
+import torch
+import itertools
 
+innerproduct = lambda x,y: (x.conj() * y).sum()
+norm = lambda x: torch.sqrt(innerproduct(x, x).real)
+
+def orthonormalize(vecs):
+    basis = []
+    for vec in vecs:
+        for b in basis:
+            vec = vec - innerproduct(b, vec) * b
+        vec = vec / norm(vec)
+        basis.append(vec)
+    return basis
 
 def lattice2ndarray(lattice):
     """ 
@@ -173,6 +186,7 @@ def v_project(block_size, ui_blocked, n_basis, L_coarse, v):
 
 def v_prolong(block_size, ui_blocked, n_basis, L_coarse, v):
     L_fine = [bi*li for bi,li in zip(block_size, L_coarse)]
+    lx, ly, lz, lt = block_size
     prolonged = torch.complex(torch.zeros(L_fine + list(ui_blocked[0][0][0][0][0].shape[4:]), dtype=torch.double)
                               , torch.zeros(L_fine + list(ui_blocked[0][0][0][0][0].shape[4:]), dtype=torch.double))
     for bx, by, bz, bt in itertools.product(*(range(li) for li in L_coarse)):
