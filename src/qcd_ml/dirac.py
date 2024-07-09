@@ -56,6 +56,7 @@ class dirac_wilson_clover:
         improvement = 0
         for mu in range(4):
             for nu in range(mu):
+                # sigma and field_strength are both anti symmetric.
                 improvement = (improvement 
                                + 2*v_spin_const_transform(self.sigmamunu(mu, nu), self.field_strength(mu, nu, v))
                                )
