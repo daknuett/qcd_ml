@@ -1,4 +1,5 @@
 import gpt as g
+import numpy as np
 
 
 def lattice2ndarray(lattice):
