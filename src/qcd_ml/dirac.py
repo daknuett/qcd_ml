@@ -55,9 +55,9 @@ class dirac_wilson_clover:
 
         improvement = 0
         for mu in range(4):
-            for nu in range(4):
+            for nu in range(mu):
                 improvement = (improvement 
-                               + v_spin_const_transform(self.sigmamunu(mu, nu), self.field_strength(mu, nu, v))
+                               + 2*v_spin_const_transform(self.sigmamunu(mu, nu), self.field_strength(mu, nu, v))
                                )
 
         return result - self.csw / 4 * improvement

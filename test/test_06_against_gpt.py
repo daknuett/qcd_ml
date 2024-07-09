@@ -28,8 +28,6 @@ try:
 
         psi_torch = torch.tensor(lattice2ndarray(psi))
 
-        print(w_torch(psi_torch)[0,0,0,0])
-        print(w(psi_torch)[0,0,0,0])
 
         assert torch.allclose(w_torch(psi_torch), w(psi_torch))
 
@@ -55,8 +53,6 @@ try:
 
         psi_torch = torch.tensor(lattice2ndarray(psi))
 
-        print(w_torch(psi_torch)[0,0,0,0])
-        print(w(psi_torch)[0,0,0,0])
 
         assert torch.allclose(w_torch(psi_torch), w(psi_torch))
 except ImportError:
