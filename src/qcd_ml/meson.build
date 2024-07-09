@@ -9,3 +9,9 @@ python.install_sources(
   pure: true,
   subdir: 'qcd_ml/nn'
 )
+
+python.install_sources(
+  'compat/__init__.py', 'compat/gpt.py',
+  pure: true,
+  subdir: 'qcd_ml/compat'
+)
