@@ -1,8 +1,8 @@
 import torch
 import numpy as np 
 
-from qcd_ml.operations import SU3_group_compose, v_gauge_transform, link_gauge_transform 
-from qcd_ml.hop import v_hop
+from qcd_ml.base.operations import SU3_group_compose, v_gauge_transform, link_gauge_transform 
+from qcd_ml.base.hop import v_hop
 
 def test_SU3_group_compose(config_1500, V_1500mu0_1500mu2):
     expect = V_1500mu0_1500mu2

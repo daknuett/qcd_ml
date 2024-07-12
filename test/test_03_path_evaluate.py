@@ -1,8 +1,8 @@
 import torch
 import numpy as np 
 
-from qcd_ml.hop import v_hop
-from qcd_ml.paths import v_evaluate_path
+from qcd_ml.base.hop import v_hop
+from qcd_ml.base.paths import v_evaluate_path
 
 def test_v_evaluate_path_against_v_hop(config_1500, psi_test):
     path = [(0, 1)]

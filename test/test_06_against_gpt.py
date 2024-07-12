@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from qcd_ml.dirac import dirac_wilson_clover, dirac_wilson
+from qcd_ml.qcd.dirac import dirac_wilson_clover, dirac_wilson
 
 try:
     import gpt as g

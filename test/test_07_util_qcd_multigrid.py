@@ -3,7 +3,7 @@ import torch
 
 from qcd_ml.util.qcd.multigrid import ZPP_Multigrid
 from qcd_ml.util.solver import GMRES_restarted
-from qcd_ml.dirac import dirac_wilson_clover
+from qcd_ml.qcd.dirac import dirac_wilson_clover
 
 @pytest.fixture
 def test_mm_setup(config_1500):

@@ -2,7 +2,7 @@ import torch
 
 from qcd_ml.nn.ptc import v_PTC
 from qcd_ml.nn.lptc import v_LPTC
-from qcd_ml.operations import v_gauge_transform, link_gauge_transform
+from qcd_ml.base.operations import v_gauge_transform, link_gauge_transform
 
 def test_v_PTC_equivariance(config_1500, psi_test, V_1500mu0_1500mu2):
     V = V_1500mu0_1500mu2
