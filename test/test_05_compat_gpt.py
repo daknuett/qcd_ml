@@ -1,4 +1,5 @@
 import numpy as np
+import pytest
 
 try:
     import gpt as g
@@ -30,4 +31,10 @@ try:
 
         assert np.allclose(ndarray1, ndarray2)
 except ImportError:
-    pass
+    @pytest.mark.skip("missing gpt")
+    def test_lattice2array2lattice():
+        pass
+
+    @pytest.mark.skip("missing gpt")
+    def test_array2lattice2array():
+        pass

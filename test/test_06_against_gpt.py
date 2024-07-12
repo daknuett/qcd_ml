@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 from qcd_ml.qcd.dirac import dirac_wilson_clover, dirac_wilson
+import pytest
 
 try:
     import gpt as g
@@ -56,5 +57,11 @@ try:
 
         assert torch.allclose(w_torch(psi_torch), w(psi_torch))
 except ImportError:
-    pass
 
+    @pytest.mark.skip("missing gpt")
+    def test_wilson(config_1500):
+        pass
+
+    @pytest.mark.skip("missing gpt")
+    def test_wilson_clover(config_1500):
+        pass
