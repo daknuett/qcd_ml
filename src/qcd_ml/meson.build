@@ -15,3 +15,15 @@ python.install_sources(
   pure: true,
   subdir: 'qcd_ml/compat'
 )
+
+python.install_sources(
+  'util/__init__.py', 'util/solver.py',
+  pure: true,
+  subdir: 'qcd_ml/util'
+)
+
+python.install_sources(
+  'util/qcd/__init__.py', 'util/qcd/multigrid.py',
+  pure: true,
+  subdir: 'qcd_ml/util/qcd'
+)

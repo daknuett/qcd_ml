@@ -6,6 +6,7 @@ Provides Multigrid with zero point projection.
 
 import torch
 import itertools
+import numpy as np
 
 innerproduct = lambda x,y: (x.conj() * y).sum()
 norm = lambda x: torch.sqrt(innerproduct(x, x).real)
@@ -123,7 +124,7 @@ class ZPP_Multigrid:
                 prolonged[bx * lx: (bx + 1)*lx
                         , by * ly: (by + 1)*ly
                         , bz * lz: (bz + 1)*lz
-                        , bt * lt: (bt + 1)*lt] += v[bx,by,bz,bt,k] * uk
+                        , bt * lt: (bt + 1)*lt] += v[bx,by,bz,bt,k].conj() * uk
         return prolonged
 
     

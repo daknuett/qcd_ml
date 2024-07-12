@@ -3,9 +3,10 @@ import torch
 
 from qcd_ml.util.qcd.multigrid import ZPP_Multigrid
 from qcd_ml.util.solver import GMRES_restarted
+from qcd_ml.dirac import dirac_wilson_clover
 
 @pytest.fixture
-def test_mm_setup():
+def test_mm_setup(config_1500):
     psi = torch.complex(
             torch.randn(8, 8, 8, 16, 4, 3, dtype=torch.double)
             , torch.randn(8, 8, 8, 16, 4, 3, dtype=torch.double))
@@ -14,6 +15,8 @@ def test_mm_setup():
     bv = [torch.randn_like(psi) for _ in range(n_basis)] 
 
     block_size = [4, 4, 4, 4]
+
+    w = dirac_wilson_clover(config_1500, -0.58, 1.0)
 
     mm = ZPP_Multigrid.gen_from_fine_vectors(
              bv
@@ -31,6 +34,7 @@ def rand_fine_vec():
     return psi
 
 
+@pytest.mark.slow
 def test_MM_is_Id_on_coarse(test_mm_setup, rand_fine_vec):
    coarse_vec = test_mm_setup.v_project(rand_fine_vec)
 
