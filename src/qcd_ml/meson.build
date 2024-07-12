@@ -5,6 +5,18 @@ python.install_sources(
 )
 
 python.install_sources(
+  'base/__init__.py', 'base/operations.py', 'base/hop.py', 'base/paths.py',
+  pure: true,
+  subdir: 'qcd_ml/base'
+)
+
+python.install_sources(
+  'qcd/__init__.py', 'qcd/static.py', 'qcd/dirac.py',
+  pure: true,
+  subdir: 'qcd_ml/qcd'
+)
+
+python.install_sources(
   'nn/__init__.py', 'nn/ptc.py', 'nn/lptc.py',
   pure: true,
   subdir: 'qcd_ml/nn'

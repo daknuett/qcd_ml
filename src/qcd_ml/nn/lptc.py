@@ -1,7 +1,7 @@
 import torch 
 
-from ..paths import v_evaluate_path, v_ng_evaluate_path
-from ..operations import v_spin_transform, v_ng_spin_transform
+from ..base.paths import v_evaluate_path, v_ng_evaluate_path
+from ..base.operations import v_spin_transform, v_ng_spin_transform
 
 class v_LPTC(torch.nn.Module):
     """

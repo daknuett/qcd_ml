@@ -1,7 +1,7 @@
 from .static import gamma
-from .operations import v_spin_const_transform, mspin_const_group_compose
+from ..base.operations import v_spin_const_transform, mspin_const_group_compose
 
-from .hop import v_hop
+from ..base.hop import v_hop
 
 class dirac_wilson:
     def __init__(self, U, mass_parameter):

@@ -1,7 +1,7 @@
 import torch 
 
-from ..paths import v_evaluate_path
-from ..operations import v_spin_const_transform
+from ..base.paths import v_evaluate_path
+from ..base.operations import v_spin_const_transform
 
 class v_PTC(torch.nn.Module):
     """
