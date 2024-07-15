@@ -1,6 +1,6 @@
 import torch 
 
-from ..base.paths import v_evaluate_path, v_ng_evaluate_path
+from ..base.paths import v_evaluate_path, v_ng_evaluate_path, v_reverse_evaluate_path
 from ..base.operations import v_spin_transform, v_ng_spin_transform
 
 class v_LPTC(torch.nn.Module):
@@ -56,7 +56,7 @@ class v_LPTC(torch.nn.Module):
         for fi, wfi in zip(features_in, self.weights):
             for io, wfo in enumerate(wfi):
                 for pi, wi in zip(self.paths, wfo):
-                    features_out[io] = features_out[io] + v_spin_const_transform(wi.adjoint(), v_reverse_evaluate_path(self.U, pi, fi))
+                    features_out[io] = features_out[io] + v_spin_transform(wi.adjoint(), v_reverse_evaluate_path(self.U, pi, fi))
 
         return torch.stack(features_out)
 
