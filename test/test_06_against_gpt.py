@@ -29,7 +29,6 @@ try:
 
         psi_torch = torch.tensor(lattice2ndarray(psi))
 
-
         assert torch.allclose(w_torch(psi_torch), w(psi_torch))
 
 
@@ -53,7 +52,6 @@ try:
         rng.cnormal(psi)
 
         psi_torch = torch.tensor(lattice2ndarray(psi))
-
 
         assert torch.allclose(w_torch(psi_torch), w(psi_torch))
 except ImportError:
