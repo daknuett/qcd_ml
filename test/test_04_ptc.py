@@ -141,6 +141,7 @@ def test_v_LPTC_reverse_single_path(config_1500, psi_test):
         assert torch.allclose(psi_test, psi3)
 
 
+@pytest.mark.skip("deprecated by test_v_LPTC_reverse_single_path")
 def test_v_LPTC_reverse_idty_op(config_1500, psi_test):
     paths = [[]] + [[(mu, 1)] for mu in range(4)] + [[(mu, -1)] for mu in range(4)]
     layer = v_LPTC(1, 1, paths, config_1500)
@@ -159,6 +160,7 @@ def test_v_LPTC_reverse_idty_op(config_1500, psi_test):
     assert torch.allclose(psi_test, psi3[0])
 
 
+@pytest.mark.skip("deprecated by test_v_LPTC_reverse_single_path")
 def test_v_LPTC_reverse_single_path_idty(config_1500, psi_test):
     paths = [[]] + [[(mu, 1)] for mu in range(4)] + [[(mu, -1)] for mu in range(4)]
     layer = v_LPTC(1, 1, paths, config_1500)
