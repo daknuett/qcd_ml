@@ -95,7 +95,6 @@ class PathBuffer:
                 , torch.zeros(3, 3, dtype=torch.double)
                 )
 
-        print(self.path)
         for mu, nhops in self.path:
             if nhops < 0:
                 direction = -1
