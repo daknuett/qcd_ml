@@ -1,4 +1,8 @@
+import torch
+
 from .hop import v_hop, v_ng_hop
+from .operations import SU3_group_compose
+from .operations import v_gauge_transform
 
 def v_evaluate_path(U, path, v):
     """
@@ -55,3 +59,36 @@ def v_reverse_evaluate_path(U, path, v):
         for _ in range(nhops):
             v = v_hop(U, mu, direction, v)
     return v
+
+
+class PathBuffer:
+    def __init__(self, U, path):
+        self.path = path
+
+        self.accumulated_U = torch.zeros_like(U[0])
+        self.accumulated_U[:,:,:,:] = torch.complex(
+                torch.tensor([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype=torch.double)
+                , torch.zeros(3, 3, dtype=torch.double)
+                )
+
+        print(self.path)
+        for mu, nhops in self.path:
+            if nhops < 0:
+                direction = -1
+                nhops *= -1
+            else:
+                direction = 1
+
+            for _ in range(nhops):
+                if direction == -1:
+                    U = torch.roll(U, 1, mu + 1) # mu + 1 because U is (mu, x, y, z, t)
+                    self.accumulated_U = SU3_group_compose(U[mu], self.accumulated_U)
+                else:
+                    self.accumulated_U = SU3_group_compose(U[mu].adjoint(), self.accumulated_U)
+                    U = torch.roll(U, -1, mu + 1)
+
+    def v_transport(self, v):
+        v = v_gauge_transform(self.accumulated_U, v)
+        v = v_ng_evaluate_path(self.path, v)
+        return v
+
