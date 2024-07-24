@@ -29,6 +29,20 @@ def v_ng_evaluate_path(path, v):
     
     If nhops is negative, the hop is made in negative mu direction.
     """
+    if len(path) > 0:
+        mus = [mu for mu,_ in path]
+        hops = [nhops for _,nhops in path]
+        return torch.roll(v, shifts=hops, dims=mus)
+    return v
+
+
+def slow_v_ng_evaluate_path(path, v):
+    """
+    paths is a list of paths. Every path is a list [(mu, nhops)].
+    An empty list is the path that does not perform any hops.
+    
+    If nhops is negative, the hop is made in negative mu direction.
+    """
     for mu, nhops in path:
         if nhops < 0:
             direction = -1
@@ -67,6 +81,20 @@ def v_ng_reverse_evaluate_path(path, v):
     
     If nhops is negative, the hop is made in negative mu direction.
     """
+    if len(path) > 0:
+        mus = [mu for mu,_ in path]
+        hops = [-nhops for _,nhops in path]
+        return torch.roll(v, shifts=hops, dims=mus)
+    return v
+
+
+def slow_v_ng_reverse_evaluate_path(path, v):
+    """
+    paths is a list of paths. Every path is a list [(mu, nhops)].
+    An empty list is the path that does not perform any hops.
+    
+    If nhops is negative, the hop is made in negative mu direction.
+    """
     for mu, nhops in reversed(path):
         nhops *= -1
         if nhops < 0:
@@ -88,6 +116,11 @@ class PathBuffer:
     """
     def __init__(self, U, path):
         self.path = path
+
+        if len(self.path) == 0:
+            self._is_identity = True
+        else:
+            self._is_identity = False
 
         self.accumulated_U = torch.zeros_like(U[0])
         self.accumulated_U[:,:,:,:] = torch.complex(
@@ -111,11 +144,13 @@ class PathBuffer:
                     U = torch.roll(U, -1, mu + 1)
 
     def v_transport(self, v):
-        v = v_gauge_transform(self.accumulated_U, v)
-        v = v_ng_evaluate_path(self.path, v)
+        if not self._is_identity:
+            v = v_gauge_transform(self.accumulated_U, v)
+            v = v_ng_evaluate_path(self.path, v)
         return v
 
     def v_reverse_transport(self, v):
-        v = v_ng_reverse_evaluate_path(self.path, v)
-        v = v_gauge_transform(self.accumulated_U.adjoint(), v)
+        if not self._is_identity:
+            v = v_ng_reverse_evaluate_path(self.path, v)
+            v = v_gauge_transform(self.accumulated_U.adjoint(), v)
         return v
