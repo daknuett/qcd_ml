@@ -16,7 +16,7 @@ class v_LPTC(torch.nn.Module):
     def __init__(self, n_feature_in, n_feature_out, paths, U):
         super().__init__()
         self.weights = torch.nn.Parameter(
-                torch.randn(n_feature_in, n_feature_out, len(paths), *tuple(U.shape[1:-2]), 4, 4, dtype=torch.cdouble)
+                torch.randn(n_feature_in, n_feature_out, len(paths), *tuple(U[0].shape[0:-2]), 4, 4, dtype=torch.cdouble)
                 )
 
         self.n_feature_in = n_feature_in
