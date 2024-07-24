@@ -16,8 +16,7 @@ class v_LPTC(torch.nn.Module):
     def __init__(self, n_feature_in, n_feature_out, paths, U):
         super().__init__()
         self.weights = torch.nn.Parameter(
-                torch.complex(torch.randn(n_feature_in, n_feature_out, len(paths), *tuple(U.shape[1:-2]), 4, 4, dtype=torch.double)
-                              , torch.randn(n_feature_in, n_feature_out, len(paths), *tuple(U.shape[1:-2]), 4, 4, dtype=torch.double))
+                torch.randn(n_feature_in, n_feature_out, len(paths), *tuple(U.shape[1:-2]), 4, 4, dtype=torch.cdouble)
                 )
 
         self.n_feature_in = n_feature_in
@@ -52,8 +51,7 @@ class v_LPTC_NG(torch.nn.Module):
     def __init__(self, n_feature_in, n_feature_out, paths, grid_dims, internal_dof):
         super().__init__()
         self.weights = torch.nn.Parameter(
-                torch.complex(torch.randn(n_feature_in, n_feature_out, len(paths), *tuple(grid_dims), internal_dof, internal_dof, dtype=torch.double)
-                              , torch.randn(n_feature_in, n_feature_out, len(paths), *tuple(grid_dims), internal_dof, internal_dof, dtype=torch.double))
+                torch.randn(n_feature_in, n_feature_out, len(paths), *tuple(grid_dims), internal_dof, internal_dof, dtype=torch.cdouble)
                 )
 
         self.n_feature_in = n_feature_in

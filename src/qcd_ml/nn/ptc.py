@@ -16,8 +16,7 @@ class v_PTC(torch.nn.Module):
     def __init__(self, n_feature_in, n_feature_out, paths, U):
         super().__init__()
         self.weights = torch.nn.Parameter(
-                torch.complex(torch.randn(n_feature_in, n_feature_out, len(paths), 4, 4, dtype=torch.double)
-                              , torch.randn(n_feature_in, n_feature_out, len(paths), 4, 4, dtype=torch.double))
+                torch.randn(n_feature_in, n_feature_out, len(paths), 4, 4, dtype=torch.cdouble)
                 )
 
         self.n_feature_in = n_feature_in
