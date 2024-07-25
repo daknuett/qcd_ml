@@ -1,6 +1,6 @@
 import torch 
 
-from ..base.paths import v_evaluate_path, v_reverse_evaluate_path
+from ..base.paths import PathBuffer
 from ..base.operations import v_spin_const_transform
 
 class v_PTC(torch.nn.Module):
@@ -21,8 +21,12 @@ class v_PTC(torch.nn.Module):
 
         self.n_feature_in = n_feature_in
         self.n_feature_out = n_feature_out
-        self.paths = paths
-        self.U = U
+        # FIXME: This is more memory intensive compared to the 
+        # implementation using v_evaluate_path, because instead of one 
+        # copy of U, all gauge transport matrices are stored.
+        # On the other hand this may not be a big deal in most cases,
+        # because, for 1h, the number of gauge fields is identical.
+        self.path_buffers = [PathBuffer(U, pi) for pi in paths]
 
 
     def forward(self, features_in):
@@ -33,7 +37,21 @@ class v_PTC(torch.nn.Module):
 
         for fi, wfi in zip(features_in, self.weights):
             for io, wfo in enumerate(wfi):
-                for pi, wi in zip(self.paths, wfo):
-                    features_out[io] = features_out[io] + v_spin_const_transform(wi, v_evaluate_path(self.U, pi, fi))
+                for pi, wi in zip(self.path_buffers, wfo):
+                    features_out[io] = features_out[io] + v_spin_const_transform(wi, pi.v_transport(fi))
 
         return torch.stack(features_out)
+
+    
+    def gauge_transform_using_transformed(self, U_transformed):
+        """
+        Update the v_PTC layer: The old gauge field U is replaced by 
+        U_transformed. The weights are kept.
+
+        NOTE: This does not create a transformed copy of the layer!
+              Instead the layer is updated.
+
+        Mostly used for testing.
+        """
+        for i, pi in enumerate(self.path_buffers):
+            self.path_buffers[i] = PathBuffer(U_transformed, pi.path)
