@@ -1,6 +1,6 @@
 import torch 
 
-from ..base.paths import v_evaluate_path
+from ..base.paths import v_evaluate_path, v_reverse_evaluate_path
 from ..base.operations import v_spin_const_transform
 
 class v_PTC(torch.nn.Module):
@@ -35,5 +35,26 @@ class v_PTC(torch.nn.Module):
             for io, wfo in enumerate(wfi):
                 for pi, wi in zip(self.paths, wfo):
                     features_out[io] = features_out[io] + v_spin_const_transform(wi, v_evaluate_path(self.U, pi, fi))
+
+        return torch.stack(features_out)
+
+
+    def reverse(self, features_in):
+        """
+        # FIXME: ONLY WORKS FOR 1-1 PTC!
+        """
+        if self.n_feature_out != 1 or self.n_feature_in != 1:
+            raise NotImplementedError()
+        # FIXME: ONLY WORKS FOR 1-1 PTC!
+        if features_in.shape[0] != self.n_feature_in:
+            raise ValueError(f"shape mismatch: got {features_in.shape[0]} but expected {self.n_feature_in}")
+        
+        features_out = [torch.zeros_like(features_in[0]) for _ in range(self.n_feature_out)]
+
+        # FIXME
+        for fi, wfi in zip(features_in, self.weights):
+            for io, wfo in enumerate(wfi):
+                for pi, wi in zip(self.paths, wfo):
+                    features_out[io] = features_out[io] + v_spin_const_transform(wi.adjoint(), v_reverse_evaluate_path(self.U, pi, fi))
 
         return torch.stack(features_out)
