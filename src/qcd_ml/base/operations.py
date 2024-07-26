@@ -19,13 +19,27 @@ def SU3_group_compose(A, B):
                      , B.reshape((vol, *(A.shape[4:])))).reshape(old_shape)
 
 
-def v_gauge_transform(Umu, v):
+def _es_v_gauge_transform(Umu, v):
     return torch.einsum("abcdij,abcdSj->abcdSi", Umu, v)
 
 
-def v_spin_transform(M, v):
+def v_gauge_transform(Umu, v):
+    vol = _mul(v.shape[:4])
+    old_shape = v.shape
+    return torch.bmm(Umu.reshape((vol, *(Umu.shape[4:])))
+                     , v.reshape((vol, *(v.shape[4:]))).transpose(-1, -2)
+                     ).transpose(-1, -2).reshape(old_shape)
+
+
+def _es_v_spin_transform(M, v):
     return torch.einsum("abcdij,abcdjG->abcdiG", M, v)
 
+def v_spin_transform(M, v):
+    vol = _mul(v.shape[:4])
+    old_shape = v.shape
+    return torch.bmm(M.reshape((vol, *(M.shape[4:])))
+                     , v.reshape((vol, *(v.shape[4:])))
+                     ).reshape(old_shape)
 
 def v_spin_const_transform(M, v):
     return torch.einsum("ij,abcdjG->abcdiG", M, v)
