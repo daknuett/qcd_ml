@@ -7,6 +7,7 @@ from qcd_ml.base.paths import v_evaluate_path
 from qcd_ml.base.paths import v_reverse_evaluate_path
 from qcd_ml.base.paths import PathBuffer
 
+@pytest.mark.benchmark(group="path_buffer")
 def test_path_buffer_00(benchmark, config_1500, psi_test):
     psi = torch.randn_like(psi_test)
     path = []
@@ -18,6 +19,7 @@ def test_path_buffer_00(benchmark, config_1500, psi_test):
     assert torch.allclose(expect, got,)
 
 
+@pytest.mark.benchmark(group="path_buffer")
 def test_path_buffer_01(benchmark, config_1500, psi_test):
     psi = torch.randn_like(psi_test)
     path = [(0,1)]
@@ -29,6 +31,7 @@ def test_path_buffer_01(benchmark, config_1500, psi_test):
     assert torch.allclose(expect, got)
 
 
+@pytest.mark.benchmark(group="path_buffer")
 def test_path_buffer_02(benchmark, config_1500, psi_test):
     psi = torch.randn_like(psi_test)
     path = [(0,1), (1,-1)]
@@ -39,6 +42,7 @@ def test_path_buffer_02(benchmark, config_1500, psi_test):
 
     assert torch.allclose(expect, got)
 
+@pytest.mark.benchmark(group="path_buffer")
 def test_path_buffer_03(benchmark, config_1500, psi_test):
     psi = torch.randn_like(psi_test)
     path = [(0,1), (1,-1), (3, 3)]
@@ -50,6 +54,7 @@ def test_path_buffer_03(benchmark, config_1500, psi_test):
     assert torch.allclose(expect, got)
 
 
+@pytest.mark.benchmark(group="path_buffer")
 def test_path_00(benchmark, config_1500, psi_test):
     psi = torch.randn_like(psi_test)
     path = []
@@ -61,6 +66,7 @@ def test_path_00(benchmark, config_1500, psi_test):
     assert torch.allclose(expect, got)
 
 
+@pytest.mark.benchmark(group="path_buffer")
 def test_path_01(benchmark, config_1500, psi_test):
     psi = torch.randn_like(psi_test)
     path = [(0,1)]
@@ -72,6 +78,7 @@ def test_path_01(benchmark, config_1500, psi_test):
     assert torch.allclose(expect, got)
 
 
+@pytest.mark.benchmark(group="path_buffer")
 def test_path_02(benchmark, config_1500, psi_test):
     psi = torch.randn_like(psi_test)
     path = [(0,1), (1,-1)]
@@ -83,6 +90,7 @@ def test_path_02(benchmark, config_1500, psi_test):
     assert torch.allclose(expect, got)
 
 
+@pytest.mark.benchmark(group="path_buffer")
 def test_path_03(benchmark, config_1500, psi_test):
     psi = torch.randn_like(psi_test)
     path = [(0,1), (1,-1), (3, 3)]

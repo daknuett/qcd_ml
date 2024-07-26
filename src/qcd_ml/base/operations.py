@@ -2,8 +2,21 @@
 
 import torch
 
-def SU3_group_compose(A, B):
+def _mul(iterable):
+    res = 1
+    for i in iterable:
+        res *= i
+    return res
+
+def _es_SU3_group_compose(A, B):
     return torch.einsum("abcdij,abcdjk->abcdik", A, B)
+
+
+def SU3_group_compose(A, B):
+    vol = _mul(A.shape[:4])
+    old_shape = A.shape
+    return torch.bmm(A.reshape((vol, *(A.shape[4:])))
+                     , B.reshape((vol, *(A.shape[4:])))).reshape(old_shape)
 
 
 def v_gauge_transform(Umu, v):

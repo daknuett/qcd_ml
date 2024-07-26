@@ -3,6 +3,7 @@ import torch
 from qcd_ml.base.paths import v_ng_evaluate_path, slow_v_ng_evaluate_path
 
 
+@pytest.mark.benchmark(group="ng_path_evaluate")
 def test_v_ng_evaluate_path(benchmark, psi_test):
     psi_test = torch.randn_like(psi_test)
 
@@ -12,6 +13,7 @@ def test_v_ng_evaluate_path(benchmark, psi_test):
 
     assert torch.allclose(expect, got)
 
+@pytest.mark.benchmark(group="ng_path_evaluate")
 def test_slow_v_ng_evaluate_path(benchmark, psi_test):
     psi_test = torch.randn_like(psi_test)
 
