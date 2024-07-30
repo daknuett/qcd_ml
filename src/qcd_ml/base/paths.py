@@ -4,6 +4,7 @@ from .hop import v_hop, v_ng_hop
 from .operations import SU3_group_compose
 from .operations import v_gauge_transform
 
+@torch.compile
 def v_evaluate_path(U, path, v):
     """
     paths is a list of paths. Every path is a list [(mu, nhops)].
@@ -22,6 +23,7 @@ def v_evaluate_path(U, path, v):
             v = v_hop(U, mu, direction, v)
     return v
 
+@torch.compile
 def v_ng_evaluate_path(path, v):
     """
     paths is a list of paths. Every path is a list [(mu, nhops)].
@@ -36,6 +38,7 @@ def v_ng_evaluate_path(path, v):
     return v
 
 
+@torch.compile
 def slow_v_ng_evaluate_path(path, v):
     """
     paths is a list of paths. Every path is a list [(mu, nhops)].
@@ -55,6 +58,7 @@ def slow_v_ng_evaluate_path(path, v):
     return v
 
 
+@torch.compile
 def v_reverse_evaluate_path(U, path, v):
     """
     paths is a list of paths. Every path is a list [(mu, nhops)].
@@ -74,6 +78,8 @@ def v_reverse_evaluate_path(U, path, v):
             v = v_hop(U, mu, direction, v)
     return v
 
+
+@torch.compile
 def v_ng_reverse_evaluate_path(path, v):
     """
     paths is a list of paths. Every path is a list [(mu, nhops)].
@@ -88,6 +94,7 @@ def v_ng_reverse_evaluate_path(path, v):
     return v
 
 
+@torch.compile
 def slow_v_ng_reverse_evaluate_path(path, v):
     """
     paths is a list of paths. Every path is a list [(mu, nhops)].
@@ -147,12 +154,14 @@ class PathBuffer:
                         self.accumulated_U = SU3_group_compose(U[mu].adjoint(), self.accumulated_U)
                         U = torch.roll(U, -1, mu + 1)
 
+    @torch.compile
     def v_transport(self, v):
         if not self._is_identity:
             v = v_gauge_transform(self.accumulated_U, v)
             v = v_ng_evaluate_path(self.path, v)
         return v
 
+    @torch.compile
     def v_reverse_transport(self, v):
         if not self._is_identity:
             v = v_ng_reverse_evaluate_path(self.path, v)
