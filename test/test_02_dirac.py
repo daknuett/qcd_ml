@@ -1,6 +1,7 @@
 import torch 
 
 from qcd_ml.qcd.dirac import dirac_wilson, dirac_wilson_clover
+from qcd_ml.base.paths import PathBuffer
 
 
 def test_dirac_wilson_precomputed(config_1500, psi_test, psi_Dw1500_m0p5_psitest):
@@ -13,7 +14,7 @@ def test_dirac_wilson_precomputed(config_1500, psi_test, psi_Dw1500_m0p5_psitest
 
 
 def test_dirac_wilson_clover_precomputed(config_1500, psi_test, psi_Dwc1500_m0p5_psitest):
-    w = dirac_wilson_clover(config_1500, -0.5, 1)
+    w = dirac_wilson_clover(config_1500, PathBuffer(config_1500), -0.5, 1)
     expect = psi_Dwc1500_m0p5_psitest
 
     got = w(psi_test)

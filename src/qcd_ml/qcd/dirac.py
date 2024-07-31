@@ -15,6 +15,7 @@ def sigmamunu(mu, nu):
 
 class dirac_wilson:
     def __init__(self, U, mass_parameter):
+        # FIXME: remove U alltogether and replace it by PathBuffer.
         self.U = U
         self.mass_parameter = mass_parameter
 
@@ -32,7 +33,8 @@ class dirac_wilson:
 
 
 class dirac_wilson_clover:
-    def __init__(self, U, mass_parameter, csw):
+    def __init__(self, U, path_buffer: PathBuffer, mass_parameter, csw):
+        # FIXME: remove U alltogether and replace it by PathBuffer.
         self.U = U
         self.mass_parameter = mass_parameter
         self.csw = csw
@@ -47,7 +49,7 @@ class dirac_wilson_clover:
                 , Hp(mu, Hp(nu, Hm(mu, Hm(nu, []))))
                 ] for nu in range(4)] for mu in range(4)]
 
-        self.plaquette_path_buffers = [[[PathBuffer(U, pi) for pi in pnu] for pnu in pmu] for pmu in plaquette_paths]
+        self.plaquette_path_buffers = [[[path_buffer.path(pi) for pi in pnu] for pnu in pmu] for pmu in plaquette_paths]
 
     def Qmunu(self, mu, nu, v):
         paths = self.plaquette_path_buffers[mu][nu]

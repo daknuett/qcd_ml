@@ -13,15 +13,15 @@ class v_LPTC(torch.nn.Module):
     paths is a list of paths. Every path is a list [(direction, nhops)].
     An empty list is the path that does not perform any hops.
     """
-    def __init__(self, n_feature_in, n_feature_out, paths, U):
+    def __init__(self, n_feature_in, n_feature_out, paths, path_buffer: PathBuffer):
         super().__init__()
         self.weights = torch.nn.Parameter(
-                torch.randn(n_feature_in, n_feature_out, len(paths), *tuple(U[0].shape[0:-2]), 4, 4, dtype=torch.cdouble)
+                torch.randn(n_feature_in, n_feature_out, len(paths), *tuple(path_buffer.U[0].shape[0:-2]), 4, 4, dtype=torch.cdouble)
                 )
 
         self.n_feature_in = n_feature_in
         self.n_feature_out = n_feature_out
-        self.path_buffers = [PathBuffer(U, pi) for pi in paths]
+        self.path_transporters = [path_buffer.path(pi) for pi in paths]
 
 
     def forward(self, features_in):
@@ -32,24 +32,27 @@ class v_LPTC(torch.nn.Module):
 
         for fi, wfi in zip(features_in, self.weights):
             for io, wfo in enumerate(wfi):
-                for pi, wi in zip(self.path_buffers, wfo):
+                for pi, wi in zip(self.path_transporters, wfo):
                     features_out[io] = features_out[io] + v_spin_transform(wi, pi.v_transport(fi))
 
         return torch.stack(features_out)
 
     
-    def gauge_transform_using_transformed(self, U_transformed):
+    def gauge_transform_using_transformed(self, new_path_buffer: PathBuffer):
         """
         Update the v_LPTC layer: The old gauge field U is replaced by 
         U_transformed. The weights are kept.
+
+        NOTE: with the introduction of "globalized" PathBuffers to keep the memory
+        profile lower, we now pass a new PathBuffer instead of a new gauge field.
 
         NOTE: This does not create a transformed copy of the layer!
               Instead the layer is updated.
 
         Mostly used for testing.
         """
-        for i, pi in enumerate(self.path_buffers):
-            self.path_buffers[i] = PathBuffer(U_transformed, pi.path)
+        for i, pi in enumerate(self.path_transporters):
+            self.path_transporters[i] = new_path_buffer.path(pi.path_indicator)
 
 
 class v_LPTC_NG(torch.nn.Module):

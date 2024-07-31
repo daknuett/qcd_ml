@@ -13,7 +13,7 @@ class v_PTC(torch.nn.Module):
     paths is a list of paths. Every path is a list [(direction, nhops)].
     An empty list is the path that does not perform any hops.
     """
-    def __init__(self, n_feature_in, n_feature_out, paths, U):
+    def __init__(self, n_feature_in, n_feature_out, paths, path_buffer: PathBuffer):
         super().__init__()
         self.weights = torch.nn.Parameter(
                 torch.randn(n_feature_in, n_feature_out, len(paths), 4, 4, dtype=torch.cdouble)
@@ -26,7 +26,7 @@ class v_PTC(torch.nn.Module):
         # copy of U, all gauge transport matrices are stored.
         # On the other hand this may not be a big deal in most cases,
         # because, for 1h, the number of gauge fields is identical.
-        self.path_buffers = [PathBuffer(U, pi) for pi in paths]
+        self.path_transporters = [path_buffer.path(pi) for pi in paths]
 
 
     def forward(self, features_in):
@@ -37,13 +37,13 @@ class v_PTC(torch.nn.Module):
 
         for fi, wfi in zip(features_in, self.weights):
             for io, wfo in enumerate(wfi):
-                for pi, wi in zip(self.path_buffers, wfo):
+                for pi, wi in zip(self.path_transporters, wfo):
                     features_out[io] = features_out[io] + v_spin_const_transform(wi, pi.v_transport(fi))
 
         return torch.stack(features_out)
 
     
-    def gauge_transform_using_transformed(self, U_transformed):
+    def gauge_transform_using_transformed(self, new_path_buffer: PathBuffer):
         """
         Update the v_PTC layer: The old gauge field U is replaced by 
         U_transformed. The weights are kept.
@@ -53,5 +53,5 @@ class v_PTC(torch.nn.Module):
 
         Mostly used for testing.
         """
-        for i, pi in enumerate(self.path_buffers):
-            self.path_buffers[i] = PathBuffer(U_transformed, pi.path)
+        for i, pi in enumerate(self.path_transporters):
+            self.path_transporters[i] = new_path_buffer.path(pi.path_indicator)
