@@ -116,8 +116,8 @@ def GMRES_restarted(A, b, x0, max_restart=10, maxiter_inner=100, eps=1e-4
     for rs in range(max_restart):
         x, ret = GMRES_torch(A, b, x, maxiter=maxiter_inner, eps=1e-4
               , regulate_b_norm=regulate_b_norm
-              , innerproduct=None
-              , prec=None)
+              , innerproduct=innerproduct
+              , prec=prec)
         total_iterations += ret["k"]
         #print("restarting with res:", ret["res"])
         if ret["converged"]:
