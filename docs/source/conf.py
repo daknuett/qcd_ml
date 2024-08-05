@@ -34,7 +34,7 @@ exclude_patterns = []
 source_suffix = '.rst'
 todo_include_todos = True
 
-
+autodoc_mock_imports = ["gpt"]
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
