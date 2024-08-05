@@ -10,3 +10,5 @@ qcd_ml documentation
    :maxdepth: 2
    :caption: Contents:
 
+   install
+   source-doc

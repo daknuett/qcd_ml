@@ -7,6 +7,13 @@ from ..base.paths import PathBuffer
 
 from ..util.comptime import comptime
 
+"""
+qcd_ml.qcd.dirac
+================
+
+Dirac operators.
+"""
+
 
 @comptime([(mu, nu) for mu in range(4) for nu in range(4)])
 def sigmamunu(mu, nu):
@@ -14,6 +21,9 @@ def sigmamunu(mu, nu):
             - mspin_const_group_compose(gamma[nu], gamma[mu])) / 2
 
 class dirac_wilson:
+    """
+    Dirac Wilson operator. See arXiv:2302.05419.
+    """
     def __init__(self, U, mass_parameter):
         self.U = U
         self.mass_parameter = mass_parameter
@@ -32,6 +42,11 @@ class dirac_wilson:
 
 
 class dirac_wilson_clover:
+    """
+    Dirac Wilson operator with clover term improvement.
+
+    See arXiv:2302.05419.
+    """
     def __init__(self, U, mass_parameter, csw):
         self.U = U
         self.mass_parameter = mass_parameter
