@@ -7,7 +7,7 @@ written using torch.
    :target: https://www.nfdi.de/punch4nfdi/
    :width: 80px
 
-.. content::
+.. contents::
 
 Getting Started
 ===============
@@ -27,3 +27,40 @@ automatically.
 
 If you need a specific version of ``numpy`` or ``pytorch``, install them manually
 before installing ``qcd_ml``.
+
+
+Functionality
+=============
+
+Base
+----
+
+- Various group operations of gauge and spin group.
+- Gauge-equivariant vector hop.
+- Gauge-equivariant paths for vector-like objects.
+
+Neural Network
+--------------
+
+Currently, only vector-like objects an be handled by neural networks.
+
+- ``v_PTC`` and ``v_LPTC``
+
+
+QCD
+---
+
+- Euclidean gamma matrices.
+- Wilson Dirac operator and Wilson-Clover Dirac operator.
+
+Utilities
+---------
+
+- GMRES iterative solver.
+- ``ZPP_Multigrid``: Zero-Point-Projected Multigrid.
+
+Compatibility
+-------------
+
+- Compatibility layer for `lehner/gpt<https://github.com/lehner/gpt>`_
+
