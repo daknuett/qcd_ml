@@ -3,7 +3,7 @@ import numpy as np
 
 
 def GMRES_torch(A, b, x0, maxiter=1000, eps=1e-4
-              , regulate_b_norm=1e-4
+              , regulate_b_norm=0e-9
               , innerproduct=None
               , prec=None):
     """
