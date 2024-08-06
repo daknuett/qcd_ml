@@ -1,3 +1,10 @@
+"""
+qcd_ml.nn.lptc
+==============
+
+Local Parallel Transport Convolutions.
+"""
+
 import torch 
 
 from ..base.paths import v_ng_evaluate_path, PathBuffer

@@ -1,3 +1,16 @@
+"""
+qcd_ml.base.paths
+=================
+
+Gauge-equivariant parallel transport paths.
+
+The function ``v_evaluate_path`` is memory effective but slow.
+
+The class ``PathBuffer`` can be used to speed up path evaluation
+but may be more memory intensve.
+
+
+"""
 import torch
 
 from .hop import v_hop, v_ng_hop
@@ -7,6 +20,8 @@ from .operations import v_gauge_transform
 @torch.compile
 def v_evaluate_path(U, path, v):
     """
+    Gauge-equivariantly evaluate a path on a vector-like field.
+
     paths is a list of paths. Every path is a list [(mu, nhops)].
     An empty list is the path that does not perform any hops.
     
@@ -26,6 +41,8 @@ def v_evaluate_path(U, path, v):
 @torch.compile
 def v_ng_evaluate_path(path, v):
     """
+    Evaluate a path on a vector-like field without gauge degrees of freedom.
+
     paths is a list of paths. Every path is a list [(mu, nhops)].
     An empty list is the path that does not perform any hops.
     
@@ -41,6 +58,10 @@ def v_ng_evaluate_path(path, v):
 @torch.compile
 def slow_v_ng_evaluate_path(path, v):
     """
+    XXX: deprecated; only used for testing purposes.
+
+    Evaluate a path on a vector-like field without gauge degrees of freedom.
+
     paths is a list of paths. Every path is a list [(mu, nhops)].
     An empty list is the path that does not perform any hops.
     
@@ -61,6 +82,9 @@ def slow_v_ng_evaluate_path(path, v):
 @torch.compile
 def v_reverse_evaluate_path(U, path, v):
     """
+    Gauge-equivariantly evaluate a path on a vector-like field.
+    This is the inverse of ``v_evaluate_path``.
+
     paths is a list of paths. Every path is a list [(mu, nhops)].
     An empty list is the path that does not perform any hops.
     
@@ -82,10 +106,7 @@ def v_reverse_evaluate_path(U, path, v):
 @torch.compile
 def v_ng_reverse_evaluate_path(path, v):
     """
-    paths is a list of paths. Every path is a list [(mu, nhops)].
-    An empty list is the path that does not perform any hops.
-    
-    If nhops is negative, the hop is made in negative mu direction.
+    Inverse of ``v_ng_evaluate_path``.
     """
     if len(path) > 0:
         mus = [mu for mu,_ in path]
@@ -97,10 +118,7 @@ def v_ng_reverse_evaluate_path(path, v):
 @torch.compile
 def slow_v_ng_reverse_evaluate_path(path, v):
     """
-    paths is a list of paths. Every path is a list [(mu, nhops)].
-    An empty list is the path that does not perform any hops.
-    
-    If nhops is negative, the hop is made in negative mu direction.
+    XXX: Deprecated; used for testing.
     """
     for mu, nhops in reversed(path):
         nhops *= -1
@@ -156,6 +174,9 @@ class PathBuffer:
 
     @torch.compile
     def v_transport(self, v):
+        """
+        Gauge-equivariantly transport the vector-like field ``v`` along the path.
+        """
         if not self._is_identity:
             v = v_gauge_transform(self.accumulated_U, v)
             v = v_ng_evaluate_path(self.path, v)
@@ -163,6 +184,9 @@ class PathBuffer:
 
     @torch.compile
     def v_reverse_transport(self, v):
+        """
+        Inverse of ``v_transport``.
+        """
         if not self._is_identity:
             v = v_ng_reverse_evaluate_path(self.path, v)
             v = v_gauge_transform(self.accumulated_U.adjoint(), v)
