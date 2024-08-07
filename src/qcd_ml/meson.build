@@ -29,7 +29,7 @@ python.install_sources(
 )
 
 python.install_sources(
-  'util/__init__.py', 'util/solver.py',
+  'util/__init__.py', 'util/solver.py', 'util/comptime.py',
   pure: true,
   subdir: 'qcd_ml/util'
 )
