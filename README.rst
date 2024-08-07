@@ -3,9 +3,16 @@ qcd_ml -- some machine learning layers for QCD
 
 written using torch.
 
+.. image:: https://zenodo.org/badge/821360626.svg
+  :target: https://zenodo.org/doi/10.5281/zenodo.13254662
+
+.. image:: https://github.com/daknuett/qcd_ml/actions/workflows/python-package.yml/badge.svg
+
 .. image:: https://www.nfdi.de/wp-content/uploads/2021/12/PUNCH4NFDI-Logo_RGB.png 
    :target: https://www.nfdi.de/punch4nfdi/
    :width: 80px
+
+`DOCUMENTATION <https://daknuett.github.io/qcd_ml/>`_
 
 .. contents::
 
@@ -62,5 +69,5 @@ Utilities
 Compatibility
 -------------
 
-- Compatibility layer for `lehner/gpt<https://github.com/lehner/gpt>`_
+- Compatibility layer for `lehner/gpt <https://github.com/lehner/gpt>`_
 
