@@ -14,7 +14,7 @@ sys.path.insert(0, "../../src/")
 project = 'qcd_ml'
 copyright = '2024, Daniel Knüttel, et al.'
 author = 'Daniel Knüttel, et al.'
-release = '0.0.1'
+release = '0.1.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
