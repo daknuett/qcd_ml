@@ -11,7 +11,7 @@ import qcd_ml.compat.gpt
 import gpt
 
 # parameters
-fermion_mass = -0.58
+fermion_mass = -0.61
 
 # load the gauge field (both gpt as well as native versions)
 U = torch.tensor(np.load(os.path.join("test", "assets", "1500.config.npy")))

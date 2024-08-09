@@ -14,7 +14,7 @@ import gpt
 calls = 0
 
 # parameters
-fermion_mass = -0.58
+fermion_mass = -0.61
 nbasisvectors = 12
 blocksize = [4,4,4,4]
 
@@ -70,15 +70,14 @@ def w_coarse(x):
 
 # classical multigrid
 def mg(v):
-    v_, ret = qcd_ml.util.solver.GMRES_torch(w, v, v, eps=1e-1, maxiter=25)
+    v_, ret = qcd_ml.util.solver.GMRES_torch(w, v, v, eps=1e-1, maxiter=5)
 
     res_coarse = zpp.v_project(w(v_) - v)
-    zero_coarse = torch.zeros_like(res_coarse)
 
-    v_coarse, ret_coarse = qcd_ml.util.solver.GMRES_torch(w_coarse, zero_coarse, res_coarse, eps=1e-3, maxiter=25)
-    v_ = v_ + zpp.v_prolong(v_coarse)
+    v_coarse, ret_coarse = qcd_ml.util.solver.GMRES_torch(w_coarse, res_coarse, res_coarse, eps=1e-3, maxiter=5)
+    v_ = v_ - zpp.v_prolong(v_coarse)
 
-    v_, ret_smoother = qcd_ml.util.solver.GMRES_torch(w, v, v_, eps=1e-3, maxiter=25)
+    v_, ret_smoother = qcd_ml.util.solver.GMRES_torch(w, v, v_, eps=1e-3, maxiter=5)
 
     return v_
 

@@ -11,7 +11,7 @@ import qcd_ml.compat.gpt
 import gpt
 
 # parameters
-fermion_mass = -0.58
+fermion_mass = -0.61
 nbasisvectors = 12
 blocksize = [4,4,4,4]
 
