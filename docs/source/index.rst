@@ -16,4 +16,6 @@ qcd_ml documentation
 
    install
    source-doc
+   howto-test
+   doc-datatypes
    contributing
