@@ -15,6 +15,7 @@ Provides
   - spin matrices on vector-like fields
   - spin fields on vector-like fields
 
+See also: :ref:`doc-datatypes:qcd_ml Datatypes`.
 """
 
 
@@ -34,7 +35,7 @@ def _es_SU3_group_compose(A, B):
 @torch.compile
 def SU3_group_compose(A, B):
     """
-    SU(3) group composition
+    :math:`SU(3)` group composition of two :math:`SU(3)` fields.
     """
     vol = _mul(A.shape[:4])
     old_shape = A.shape
