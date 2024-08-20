@@ -2,6 +2,7 @@ import torch
 
 from .simple_paths import v_ng_evaluate_path, v_ng_reverse_evaluate_path
 from ..operations import v_gauge_transform, SU3_group_compose
+from .compile import compile_path
 
 class PathBuffer:
     """
@@ -41,6 +42,8 @@ class PathBuffer:
                     else:
                         self.accumulated_U = SU3_group_compose(U[mu].adjoint(), self.accumulated_U)
                         U = torch.roll(U, -1, mu + 1)
+
+            self.path = compile_path(self.path)
 
     def v_transport(self, v):
         """
