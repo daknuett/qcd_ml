@@ -1,8 +1,8 @@
 import torch
 
-from .hop import v_hop, v_ng_hop
-from .operations import SU3_group_compose
-from .operations import v_gauge_transform
+from ..hop import v_hop, v_ng_hop
+from ..operations import SU3_group_compose
+from ..operations import v_gauge_transform
 
 def v_evaluate_path(U, path, v):
     """

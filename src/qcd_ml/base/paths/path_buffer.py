@@ -1,3 +1,8 @@
+import torch
+
+from .simple_paths import v_ng_evaluate_path, v_ng_reverse_evaluate_path
+from ..operations import v_gauge_transform, SU3_group_compose
+
 class PathBuffer:
     """
     This class brings the same functionality as v_evaluate_path and
