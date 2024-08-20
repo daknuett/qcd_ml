@@ -1,16 +1,24 @@
+"""
+qcd_ml.util.solver
+==================
+
+Solvers for systems of linear equations.
+"""
 import torch 
 import numpy as np
 
 
 def GMRES_torch(A, b, x0, maxiter=1000, eps=1e-4
-              , regulate_b_norm=1e-4
+              , regulate_b_norm=0e-9
               , innerproduct=None
               , prec=None):
     """
     GMRES solver.
     
-    innerproduct is a function (vec,vec)->scalar which is a product.
-    prec is a function vec->vec.
+    ``innerproduct`` is a function (vec,vec)->scalar which is a product.
+    ``prec`` is a function vec->vec. Right-preconditioning.
+    ``regulate_b_norm`` regulates the 1/(norm of the vector ``b``).
+
 
     Literature:
     - https://en.wikipedia.org/wiki/Generalized_minimal_residual_method
@@ -111,13 +119,17 @@ def GMRES_restarted(A, b, x0, max_restart=10, maxiter_inner=100, eps=1e-4
               , regulate_b_norm=1e-3
               , innerproduct=None
               , prec=None):
+    """
+    Restarted GMRES solver. Uses ``GMRES_torch``.
+    The inner solver can build a Krylov space of size ``maxiter_inner``. 
+    """
     x = x0
     total_iterations = 0
     for rs in range(max_restart):
         x, ret = GMRES_torch(A, b, x, maxiter=maxiter_inner, eps=1e-4
               , regulate_b_norm=regulate_b_norm
-              , innerproduct=None
-              , prec=None)
+              , innerproduct=innerproduct
+              , prec=prec)
         total_iterations += ret["k"]
         #print("restarting with res:", ret["res"])
         if ret["converged"]:

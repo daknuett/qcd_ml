@@ -1,3 +1,10 @@
+"""
+qcd_ml.nn.ptc
+=============
+
+Parallel Transport Convolutions.
+"""
+
 import torch 
 
 from ..base.paths import PathBuffer
@@ -12,6 +19,14 @@ class v_PTC(torch.nn.Module):
 
     paths is a list of paths. Every path is a list [(direction, nhops)].
     An empty list is the path that does not perform any hops.
+
+    For a 1-hop 1-layer model, construct the layer as such::
+
+        U = torch.tensor(np.load("path/to/gauge/config.npy"))
+        
+        paths = [[]] + [[(mu, 1)] for mu in range(4)] + [[(mu, -1)] for mu in range(4)]
+        layer = v_PTC(1, 1, paths, U)
+
     """
     def __init__(self, n_feature_in, n_feature_out, paths, U):
         super().__init__()
