@@ -99,8 +99,7 @@ class ZPP_Multigrid:
         """
         project fine vector v to coarse grid.
         """
-        projected = torch.complex(torch.zeros(self.L_coarse + [self.n_basis], dtype=torch.double)
-                                  , torch.zeros(self.L_coarse + [self.n_basis], dtype=torch.double))
+        projected = torch.zeros(self.L_coarse + [self.n_basis], dtype=torch.cdouble)
         lx, ly, lz, lt = self.block_size
         
         for bx, by, bz, bt in itertools.product(*(range(li) for li in self.L_coarse)):
@@ -117,8 +116,7 @@ class ZPP_Multigrid:
         prolong coarse vector v to fine grid.
         """
         lx, ly, lz, lt = self.block_size
-        prolonged = torch.complex(torch.zeros(self.L_fine + list(self.ui_blocked[0][0][0][0][0].shape[4:]), dtype=torch.double)
-                                  , torch.zeros(self.L_fine + list(self.ui_blocked[0][0][0][0][0].shape[4:]), dtype=torch.double))
+        prolonged = torch.zeros(self.L_fine + list(self.ui_blocked[0][0][0][0][0].shape[4:]), dtype=torch.cdouble)
         for bx, by, bz, bt in itertools.product(*(range(li) for li in self.L_coarse)):
             for k, uk in enumerate(self.ui_blocked[bx][by][bz][bt]):
                 prolonged[bx * lx: (bx + 1)*lx

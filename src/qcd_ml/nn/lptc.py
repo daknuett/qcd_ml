@@ -1,6 +1,13 @@
+"""
+qcd_ml.nn.lptc
+==============
+
+Local Parallel Transport Convolutions.
+"""
+
 import torch 
 
-from ..base.paths import v_evaluate_path, v_ng_evaluate_path
+from ..base.paths import v_ng_evaluate_path, PathBuffer
 from ..base.operations import v_spin_transform, v_ng_spin_transform
 
 class v_LPTC(torch.nn.Module):
@@ -16,14 +23,12 @@ class v_LPTC(torch.nn.Module):
     def __init__(self, n_feature_in, n_feature_out, paths, U):
         super().__init__()
         self.weights = torch.nn.Parameter(
-                torch.complex(torch.randn(n_feature_in, n_feature_out, len(paths), *tuple(U.shape[1:-2]), 4, 4, dtype=torch.double)
-                              , torch.randn(n_feature_in, n_feature_out, len(paths), *tuple(U.shape[1:-2]), 4, 4, dtype=torch.double))
+                torch.randn(n_feature_in, n_feature_out, len(paths), *tuple(U[0].shape[0:-2]), 4, 4, dtype=torch.cdouble)
                 )
 
         self.n_feature_in = n_feature_in
         self.n_feature_out = n_feature_out
-        self.paths = paths
-        self.U = U
+        self.path_buffers = [PathBuffer(U, pi) for pi in paths]
 
 
     def forward(self, features_in):
@@ -34,10 +39,25 @@ class v_LPTC(torch.nn.Module):
 
         for fi, wfi in zip(features_in, self.weights):
             for io, wfo in enumerate(wfi):
-                for pi, wi in zip(self.paths, wfo):
-                    features_out[io] = features_out[io] + v_spin_transform(wi, v_evaluate_path(self.U, pi, fi))
+                for pi, wi in zip(self.path_buffers, wfo):
+                    features_out[io] = features_out[io] + v_spin_transform(wi, pi.v_transport(fi))
 
         return torch.stack(features_out)
+
+    
+    def gauge_transform_using_transformed(self, U_transformed):
+        """
+        Update the v_LPTC layer: The old gauge field U is replaced by 
+        U_transformed. The weights are kept.
+
+        NOTE: This does not create a transformed copy of the layer!
+              Instead the layer is updated.
+
+        Mostly used for testing.
+        """
+        for i, pi in enumerate(self.path_buffers):
+            self.path_buffers[i] = PathBuffer(U_transformed, pi.path)
+
 
 class v_LPTC_NG(torch.nn.Module):
     """
@@ -52,8 +72,7 @@ class v_LPTC_NG(torch.nn.Module):
     def __init__(self, n_feature_in, n_feature_out, paths, grid_dims, internal_dof):
         super().__init__()
         self.weights = torch.nn.Parameter(
-                torch.complex(torch.randn(n_feature_in, n_feature_out, len(paths), *tuple(grid_dims), internal_dof, internal_dof, dtype=torch.double)
-                              , torch.randn(n_feature_in, n_feature_out, len(paths), *tuple(grid_dims), internal_dof, internal_dof, dtype=torch.double))
+                torch.randn(n_feature_in, n_feature_out, len(paths), *tuple(grid_dims), internal_dof, internal_dof, dtype=torch.cdouble)
                 )
 
         self.n_feature_in = n_feature_in
