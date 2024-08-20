@@ -17,7 +17,6 @@ from .hop import v_hop, v_ng_hop
 from .operations import SU3_group_compose
 from .operations import v_gauge_transform
 
-@torch.compile
 def v_evaluate_path(U, path, v):
     """
     Gauge-equivariantly evaluate a path on a vector-like field.
@@ -38,7 +37,6 @@ def v_evaluate_path(U, path, v):
             v = v_hop(U, mu, direction, v)
     return v
 
-@torch.compile
 def v_ng_evaluate_path(path, v):
     """
     Evaluate a path on a vector-like field without gauge degrees of freedom.
@@ -55,7 +53,6 @@ def v_ng_evaluate_path(path, v):
     return v
 
 
-@torch.compile
 def slow_v_ng_evaluate_path(path, v):
     """
     XXX: deprecated; only used for testing purposes.
@@ -79,7 +76,6 @@ def slow_v_ng_evaluate_path(path, v):
     return v
 
 
-@torch.compile
 def v_reverse_evaluate_path(U, path, v):
     """
     Gauge-equivariantly evaluate a path on a vector-like field.
@@ -103,7 +99,6 @@ def v_reverse_evaluate_path(U, path, v):
     return v
 
 
-@torch.compile
 def v_ng_reverse_evaluate_path(path, v):
     """
     Inverse of ``v_ng_evaluate_path``.
@@ -115,7 +110,6 @@ def v_ng_reverse_evaluate_path(path, v):
     return v
 
 
-@torch.compile
 def slow_v_ng_reverse_evaluate_path(path, v):
     """
     XXX: Deprecated; used for testing.
@@ -172,7 +166,6 @@ class PathBuffer:
                         self.accumulated_U = SU3_group_compose(U[mu].adjoint(), self.accumulated_U)
                         U = torch.roll(U, -1, mu + 1)
 
-    @torch.compile
     def v_transport(self, v):
         """
         Gauge-equivariantly transport the vector-like field ``v`` along the path.
@@ -182,7 +175,6 @@ class PathBuffer:
             v = v_ng_evaluate_path(self.path, v)
         return v
 
-    @torch.compile
     def v_reverse_transport(self, v):
         """
         Inverse of ``v_transport``.

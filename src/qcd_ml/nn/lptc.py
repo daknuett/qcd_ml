@@ -31,7 +31,6 @@ class v_LPTC(torch.nn.Module):
         self.path_buffers = [PathBuffer(U, pi) for pi in paths]
 
 
-    @torch.compile
     def forward(self, features_in):
         if features_in.shape[0] != self.n_feature_in:
             raise ValueError(f"shape mismatch: got {features_in.shape[0]} but expected {self.n_feature_in}")
