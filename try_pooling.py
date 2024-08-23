@@ -2,9 +2,6 @@ import torch
 import numpy as np
 import os
 
-#import gpt as g
-import matplotlib.pyplot as plt
-
 import time
 
 import sys
@@ -18,9 +15,12 @@ from qcd_ml.util.qcd.multigrid import ZPP_Multigrid
 from qcd_ml.base.paths import v_evaluate_path, v_ng_evaluate_path, v_reverse_evaluate_path, PathBuffer
 from qcd_ml.base.operations import v_spin_transform, v_ng_spin_transform
 
+device = "cuda" if torch.cuda.is_available() else "cpu"
+torch.set_default_device(device)
+
 vec = torch.complex(
         torch.randn(8, 8, 8, 16, 4, 3, dtype=torch.double)
-        , torch.randn(8, 8, 8, 16, 4, 3, dtype=torch.double))
+        , torch.randn(8, 8, 8, 16, 4, 3, dtype=torch.double)).cuda()
 
 U = torch.tensor(np.load(os.path.join("test", "assets","1500.config.npy")))
 
@@ -149,7 +149,7 @@ class v_ProjectLayer(torch.nn.Module):
 
 
 
-mg = ZPP_Multigrid.load("mg_setup.pt")
+mg = ZPP_Multigrid.load("mg_setup.pt").cuda()
 
 
 tfp = v_ProjectLayer([
@@ -165,6 +165,8 @@ tfp = v_ProjectLayer([
             ]
             , mg.L_fine, mg.L_coarse)
 
+tfp.cuda()
+
 num_threads = torch.get_num_threads()
 print(f'Benchmarking on {num_threads} threads')
 
@@ -173,7 +175,7 @@ vec = torch.complex(
         torch.randn(8, 8, 8, 16, 4, 3, dtype=torch.double)
         , torch.randn(8, 8, 8, 16, 4, 3, dtype=torch.double))
 
-x = torch.stack([vec])
+x = torch.stack([vec]).cuda()
 
 import torch.utils.benchmark as benchmark
 
@@ -212,7 +214,7 @@ t_train = 0
 loss = np.zeros(n_training)
 for t in range(1, n_training+1):
     t_start = time.perf_counter_ns()
-    vec = torch.randn(8, 8, 8, 16, 4, 3, dtype=torch.cdouble)
+    vec = torch.randn(8, 8, 8, 16, 4, 3, dtype=torch.cdouble).cuda()
     
     norm = l2norm(vec)
     vec = vec / norm
