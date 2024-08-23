@@ -38,6 +38,13 @@ class ZPP_Multigrid:
         self.L_coarse = L_coarse
         self.L_fine = L_fine
 
+    def cuda(self):
+        ui_blocked = list(np.empty(self.L_coarse, dtype=object))
+        for bx, by, bz, bt in itertools.product(*(range(li) for li in self.L_coarse)):
+            ui_blocked[bx][by][bz][bt]  = [uib.cuda() for uib in self.ui_blocked[bx][by][bz][bz]]
+            
+        return self.__class__(self.block_size, ui_blocked, self.n_basis, self.L_coarse, self.L_fine)
+
     @classmethod
     def gen_from_fine_vectors(cls
                               , fine_vectors
