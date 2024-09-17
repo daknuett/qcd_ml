@@ -27,12 +27,10 @@ def _mul(iterable):
         res *= i
     return res
 
-@torch.compile
 def _es_SU3_group_compose(A, B):
     return torch.einsum("abcdij,abcdjk->abcdik", A, B)
 
 
-@torch.compile
 def SU3_group_compose(A, B):
     """
     :math:`SU(3)` group composition of two :math:`SU(3)` fields.
@@ -43,12 +41,10 @@ def SU3_group_compose(A, B):
                      , B.reshape((vol, *(A.shape[4:])))).reshape(old_shape)
 
 
-@torch.compile
 def _es_v_gauge_transform(Umu, v):
     return torch.einsum("abcdij,abcdSj->abcdSi", Umu, v)
 
 
-@torch.compile
 def v_gauge_transform(Umu, v):
     """
     Gauge transformation of vector-like fields.
@@ -60,11 +56,9 @@ def v_gauge_transform(Umu, v):
                      ).transpose(-1, -2).reshape(old_shape)
 
 
-@torch.compile
 def _es_v_spin_transform(M, v):
     return torch.einsum("abcdij,abcdjG->abcdiG", M, v)
 
-@torch.compile
 def v_spin_transform(M, v):
     """
     Applies a spin matrix field to a vector field.
@@ -75,7 +69,6 @@ def v_spin_transform(M, v):
                      , v.reshape((vol, *(v.shape[4:])))
                      ).reshape(old_shape)
 
-@torch.compile
 def v_spin_const_transform(M, v):
     """
     Applies a spin matrix to a vector field.
@@ -83,7 +76,6 @@ def v_spin_const_transform(M, v):
     return torch.einsum("ij,abcdjG->abcdiG", M, v)
 
 
-@torch.compile
 def v_ng_spin_transform(M, v):
     """
     Applies a spin matrix field to a vector field without gauge freedom.
@@ -91,7 +83,6 @@ def v_ng_spin_transform(M, v):
     return torch.einsum("abcdij,abcdj->abcdi", M, v)
 
 
-@torch.compile
 def v_ng_spin_const_transform(M, v):
     """
     Applies a spin matrix to a vector field without gauge freedom.
@@ -99,7 +90,6 @@ def v_ng_spin_const_transform(M, v):
     return torch.einsum("ij,abcdj->abcdi", M, v)
 
 
-@torch.compile
 def link_gauge_transform(U, V):
     """
     Gauge-transforms a link-like field.
@@ -111,7 +101,6 @@ def link_gauge_transform(U, V):
         U_trans[mu] = SU3_group_compose(U_transmu, torch.roll(Vdg, -1, mu))
     return U_trans
 
-@torch.compile
 def mspin_const_group_compose(A, B):
     """
     Matrix-matrix multiplication for spin matrices.

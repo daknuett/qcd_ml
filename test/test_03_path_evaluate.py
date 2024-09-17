@@ -5,7 +5,8 @@ import pytest
 
 from qcd_ml.base.hop import v_hop
 from qcd_ml.base.paths import v_evaluate_path
-from qcd_ml.base.paths import v_ng_evaluate_path, slow_v_ng_evaluate_path
+from qcd_ml.base.paths import v_ng_evaluate_path
+from qcd_ml.base.paths.simple_paths import slow_v_ng_evaluate_path
 from qcd_ml.base.operations import v_gauge_transform, link_gauge_transform
 
 def test_v_evaluate_path_against_v_hop(config_1500, psi_test):
