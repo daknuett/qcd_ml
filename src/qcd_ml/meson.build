@@ -5,9 +5,14 @@ python.install_sources(
 )
 
 python.install_sources(
-  'base/__init__.py', 'base/operations.py', 'base/hop.py', 'base/paths.py',
+  'base/__init__.py', 'base/operations.py', 'base/hop.py',
   pure: true,
   subdir: 'qcd_ml/base'
+)
+python.install_sources(
+  'base/paths/__init__.py', 'base/paths/simple_paths.py', 'base/paths/path_buffer.py', 'base/paths/compile.py',
+  pure: true,
+  subdir: 'qcd_ml/base/paths'
 )
 
 python.install_sources(

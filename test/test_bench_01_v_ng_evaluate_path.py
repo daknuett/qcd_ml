@@ -1,6 +1,7 @@
 import pytest
 import torch
-from qcd_ml.base.paths import v_ng_evaluate_path, slow_v_ng_evaluate_path
+from qcd_ml.base.paths import v_ng_evaluate_path
+from qcd_ml.base.paths.simple_paths import slow_v_ng_evaluate_path
 
 
 @pytest.mark.benchmark(group="ng_path_evaluate")
