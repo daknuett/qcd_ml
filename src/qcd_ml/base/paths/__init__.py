@@ -17,3 +17,14 @@ from .simple_paths import (
         )
 
 from .path_buffer import PathBuffer
+
+
+def path_get_orig_point(path):
+    """
+    This funciton returns the point that will be transported to the point [0,0,0,0]
+    by the path.
+    """
+    point = [0] * 4
+    for mu, nhops in path:
+        point[mu] -= nhops
+    return point
