@@ -1,5 +1,5 @@
 import itertools
-
+import numpy as np
 
 def get_paths_lexicographic(block_size):
     paths = []
