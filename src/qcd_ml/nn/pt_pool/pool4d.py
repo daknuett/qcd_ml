@@ -5,6 +5,7 @@ They are slow pure-python implementations of the pooling and unpooling
 also provided in qcd_ml_accel.pool4d.
 """
 import torch
+from itertools import product
 
 def v_pool4d(fine_v, block_size):
     L_coarse = [li // bi for li, bi in zip(fine_v.shape[:-2], block_size)]
