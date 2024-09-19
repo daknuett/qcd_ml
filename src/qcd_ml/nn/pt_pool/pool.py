@@ -14,7 +14,7 @@ except ImportError:
 
 
 class v_ProjectLayer(torch.nn.Module):
-    def __init__(self, gauges_and_paths, L_fine, L_coarse):
+    def __init__(self, gauges_and_paths, L_fine, L_coarse, _gpt_compat=False):
         super().__init__()
         self.path_buffers = [[PathBuffer(Ui, pij) for pij in pi] for Ui, pi in gauges_and_paths]
 
@@ -30,6 +30,7 @@ class v_ProjectLayer(torch.nn.Module):
         # such that we can use this exact field to transform the
         # base_points before summing them up.
         self.gauge_fields = torch.zeros(len(gauges_and_paths), *tuple(gauges_and_paths[0][0].shape[1:]), dtype=torch.cdouble)
+        self.__gpt_compat = _gpt_compat
 
         identity = torch.tensor([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype=torch.cdouble)
         for i, gpi in enumerate(self.path_buffers):
@@ -50,6 +51,14 @@ class v_ProjectLayer(torch.nn.Module):
                                                                         , base_point[1]::self.block_size[1]
                                                                         , base_point[2]::self.block_size[2]
                                                                         , base_point[3]::self.block_size[3]]
+
+            # XXX: extract this into another module
+            def l2norm(v):
+                return (v * v.conj()).real.sum()
+
+            if _gpt_compat:
+                # I have no idea why lehner/gpt does this, but we need to do it to match.
+                self.gauge_fields[i] /= l2norm(self.gauge_fields[i])**0.5
 
             
     def v_project(self, features_in):
