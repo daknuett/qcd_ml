@@ -148,7 +148,7 @@ try:
         L_coarse = [2, 2, 2, 4]
         block_size = [4, 4, 4, 4]
 
-        tfp = v_ProjectLayer([(config_1500, get_paths_lexicographic(block_size))], L_fine, L_coarse)
+        tfp = v_ProjectLayer([(config_1500, get_paths_reverse_lexicographic(block_size))], L_fine, L_coarse, _gpt_compat=True)
 
         t = g.ml.layer.parallel_transport_pooling.transfer(
             grid,
