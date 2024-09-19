@@ -106,6 +106,7 @@ class v_PathProjectLayer(torch.nn.Module):
     def prolong(self, features_in):
         return self.pooling.de_pool(self.subsampling.v_prolong(features_in))
 
+@pytest.mark.slow
 def test_ProjectLayer_against_reference_impl(config_1500):
     L_fine = [8, 8, 8, 16]
     L_coarse = [2, 2, 2, 4]
