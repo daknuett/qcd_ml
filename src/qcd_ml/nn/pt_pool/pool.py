@@ -14,6 +14,39 @@ except ImportError:
 
 
 class v_ProjectLayer(torch.nn.Module):
+    """
+    This class provides the parallel transport pooling projection layer.
+
+    The argument ``gauges_and_paths`` is a list of tuples, where the first element is a gauge field 
+    and the second element is a list of paths. The gauge field is a 4D tensor of shape (4, Lx, Ly, Lz, Lt, 3, 3)
+    on the fine lattice. The paths are a list of tuples (mu, nhops).
+
+    If the argument ``_gpt_compat`` is set to True, the gauge fields are normalized to have unit norm.
+    This includes a 1/volume factor.
+
+    For a detailed description of the parallel transport pooling, see the paper:
+    https://arxiv.org/abs/2304.10438
+
+    vectors can be projected using the method ``v_project`` and prolonged using the method ``v_prolong``. 
+
+    A coarse grid operator can be constructed as such::
+        
+        def coarse_operator(transport_pooling: v_ProjectLayer, op):
+            def operator(vec):
+                return transport_pooling.v_project(
+                    torch.stack([op(
+                        transport_pooling.v_prolong(torch.stack([vec]))[0])
+                                ])
+                )[0]
+            return operator
+
+        w_coarse = coarse_operator(tfp, w)
+
+    To construct a complete set of paths for a given block_size one can use::
+
+        qcd_ml.nn.pt_pool.get_paths.get_paths_*
+
+    """
     def __init__(self, gauges_and_paths, L_fine, L_coarse, _gpt_compat=False):
         super().__init__()
         self.path_buffers = [[PathBuffer(Ui, pij) for pij in pi] for Ui, pi in gauges_and_paths]
