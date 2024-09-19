@@ -133,7 +133,6 @@ try:
     import gpt as g
     from qcd_ml.compat.gpt import ndarray2lattice, lattice2ndarray
 
-    @pytest.mark.selected
     def test_ProjectLayer_against_gpt(config_1500):
         grid = g.grid([8,8,8,16], g.double)
         psi = g.vspincolor(grid)
