@@ -4,7 +4,7 @@ import pytest
 
 
 from qcd_ml.nn.pt_pool import v_ProjectLayer
-from qcd_ml.nn.pt_pool.get_paths import get_paths_lexicographic, get_paths_reverse_lexicographic, get_paths_one_step_lexicographic
+from qcd_ml.nn.pt_pool.get_paths import get_paths_lexicographic, get_paths_reverse_lexicographic, get_paths_one_step_lexicographic, get_paths_one_step_reverse_lexicographic
 
 
 
@@ -148,7 +148,7 @@ try:
         L_coarse = [2, 2, 2, 4]
         block_size = [4, 4, 4, 4]
 
-        tfp = v_ProjectLayer([(config_1500, get_paths_reverse_lexicographic(block_size))], L_fine, L_coarse, _gpt_compat=True)
+        tfp = v_ProjectLayer([(config_1500, get_paths_lexicographic(block_size, _gpt_compat=True))], L_fine, L_coarse, _gpt_compat=True)
 
         t = g.ml.layer.parallel_transport_pooling.transfer(
             grid,
@@ -182,6 +182,59 @@ try:
         assert torch.allclose(coarse_v, torch.tensor(lattice2ndarray(gpt_coarse_v)))
 
 
+    @pytest.mark.slow
+    def test_ProjectLayer_against_gpt_all_paths(config_1500):
+        grid = g.grid([8,8,8,16], g.double)
+        psi = g.vspincolor(grid)
+        coarse_grid = g.grid([2, 2, 2, 4], g.double)
+        rng = g.random("test_ProjectLayer_against_gpt")
+
+        ot_ci = g.ot_vector_spin_color(4, 3)
+        ot_cw = g.ot_matrix_spin(4)
+        U = [ndarray2lattice(Ui.numpy(), grid, g.mcolor) for Ui in config_1500]
+
+        L_fine = [8, 8, 8, 16]
+        L_coarse = [2, 2, 2, 4]
+        block_size = [4, 4, 4, 4]
+        for get_paths_trch, get_path_gpt in [
+                (get_paths_lexicographic, g.ml.layer.parallel_transport_pooling.path.lexicographic)
+                , (get_paths_reverse_lexicographic, g.ml.layer.parallel_transport_pooling.path.reversed_lexicographic)
+                , (get_paths_one_step_lexicographic, g.ml.layer.parallel_transport_pooling.path.one_step_lexicographic)
+                , (get_paths_one_step_reverse_lexicographic, g.ml.layer.parallel_transport_pooling.path.one_step_reversed_lexicographic)
+                ]:
+
+            tfp = v_ProjectLayer([(config_1500, get_paths_trch(block_size, _gpt_compat=True))], L_fine, L_coarse, _gpt_compat=True)
+
+            t = g.ml.layer.parallel_transport_pooling.transfer(
+                grid,
+                coarse_grid,
+                ot_ci,
+                ot_cw,
+                [
+                    (U, get_path_gpt)
+                ],
+                ot_embedding=g.ot_matrix_spin_color(4, 3),
+                projector=g.ml.layer.projector_color_trace,
+            )
+
+            n = g.ml.model.sequence(g.ml.layer.parallel_transport_pooling.project(t))
+            W = n.random_weights(rng)
+
+            rng.cnormal(psi)
+
+            wghts = next(tfp.parameters())
+            wghts.data[0] = torch.tensor(lattice2ndarray(W[0]))
+            assert len(list(tfp.parameters())) == 1
+            assert len(W) == 1
+
+
+            psi_torch = torch.tensor(lattice2ndarray(psi))
+
+
+            coarse_v = tfp.v_project(torch.stack([psi_torch]))
+            gpt_coarse_v = g.ml.layer.parallel_transport_pooling.project(t)(W, psi)
+
+            assert torch.allclose(coarse_v, torch.tensor(lattice2ndarray(gpt_coarse_v)))
 
 except ImportError:
 

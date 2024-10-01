@@ -7,7 +7,7 @@ See the documentation of the functions for more information.
 import itertools
 import numpy as np
 
-def get_paths_lexicographic(block_size):
+def get_paths_lexicographic(block_size, _gpt_compat=False):
     """
     For a reference point (1,1,1,1) and a point (x_1 + 1, x_2 + 1, x_3 + 1, x_4 + 1) the path 
     is generated as such:
@@ -22,17 +22,24 @@ def get_paths_lexicographic(block_size):
     for position in itertools.product(*(range(bs) for bs in block_size)):
         path = sum([[(mu, -1)] for mu, n in enumerate(position) for _ in range(n)], start=[])
         paths.append(path)
-    return paths
+    if _gpt_compat is False:
+        return paths
+    else:
+        return [list(reversed(pth)) for pth in paths]
 
 
-def get_paths_reverse_lexicographic(block_size):
+
+def get_paths_reverse_lexicographic(block_size, _gpt_compat=False):
     """
     Reverse order of get_paths_lexicographic.
     """
-    return [list(reversed(pth)) for pth in get_paths_lexicographic(block_size)]
+    if _gpt_compat is False:
+        return [list(reversed(pth)) for pth in get_paths_lexicographic(block_size)]
+    else:
+        return get_paths_lexicographic(block_size)
 
 
-def get_paths_one_step_lexicographic(block_size):
+def get_paths_one_step_lexicographic(block_size, _gpt_compat=False):
     """
     For a reference point (1,1,1,1) and a point (x_1 + 1, x_2 + 1, x_3 + 1, x_4 + 1) the path 
     is generated as such:
@@ -49,11 +56,17 @@ def get_paths_one_step_lexicographic(block_size):
                 if pos[mu] > 0:
                     path.append((mu, -1))
                     pos[mu] -= 1
-        paths.append(path)
+                if pos[mu] < 0:
+                    path.append((mu, 1))
+                    pos[mu] += 1
+        if _gpt_compat is False:
+            paths.append(path)
+        else:
+            paths.append(list(reversed(path)))
     return paths
 
 
-def get_paths_one_step_reverse_lexicographic(block_size):
+def get_paths_one_step_reverse_lexicographic(block_size, _gpt_compat=False):
     """
     For a reference point (1,1,1,1) and a point (x_1 + 1, x_2 + 1, x_3 + 1, x_4 + 1) the path 
     is generated as such:
@@ -70,5 +83,11 @@ def get_paths_one_step_reverse_lexicographic(block_size):
                 if pos[mu] > 0:
                     path.append((mu, -1))
                     pos[mu] -= 1
-        paths.append(path)
+                if pos[mu] < 0:
+                    path.append((mu, 1))
+                    pos[mu] += 1
+        if _gpt_compat is False:
+            paths.append(path)
+        else:
+            paths.append(list(reversed(path)))
     return paths
