@@ -153,3 +153,18 @@ class ZPP_Multigrid:
         """
         args = torch.load(filename)
         return cls(*tuple(args))
+
+
+    def get_basis_vectors(self):
+        """
+        Returns the basis vectors. This function is necessary because the basis vectors are stored
+        "by-coarse-grid-index" and not on a fine grid.
+        """
+        result = torch.zeros(self.n_basis, *self.L_fine, 4, 3, dtype=torch.cdouble)
+        for bx, by, bz, bt in itertools.product(*(range(li) for li in self.L_coarse)):
+            for k, uk in enumerate(self.ui_blocked[bx][by][bz][bt]):
+                result[k, bx * self.block_size[0]: (bx + 1)*self.block_size[0]
+                      , by * self.block_size[1]: (by + 1)*self.block_size[1]
+                      , bz * self.block_size[2]: (bz + 1)*self.block_size[2]
+                      , bt * self.block_size[3]: (bt + 1)*self.block_size[3]] = uk
+        return result
