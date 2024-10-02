@@ -111,10 +111,10 @@ class ZPP_Multigrid:
         
         for bx, by, bz, bt in itertools.product(*(range(li) for li in self.L_coarse)):
             for k, uk in enumerate(self.ui_blocked[bx][by][bz][bt]):
-                projected[bx, by, bz, bt, k] = innerproduct(v[bx * lx: (bx + 1)*lx
-                                                            , by * ly: (by + 1)*ly
-                                                            , bz * lz: (bz + 1)*lz
-                                                            , bt * lt: (bt + 1)*lt], uk)
+                projected[bx, by, bz, bt, k] = innerproduct(uk, v[bx * lx: (bx + 1)*lx
+                                                                , by * ly: (by + 1)*ly
+                                                                , bz * lz: (bz + 1)*lz
+                                                                , bt * lt: (bt + 1)*lt])
         return projected
 
     
@@ -129,7 +129,7 @@ class ZPP_Multigrid:
                 prolonged[bx * lx: (bx + 1)*lx
                         , by * ly: (by + 1)*ly
                         , bz * lz: (bz + 1)*lz
-                        , bt * lt: (bt + 1)*lt] += v[bx,by,bz,bt,k].conj() * uk
+                        , bt * lt: (bt + 1)*lt] += uk * v[bx,by,bz,bt,k]
         return prolonged
 
     
