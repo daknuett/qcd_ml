@@ -2,7 +2,7 @@ import pytest
 import torch 
 
 from qcd_ml.util.qcd.multigrid import ZPP_Multigrid
-from qcd_ml.util.solver import GMRES_restarted
+from qcd_ml.util.solver import GMRES
 from qcd_ml.qcd.dirac import dirac_wilson_clover
 
 @pytest.fixture(scope="session")
@@ -22,7 +22,7 @@ def test_mm_setup(config_1500_sess):
     mm = ZPP_Multigrid.gen_from_fine_vectors(
              bv
              , block_size
-             , lambda b,x0: GMRES_restarted(w, b, x0, eps=1e-3, maxiter_inner=20, max_restart=5)
+             , lambda b,x0: GMRES(w, b, x0, eps=1e-3, maxiter=300, inner_iter=30)
              , verbose=False)
     return mm
 
