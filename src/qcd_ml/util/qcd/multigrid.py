@@ -46,6 +46,36 @@ class ZPP_Multigrid:
         return self.__class__(self.block_size, ui_blocked, self.n_basis, self.L_coarse, self.L_fine)
 
     @classmethod
+    def from_basis_vectors(cls, basis_vectors, block_size):
+        """
+        Used to generate a multigrid setup using basis vectors and a block size.
+        The basis vectors can be obtained using ``.get_basis_vectors()`` method.
+        """
+        n_basis = len(basis_vectors)
+        L_fine = list(basis_vectors[0].shape[:4])
+        L_coarse = [lf // bs for lf, bs in zip(L_fine, block_size)]
+
+        # Perform blocking
+        lx, ly, lz, lt = block_size
+        ui_blocked = list(np.empty(L_coarse, dtype=object))
+        
+        for bx, by, bz, bt in itertools.product(*(range(li) for li in L_coarse)):
+            for uk in basis_vectors:
+                u_block = uk[bx * lx: (bx + 1)*lx
+                            , by * ly: (by + 1)*ly
+                            , bz * lz: (bz + 1)*lz
+                            , bt * lt: (bt + 1)*lt]
+                if ui_blocked[bx][by][bz][bt] is None:
+                    ui_blocked[bx][by][bz][bt]  = []
+                ui_blocked[bx][by][bz][bt].append(u_block)
+
+            # Orthogonalize over block
+            ui_blocked[bx][by][bz][bt] = orthonormalize(ui_blocked[bx][by][bz][bt])
+
+        return cls(block_size, ui_blocked, n_basis, L_coarse, L_fine)
+
+
+    @classmethod
     def gen_from_fine_vectors(cls
                               , fine_vectors
                               , block_size

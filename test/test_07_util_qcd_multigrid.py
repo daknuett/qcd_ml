@@ -64,3 +64,16 @@ def test_MM_save_load(test_mm_setup, tmpdir):
     assert test_mm_setup.L_coarse == mm2.L_coarse
     assert test_mm_setup.L_fine == mm2.L_fine
     #assert test_mm_setup.ui_blocked == mm2.ui_blocked
+
+@pytest.mark.slow
+def test_MM_from_basis_vectors(test_mm_setup):
+    basis_vecs = test_mm_setup.get_basis_vectors()
+    mm2 = ZPP_Multigrid.from_basis_vectors(basis_vecs, test_mm_setup.block_size)
+
+    assert test_mm_setup.block_size == mm2.block_size
+    assert test_mm_setup.n_basis == mm2.n_basis
+    assert test_mm_setup.L_coarse == mm2.L_coarse
+    assert test_mm_setup.L_fine == mm2.L_fine
+
+    psi = torch.randn(8, 8, 8, 16, 4, 3, dtype=torch.cdouble)
+    assert torch.allclose(test_mm_setup.v_project(psi), mm2.v_project(psi))
