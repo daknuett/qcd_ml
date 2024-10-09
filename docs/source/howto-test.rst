@@ -74,6 +74,7 @@ There are several usefull assets available as fixtures. The most useful assets a
 - ``config_1200``: A gauge configuration on a :math:`8^3 \times 16` lattice.
 - ``config_1500_gtrans_1200mu0``: The gauge field ``config_1500`` gauge transformed 
   using  :math:`U_{0}(x)` from ``config_1200``.
+- Both configurations are from a :math:`\beta=6.0` quenched ensemble.
 
 A test should be self contained and easy to understand. Ideally, it explains a feature.
 Typically the test should end with an assertion that checks the expected result.
