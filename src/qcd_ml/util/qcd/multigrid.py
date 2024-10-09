@@ -25,11 +25,11 @@ class ZPP_Multigrid:
     """
     Multigrid with zeropoint projection.
 
-    Use .v_project and .v_prolong to project and prolong vectors.
-    Use .get_coarse_operator to construct a coarse operator.
+    Use ``.v_project`` and ``.v_prolong`` to project and prolong vectors.
+    Use ``.get_coarse_operator`` to construct a coarse operator.
 
-    use ZPP_Multigrid.gen_from_fine_vectors([random vectors], [i, j, k, l], lambda b, xo: <solve Dx = b for x>)
-    to construct a ZPP_Multigrid.
+    use ``ZPP_Multigrid.gen_from_fine_vectors([random vectors], [i, j, k, l], lambda b, xo: <solve Dx = b for x>)``
+    to construct a ``ZPP_Multigrid``.
     """
     def __init__(self, block_size, ui_blocked, n_basis, L_coarse, L_fine):
         self.block_size = block_size
@@ -55,12 +55,12 @@ class ZPP_Multigrid:
         Used to generate a multigrid setup using fine vectors, a block size and a solver.
 
         solver should be 
-            (x, info) = solver(b, x0)
+            ``(x, info) = solver(b, x0)``
         which solves
-            D x = b
+            :math:`D x = b`
         
         we will choose
-            b = torch.zeros_like(x0)
+            ``b = torch.zeros_like(x0)``
 
         """
         # length of basis
@@ -80,7 +80,6 @@ class ZPP_Multigrid:
         L_fine = list(uk.shape[:4])
         # size of coarse lattice
         L_coarse = [lf // bs for lf, bs in zip(L_fine, block_size)]
-
 
         # Perform blocking
         lx, ly, lz, lt = block_size
@@ -104,7 +103,7 @@ class ZPP_Multigrid:
     
     def v_project(self, v):
         """
-        project fine vector v to coarse grid.
+        project fine vector ``v`` to coarse grid.
         """
         projected = torch.zeros(self.L_coarse + [self.n_basis], dtype=torch.cdouble)
         lx, ly, lz, lt = self.block_size
@@ -120,7 +119,7 @@ class ZPP_Multigrid:
     
     def v_prolong(self, v):
         """
-        prolong coarse vector v to fine grid.
+        prolong coarse vector ``v`` to fine grid.
         """
         lx, ly, lz, lt = self.block_size
         prolonged = torch.zeros(self.L_fine + list(self.ui_blocked[0][0][0][0][0].shape[4:]), dtype=torch.cdouble)
@@ -134,6 +133,9 @@ class ZPP_Multigrid:
 
     
     def get_coarse_operator(self, fine_operator):
+        """
+        Given a fine operator ``fine_operator(psi)``, construct a coarse operator.
+        """
         def operator(source_coarse):
             source_fine = self.v_prolong(source_coarse)
             dst_fine = fine_operator(source_fine)
