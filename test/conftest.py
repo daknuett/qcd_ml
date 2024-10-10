@@ -43,6 +43,11 @@ def config_1500():
     return torch.tensor(np.load(os.path.join(os.path.dirname(__file__), "assets","1500.config.npy")))
 
 
+@pytest.fixture(scope="session")
+def config_1500_sess():
+    return torch.tensor(np.load(os.path.join(os.path.dirname(__file__), "assets","1500.config.npy")))
+
+
 @pytest.fixture 
 def config_1500_adj():
     return torch.tensor(np.load(os.path.join(os.path.dirname(__file__), "assets","1500_adj.npy")))

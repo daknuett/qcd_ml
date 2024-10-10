@@ -28,6 +28,12 @@ python.install_sources(
 )
 
 python.install_sources(
+  'nn/pt_pool/__init__.py', 'nn/pt_pool/pool.py', 'nn/pt_pool/pool4d.py', 'nn/pt_pool/get_paths.py',
+  pure: true,
+  subdir: 'qcd_ml/nn/pt_pool'
+)
+
+python.install_sources(
   'compat/__init__.py', 'compat/gpt.py',
   pure: true,
   subdir: 'qcd_ml/compat'
