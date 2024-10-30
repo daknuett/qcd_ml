@@ -81,7 +81,7 @@ class stout:
         staples = torch.stack([torch.stack(stapmu) for stapmu in staple1]) + torch.stack([torch.stack(stapmu) for stapmu in staple2])
        
         U_tensor_adj = U.adjoint()
-        Omega_mu = torch.einsum("mn,mnabcdij,mabcdjk->mabcdik", smear.rho, staples, U_tensor_adj)
+        Omega_mu = torch.einsum("mn,mnabcdij,mabcdjk->mabcdik", self.rho, staples, U_tensor_adj)
 
         hermitian = Omega_mu.adjoint() - Omega_mu
         trace = torch.einsum("mabcdii->mabcd", hermitian)
