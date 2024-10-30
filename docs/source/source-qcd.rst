@@ -7,3 +7,5 @@
 
 .. automodule:: qcd_ml.qcd.dirac
    :members:
+
+.. automodule:: qcd_ml.qcd.gauge

@@ -20,6 +20,11 @@ python.install_sources(
   pure: true,
   subdir: 'qcd_ml/qcd'
 )
+python.install_sources(
+  'qcd/gauge/__init__.py', 'qcd/gauge/smear.py',
+  pure: true,
+  subdir: 'qcd_ml/qcd/gauge'
+)
 
 python.install_sources(
   'nn/__init__.py', 'nn/ptc.py', 'nn/lptc.py',
