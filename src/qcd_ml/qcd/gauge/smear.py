@@ -12,6 +12,7 @@ This module provides smearing of gauge links. Currenltly the following smearing 
 import torch
 
 from ...base.paths  import PathBuffer
+from ...base.operations import SU3_group_compose
 
 class compiled_stout:
     """
@@ -66,7 +67,6 @@ class stout:
     def __call__(self, U):
         if isinstance(U, list):
             U = torch.stack(U)
-
         
         Hp = lambda mu, lst: lst + [(mu, 1)]
         Hm = lambda mu, lst: lst + [(mu, -1)]
