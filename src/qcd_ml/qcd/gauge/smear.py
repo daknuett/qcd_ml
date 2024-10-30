@@ -29,7 +29,7 @@ class compiled_stout:
     def __call__(self, link_field):
         U_trans = torch.zeros_like(link_field)
         for mu, (expiQmu, Umu) in enumerate(zip(self.transform_matrix, link_field)):
-            U_trans[mu](SU3_group_compose(expiQmu, Umu))
+            U_trans[mu] = SU3_group_compose(expiQmu, Umu)
         return U_trans
             
         
