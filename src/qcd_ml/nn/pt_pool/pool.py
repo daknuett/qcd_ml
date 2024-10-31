@@ -42,6 +42,9 @@ class v_ProjectLayer(torch.nn.Module):
 
         w_coarse = coarse_operator(tfp, w)
 
+    If the fine operator is a 9-point operator, such as the Wilson or Wilson-Clover Dirac operator,
+    a significantly faster implementation can be achieved by using ``qc_ml.qcd.dirac.coarsened.coarse_9point_op_IFG``.
+
     To construct a complete set of paths for a given block_size one can use::
 
         qcd_ml.nn.pt_pool.get_paths.get_paths_*

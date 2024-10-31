@@ -165,6 +165,9 @@ class ZPP_Multigrid:
     def get_coarse_operator(self, fine_operator):
         """
         Given a fine operator ``fine_operator(psi)``, construct a coarse operator.
+
+        In case of a 9-point operator, such as Wilson and Wilson-Clover Dirac operator,
+        a significantly faster implementation can be achieved by using ``qcd_ml.qcd.dirac.coarsened.coarse_9point_op_NG``.
         """
         def operator(source_coarse):
             source_fine = self.v_prolong(source_coarse)
