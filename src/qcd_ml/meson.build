@@ -16,10 +16,16 @@ python.install_sources(
 )
 
 python.install_sources(
-  'qcd/__init__.py', 'qcd/static.py', 'qcd/dirac.py',
+  'qcd/__init__.py', 'qcd/static.py',
   pure: true,
   subdir: 'qcd_ml/qcd'
 )
+python.install_sources(
+  'qcd/dirac/__init__.py', 'qcd/dirac/coarsened.py',
+  pure: true,
+  subdir: 'qcd_ml/qcd/dirac'
+)
+
 python.install_sources(
   'qcd/gauge/__init__.py', 'qcd/gauge/smear.py',
   pure: true,

@@ -1,11 +1,11 @@
 import torch
 
-from .static import gamma
-from ..base.operations import v_spin_const_transform, mspin_const_group_compose
-from ..base.hop import v_hop
-from ..base.paths import PathBuffer
+from ..static import gamma
+from ...base.operations import v_spin_const_transform, mspin_const_group_compose
+from ...base.hop import v_hop
+from ...base.paths import PathBuffer
 
-from ..util.comptime import comptime
+from ...util.comptime import comptime
 
 """
 qcd_ml.qcd.dirac
@@ -95,3 +95,4 @@ class dirac_wilson_clover:
                                )
 
         return result - self.csw / 4 * improvement
+
