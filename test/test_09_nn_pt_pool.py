@@ -6,6 +6,9 @@ import pytest
 from qcd_ml.nn.pt_pool import v_ProjectLayer
 from qcd_ml.nn.pt_pool.get_paths import get_paths_lexicographic, get_paths_reverse_lexicographic, get_paths_one_step_lexicographic, get_paths_one_step_reverse_lexicographic
 
+from qcd_ml.qcd.dirac.coarsened import coarse_9point_op_IFG
+from qcd_ml.qcd.dirac import dirac_wilson_clover
+
 
 
 from qcd_ml.base.paths import PathBuffer
@@ -130,6 +133,28 @@ def test_ProjectLayer_against_reference_impl(config_1500):
     assert torch.allclose(coarse_v, p_coarse_v)
 
 
+@pytest.mark.slow
+def test_coarse_9point_operator(config_1500):
+    L_fine = [8, 8, 8, 16]
+    L_coarse = [2, 2, 2, 4]
+    block_size = [4, 4, 4, 4]
+
+    tfp = v_ProjectLayer([(config_1500, get_paths_lexicographic(block_size, _gpt_compat=True))
+                          , (config_1500, get_paths_reverse_lexicographic(block_size))], L_fine, L_coarse, _gpt_compat=True)
+
+
+    Q = dirac_wilson_clover(config_1500, -0.55, 1.0)
+    with torch.no_grad():
+        coarse_op_9p = coarse_9point_op_IFG.from_operator_and_pooling(Q, tfp)
+
+    def coarse_op_pr(x):
+        with torch.no_grad():
+            return tfp.v_project(torch.stack([Q(tfp.v_prolong(torch.stack([x]))[0])]))[0]
+
+    vec = torch.randn(*tfp.L_coarse, 4,3, dtype=torch.cdouble)
+
+    assert torch.allclose(coarse_op_9p(vec), coarse_op_pr(vec))
+
 try:
     import gpt as g
     from qcd_ml.compat.gpt import ndarray2lattice, lattice2ndarray
@@ -240,4 +265,8 @@ except ImportError:
 
     @pytest.mark.skip(reason="gpt not available")
     def test_ProjectLayer_against_gpt(config_1500):
+        pass
+
+    @pytest.mark.skip(reason="gpt not available")
+    def test_ProjectLayer_against_gpt_all_paths(config_1500):
         pass
