@@ -17,7 +17,7 @@ class coarse_9point_op_NG:
     Construct as such::
 
         mg = ZPP_Multigrid(...)
-        Q = qcd_ml.qcd.dirac.dirac_wilson_clover(U, mass, 1.0
+        Q = qcd_ml.qcd.dirac.dirac_wilson_clover(U, mass, 1.0)
 
         coarse_op = coarse_9point_op_NG.from_operator_and_multigrid(Q, mg)
 
