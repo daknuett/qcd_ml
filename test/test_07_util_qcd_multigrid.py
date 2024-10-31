@@ -4,6 +4,7 @@ import torch
 from qcd_ml.util.qcd.multigrid import ZPP_Multigrid
 from qcd_ml.util.solver import GMRES
 from qcd_ml.qcd.dirac import dirac_wilson_clover
+from qcd_ml.qcd.dirac.coarsened import coarse_9point_op_NG
 
 @pytest.fixture(scope="session")
 def test_mm_setup(config_1500_sess):
@@ -77,3 +78,14 @@ def test_MM_from_basis_vectors(test_mm_setup):
 
     psi = torch.randn(8, 8, 8, 16, 4, 3, dtype=torch.cdouble)
     assert torch.allclose(test_mm_setup.v_project(psi), mm2.v_project(psi))
+
+
+@pytest.mark.slow
+def test_coarsened_wilson_clover(config_1500, test_mm_setup, rand_fine_vec):
+    w = dirac_wilson_clover(config_1500, -0.58, 1.0)
+    w_coarse = test_mm_setup.get_coarse_operator(w)
+    vec_coarse = test_mm_setup.v_project(rand_fine_vec)
+
+    coarsened_op = coarse_9point_op_NG.from_operator_and_multigrid(w, test_mm_setup)
+
+    assert torch.allclose(w_coarse(vec_coarse), coarsened_op(vec_coarse))
