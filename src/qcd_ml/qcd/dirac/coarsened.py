@@ -39,7 +39,7 @@ class coarse_9point_op_NG:
         for mu in range(4):
             result_mu = torch.roll(self.pseudo_gauge_transform(self.pseudo_gauge_forward[mu], x), 1, mu)
             result_mu += torch.roll(self.pseudo_gauge_transform(self.pseudo_gauge_backward[mu], x), -1, mu)
-            # This is a curius edge case. We double-accunted for the
+            # This is a curious edge case. We double-accounted for the
             # links.
             if self.L_coarse[mu] == 2:
                 result += result_mu / 2
