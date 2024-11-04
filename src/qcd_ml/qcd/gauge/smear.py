@@ -15,7 +15,7 @@ from ...base.paths  import PathBuffer
 from ...base.operations import SU3_group_compose
 
 class compiled_stout:
-    """
+    r"""
     This class represents the "compiled" stout operation for a given ..math:`\rho` and ..math:`U` gauge field.
     This is useful because typically several smearing steps are performed and the costly computation of 
     ..math:`\exp(iQ)` can be done only once.
