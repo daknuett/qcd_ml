@@ -83,8 +83,8 @@ class coarse_9point_op_NG:
                     response = coarse_op(vec)
                     pseudo_mass[x,y,z,t,:,i] = response[x,y,z,t]    
                     for mu in range(4):
-                        pseudo_gauge_forward[mu, x,y,z,t, :,i] = response[*update_idx_p([x,y,z,t], mu)]
-                        pseudo_gauge_backward[mu, x,y,z,t, :,i] = response[*update_idx_m([x,y,z,t], mu)]
+                        pseudo_gauge_forward[mu, x,y,z,t, :,i] = response[*update_idx_p([x,y,z,t], mu)]  # noqa E999
+                        pseudo_gauge_backward[mu, x,y,z,t, :,i] = response[*update_idx_m([x,y,z,t], mu)]  # noqa E999
 
         return cls(pseudo_gauge_forward, pseudo_gauge_backward, pseudo_mass, mg.L_coarse)
 
@@ -171,7 +171,7 @@ class coarse_9point_op_IFG:
                         response = coarse_op(vec)
                         pseudo_mass[x,y,z,t, :,i, :,j] = response[x,y,z,t]    
                         for mu in range(4):
-                            pseudo_gauge_forward[mu, x,y,z,t, :,i, :,j] = response[*update_idx_p([x,y,z,t], mu)]
-                            pseudo_gauge_backward[mu, x,y,z,t, :,i, :,j] = response[*update_idx_m([x,y,z,t], mu)]
+                            pseudo_gauge_forward[mu, x,y,z,t, :,i, :,j] = response[*update_idx_p([x,y,z,t], mu)]   # noqa E999
+                            pseudo_gauge_backward[mu, x,y,z,t, :,i, :,j] = response[*update_idx_m([x,y,z,t], mu)]   # noqa E999
 
         return cls(pseudo_gauge_forward, pseudo_gauge_backward, pseudo_mass, pooling.L_coarse)
