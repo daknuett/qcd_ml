@@ -43,6 +43,11 @@ def config_1500():
     return torch.tensor(np.load(os.path.join(os.path.dirname(__file__), "assets","1500.config.npy")))
 
 
+@pytest.fixture(scope="session")
+def config_1500_sess():
+    return torch.tensor(np.load(os.path.join(os.path.dirname(__file__), "assets","1500.config.npy")))
+
+
 @pytest.fixture 
 def config_1500_adj():
     return torch.tensor(np.load(os.path.join(os.path.dirname(__file__), "assets","1500_adj.npy")))
@@ -71,6 +76,11 @@ def config_1500_gtrans_1200mu0():
 @pytest.fixture 
 def V_1500mu0_1500mu2():
     return torch.tensor(np.load(os.path.join(os.path.dirname(__file__), "assets","V_1500mu0_1500mu2.npy")))
+
+
+@pytest.fixture
+def config_1500_smeared_stout_rho0p1():
+    return torch.load(os.path.join(os.path.dirname(__file__), "assets","1500_smeared_stout_rho0.1.pt"), weights_only=True)
 
 
 @pytest.fixture 

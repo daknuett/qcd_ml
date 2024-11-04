@@ -2,6 +2,7 @@ import numpy as np
 import torch
 from qcd_ml.qcd.dirac import dirac_wilson_clover, dirac_wilson
 from qcd_ml.util.solver import GMRES
+from qcd_ml.util.qcd.multigrid import ZPP_Multigrid
 import pytest
 
 try:
@@ -346,6 +347,55 @@ try:
                 ):
             assert diff < 1e-15
 
+
+    @pytest.mark.selected
+    def test_multigrid_against_gpt(config_1500):
+        U_gpt = [ndarray2lattice(u.numpy(), g.grid([8,8,8,16], g.double), g.mcolor) for u in config_1500]
+
+        grid = g.grid([8,8,8,16], g.double)
+        psi = g.vspincolor(grid)
+        coarse_grid = g.grid([2, 2, 2, 4], g.double)
+        rng = g.random("test_ProjectLayer_against_gpt")
+        rng.cnormal(psi)
+
+
+        psi_trch = torch.tensor(lattice2ndarray(psi))
+
+
+        n_basis = 12
+        bv = [torch.randn_like(psi_trch) for _ in range(n_basis)]
+
+        block_size = [4, 4, 4, 4]
+
+        w = dirac_wilson_clover(config_1500, -0.58, 1.0)
+
+        mm = ZPP_Multigrid.gen_from_fine_vectors(
+                 bv
+                 , block_size
+                 , lambda b,x0: GMRES(w, b, x0, eps=1e-4, maxiter=400, inner_iter=30)
+                 , verbose=True)
+
+        basis_vecs = mm.get_basis_vectors()
+
+        basis_vec_gpt = [ndarray2lattice(bv.numpy(), grid, g.vspincolor) for bv in basis_vecs]
+
+        b = g.block.map(coarse_grid, basis_vec_gpt)
+
+        psi_c_gpt = b.project(psi)
+        psi_c_trch = mm.v_project(psi_trch)
+
+        assert torch.allclose(torch.tensor(lattice2ndarray(psi_c_gpt)), psi_c_trch)
+        assert g.norm2(psi_c_gpt - ndarray2lattice(psi_c_trch.numpy(), coarse_grid, lambda grd: g.lattice(grd, g.ot_vector_complex_additive_group(12)))) / g.norm2(psi_c_gpt) < 1e-14
+
+        psi_c_gpt = rng.cnormal(psi_c_gpt)
+        psi_c_trch = torch.tensor(lattice2ndarray(psi_c_gpt))
+
+        assert torch.allclose(mm.v_prolong(psi_c_trch), torch.tensor(lattice2ndarray(b.promote(psi_c_gpt))))
+        promoted = b.promote(psi_c_gpt)
+        assert g.norm2(promoted - ndarray2lattice(mm.v_prolong(psi_c_trch).numpy(), grid, g.vspincolor)) / g.norm2(promoted) < 1e-14
+
+
+
 except ImportError:
 
     @pytest.mark.skip("missing gpt")
@@ -370,4 +420,8 @@ except ImportError:
 
     @pytest.mark.skip("missing gpt")
     def test_gmres_large_test_matrix(config_1500):
+        pass
+
+    @pytest.mark.skip("missing gpt")
+    def test_multigrid_against_gpt(config_1500):
         pass

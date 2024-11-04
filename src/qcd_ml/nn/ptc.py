@@ -28,7 +28,7 @@ class v_PTC(torch.nn.Module):
         layer = v_PTC(1, 1, paths, U)
 
     """
-    def __init__(self, n_feature_in, n_feature_out, paths, U):
+    def __init__(self, n_feature_in, n_feature_out, paths, U, **path_buffer_kwargs):
         super().__init__()
         self.weights = torch.nn.Parameter(
                 torch.randn(n_feature_in, n_feature_out, len(paths), 4, 4, dtype=torch.cdouble)
@@ -36,12 +36,13 @@ class v_PTC(torch.nn.Module):
 
         self.n_feature_in = n_feature_in
         self.n_feature_out = n_feature_out
+        self.path_buffer_kwargs = path_buffer_kwargs
         # FIXME: This is more memory intensive compared to the 
         # implementation using v_evaluate_path, because instead of one 
         # copy of U, all gauge transport matrices are stored.
         # On the other hand this may not be a big deal in most cases,
         # because, for 1h, the number of gauge fields is identical.
-        self.path_buffers = [PathBuffer(U, pi) for pi in paths]
+        self.path_buffers = [PathBuffer(U, pi, **path_buffer_kwargs) for pi in paths]
 
 
     def forward(self, features_in):
@@ -69,4 +70,4 @@ class v_PTC(torch.nn.Module):
         Mostly used for testing.
         """
         for i, pi in enumerate(self.path_buffers):
-            self.path_buffers[i] = PathBuffer(U_transformed, pi.path)
+            self.path_buffers[i] = PathBuffer(U_transformed, pi.path, **self.path_buffer_kwargs)
