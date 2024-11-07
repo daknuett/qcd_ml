@@ -23,7 +23,7 @@ def plaquette_field(U, _gpt_compat=False):
     Hp = lambda mu, lst: lst + [(mu, 1)]
     Hm = lambda mu, lst: lst + [(mu, -1)]
 
-    gpt_rescale_factor = 2 / Nd / (Nd - 1) / ndim
+    gpt_rescale_factor = 2 / Nd / (Nd - 1) / ndims
     
     plaquette_paths = [[
             list(reversed(Hp(mu, Hp(nu, Hm(mu, Hm(nu, []))))))
