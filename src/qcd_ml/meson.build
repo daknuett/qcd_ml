@@ -27,7 +27,7 @@ python.install_sources(
 )
 
 python.install_sources(
-  'qcd/gauge/__init__.py', 'qcd/gauge/smear.py',
+  'qcd/gauge/__init__.py', 'qcd/gauge/smear.py', 'qcd/gauge/observables.py',
   pure: true,
   subdir: 'qcd_ml/qcd/gauge'
 )
@@ -51,7 +51,7 @@ python.install_sources(
 )
 
 python.install_sources(
-  'util/__init__.py', 'util/solver.py', 'util/comptime.py',
+  'util/__init__.py', 'util/solver.py', 'util/comptime.py', 'util/tensor.py',
   pure: true,
   subdir: 'qcd_ml/util'
 )
