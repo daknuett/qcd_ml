@@ -1,3 +1,9 @@
+"""
+qcd_ml.nn.pt_pool.pool
+----------------------
+
+This module provides the parallel transport pooling projection layer.
+"""
 import torch 
 import numpy as np
 from ...base.paths import PathBuffer, path_get_orig_point

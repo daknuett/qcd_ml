@@ -6,3 +6,9 @@
 
 .. automodule:: qcd_ml.nn.lptc
    :members:
+
+.. automodule:: qcd_ml.nn.pt_pool
+   :members:
+
+.. automodule:: qcd_ml.nn.pt_pool.pool
+   :members:

@@ -1,3 +1,14 @@
+"""
+qcd_ml.qcd.dirac
+================
+
+Dirac operators. Provides
+
+- ``dirac_wilson``: Wilson Dirac operator.
+- ``dirac_wilson_clover``: Wilson Dirac operator with clover term improvement.
+- ``coarsened.coarse_9point_op_NG`` and ``coarsened.coarse_9point_op_NG``: Coarsened operators 9-point operators.
+"""
+
 import torch
 
 from ..static import gamma
@@ -7,13 +18,6 @@ from ...base.paths import PathBuffer
 
 from ...util.comptime import comptime
 
-"""
-qcd_ml.qcd.dirac
-================
-
-Dirac operators.
-"""
-
 
 @comptime([(mu, nu) for mu in range(4) for nu in range(4)])
 def sigmamunu(mu, nu):
@@ -22,7 +26,9 @@ def sigmamunu(mu, nu):
 
 class dirac_wilson:
     """
-    Dirac Wilson operator. See arXiv:2302.05419.
+    Dirac Wilson operator. See [#]_.
+
+    .. [#] arXiv:2302.05419
     """
     def __init__(self, U, mass_parameter):
         self.U = U
@@ -45,7 +51,9 @@ class dirac_wilson_clover:
     """
     Dirac Wilson operator with clover term improvement.
 
-    See arXiv:2302.05419.
+    See [#]_.
+
+    .. [#] arXiv:2302.05419
     """
     def __init__(self, U, mass_parameter, csw):
         self.U = U

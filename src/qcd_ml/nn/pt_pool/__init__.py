@@ -1,4 +1,7 @@
 """
+qcd_ml.nn.pt_pool
+=================
+
 This package provides 
 
 - ``v_ProjectLayer``: A parallel transport pooling projection layer. 
