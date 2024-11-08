@@ -1,11 +1,15 @@
 """
+
+qcd_ml.qcd.gauge.smear
+----------------------
+
 This module provides smearing of gauge links. Currenltly the following smearing algorithms are implemented:
 
     - Stout smearing (``stout``) [1]_ [2]_
 
 
-.. [1]: 10.1103/PhysRevD.69.054501
-.. [2]: 10.1007/978-3-642-01850-3
+.. [1] 10.1103/PhysRevD.69.054501
+.. [2] 10.1007/978-3-642-01850-3
 
 
 """
@@ -16,9 +20,9 @@ from ...base.operations import SU3_group_compose
 
 class compiled_stout:
     r"""
-    This class represents the "compiled" stout operation for a given ..math:`\rho` and ..math:`U` gauge field.
+    This class represents the "compiled" stout operation for a given :math:`\rho` and :math:`U` gauge field.
     This is useful because typically several smearing steps are performed and the costly computation of 
-    ..math:`\exp(iQ)` can be done only once.
+    :math:`\exp(iQ)` can be done only once.
     """
     def __init__(self
                  , rho: torch.tensor
@@ -40,7 +44,7 @@ class stout:
     See [1]_ and [2]_ for details of the smearing algorithm.
 
     This class is an abstract representation of the smearing operation with only 
-    the parameter ..math:`\rho` being specified. The actual smearing operation is
+    the parameter :math:`\rho` being specified. The actual smearing operation is
     performed as such::
 
         algorithm = stout(rho)
@@ -49,10 +53,10 @@ class stout:
         for i in range(n_smearing_steps):
             U = smearer(U)
 
-    Classmethods are provided for common ..math:`\rho` matrices:
+    Classmethods are provided for common :math:`\rho` matrices:
 
-    - ``constant_rho``: ..math:`\rho` is a constant matrix.
-    - ``spatial_only``: ..math:`\rho` is a constant matrix with the temporal components set to zero.
+    - ``constant_rho``: :math:`\rho` is a constant matrix.
+    - ``spatial_only``: :math:`\rho` is a constant matrix with the temporal components set to zero.
     """
     def __init__(self, rho: torch.tensor):
         if rho.shape != (4,4):

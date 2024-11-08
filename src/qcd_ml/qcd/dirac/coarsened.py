@@ -1,4 +1,8 @@
 """
+qcd_ml.qcd.dirac.coarsened
+--------------------------
+
+
 This module provides coarsened operators. These are projected operators from a fine 
 grid onto a coarse grid.
 
@@ -6,6 +10,8 @@ Currently the following operators are implemented:
 
     - ``coarse_9point_op_NG``: Coarse 9-point operators on a Non-Gauge coarse grid.
       For 9-point operators (Wilson, Wilson Clover) using ZPP_Multigrid for coarsening.
+    - ``coarse_9point_op_IFG``: Coarse 9-point operators on a coarse grid which Inherits Fine Gauge.
+      For 9-point operators (Wilson, Wilson Clover) using v_ProjectLayer for coarsening.
 """
 import torch
 import itertools

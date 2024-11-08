@@ -27,6 +27,7 @@ extensions = [
         'sphinx.ext.ifconfig',
         'sphinx.ext.viewcode',
         'sphinx.ext.autosectionlabel',
+        'sphinx.ext.imgmath',
         ]
 
 templates_path = ['_templates']
