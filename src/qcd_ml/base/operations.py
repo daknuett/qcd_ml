@@ -101,8 +101,21 @@ def link_gauge_transform(U, V):
         U_trans[mu] = SU3_group_compose(U_transmu, torch.roll(Vdg, -1, mu))
     return U_trans
 
+
 def mspin_const_group_compose(A, B):
     """
     Matrix-matrix multiplication for spin matrices.
     """
     return torch.einsum("ij,jk->ik", A, B)
+
+
+def _es_m_gauge_transform(Umu, m):
+    return torch.einsum("abcdij,abcdjk,abcdkl->abcdil", Umu, m, Umu.adjoint())
+
+
+def m_gauge_transform(Umu, m):
+    vol = _mul(m.shape[:4])
+    old_shape = m.shape
+    Umu_reshaped = Umu.reshape((vol, *(Umu.shape[4:])))
+    return torch.bmm(torch.bmm(Umu_reshaped
+                     , m.reshape((vol, *(m.shape[4:])))), Umu_reshaped.adjoint()).reshape(old_shape)

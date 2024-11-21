@@ -1,7 +1,7 @@
 import torch
 
 from .simple_paths import v_ng_evaluate_path, v_ng_reverse_evaluate_path
-from ..operations import v_gauge_transform, SU3_group_compose
+from ..operations import v_gauge_transform, SU3_group_compose, m_gauge_transform
 from .compile import compile_path
 
 class PathBuffer:
@@ -12,7 +12,8 @@ class PathBuffer:
     """
     def __init__(self, U, path
                  , gauge_group_compose=SU3_group_compose
-                 , gauge_transform=v_gauge_transform
+                 , v_gauge_transform=v_gauge_transform
+                 , m_gauge_transform=None
                  , adjoin=lambda x: x.adjoint()
                  , gauge_identity=torch.tensor([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype=torch.cdouble)):
         if isinstance(U, list):
@@ -21,7 +22,7 @@ class PathBuffer:
         self.path = path
 
         self.gauge_group_compose = gauge_group_compose
-        self.gauge_transform = gauge_transform
+        self.v_gauge_transform = v_gauge_transform
         self.adjoin = adjoin
 
         if len(self.path) == 0:
@@ -55,7 +56,7 @@ class PathBuffer:
         Gauge-equivariantly transport the vector-like field ``v`` along the path.
         """
         if not self._is_identity:
-            v = self.gauge_transform(self.accumulated_U, v)
+            v = self.v_gauge_transform(self.accumulated_U, v)
             v = v_ng_evaluate_path(self.path, v)
         return v
 
@@ -65,6 +66,20 @@ class PathBuffer:
         """
         if not self._is_identity:
             v = v_ng_reverse_evaluate_path(self.path, v)
-            v = self.gauge_transform(self.adjoin(self.accumulated_U), v)
+            v = self.v_gauge_transform(self.adjoin(self.accumulated_U), v)
         return v
 
+    def m_transport(self, m):
+        if not self._is_identity:
+            m = self.m_gauge_transform(self.accumulated_U, m)
+            m = v_ng_evaluate_path(self.path, m)
+        return m
+
+    def m_reverse_transport(self, m):
+        """
+        Inverse of ``m_transport``.
+        """
+        if not self._is_identity:
+            m = v_ng_reverse_evaluate_path(self.path, m)
+            m = self.m_gauge_transform(self.adjoin(self.accumulated_U), m)
+        return m

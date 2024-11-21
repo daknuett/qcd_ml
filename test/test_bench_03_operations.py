@@ -4,6 +4,7 @@ import pytest
 
 from qcd_ml.base.operations import SU3_group_compose, _es_SU3_group_compose
 from qcd_ml.base.operations import v_gauge_transform, _es_v_gauge_transform
+from qcd_ml.base.operations import m_gauge_transform, _es_m_gauge_transform
 from qcd_ml.base.operations import v_spin_transform, _es_v_spin_transform
 
 
@@ -39,6 +40,26 @@ def test_v_gauge_transform(psi_test, config_1500, benchmark):
     expect = _es_v_gauge_transform(config_1500[0], psi_test)
 
     got = benchmark(v_gauge_transform, config_1500[0], psi_test)
+
+    assert torch.allclose(expect, got)
+
+
+@pytest.mark.benchmark(group="group_operations")
+def test_m_gauge_transform(config_1500, benchmark):
+    m = torch.randn_like(config_1500[0])
+    expect = _es_m_gauge_transform(config_1500[0], m)
+
+    got = benchmark(m_gauge_transform, config_1500[0], m)
+
+    assert torch.allclose(expect, got)
+
+
+@pytest.mark.benchmark(group="group_operations")
+def test_es_m_gauge_transform(config_1500, benchmark):
+    m = torch.randn_like(config_1500[0])
+    expect = m_gauge_transform(config_1500[0], m)
+
+    got = benchmark(_es_m_gauge_transform, config_1500[0], m)
 
     assert torch.allclose(expect, got)
 

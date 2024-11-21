@@ -3,7 +3,7 @@ import numpy as np
 
 import pytest
 
-from qcd_ml.base.paths import v_evaluate_path
+from qcd_ml.base.paths import v_evaluate_path, m_evaluate_path
 from qcd_ml.base.paths import v_reverse_evaluate_path
 from qcd_ml.base.paths import PathBuffer
 from qcd_ml.base.operations import v_gauge_transform, link_gauge_transform
@@ -43,6 +43,15 @@ def test_path_buffer_03(config_1500, psi_test):
     pb = PathBuffer(config_1500, path)
 
     assert torch.allclose(pb.v_transport(psi), v_evaluate_path(config_1500, path, psi))
+
+
+def test_path_buffer_m03(config_1500):
+    m = torch.randn_like(config_1500[0])
+    path = [(0,1), (1,-2), (3,3), (2,-5)]
+
+    pb = PathBuffer(config_1500, path)
+
+    assert torch.allclose(pb.m_transport(psi), m_evaluate_path(config_1500, path, psi))
 
 
 def test_path_buffer_reverse(config_1500, psi_test):

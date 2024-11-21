@@ -1,8 +1,8 @@
 import torch
 import numpy as np 
 
-from qcd_ml.base.operations import SU3_group_compose, v_gauge_transform, link_gauge_transform 
-from qcd_ml.base.hop import v_hop
+from qcd_ml.base.operations import SU3_group_compose, v_gauge_transform, link_gauge_transform, m_gauge_transform
+from qcd_ml.base.hop import v_hop, m_hop
 
 def test_SU3_group_compose(config_1500, V_1500mu0_1500mu2):
     expect = V_1500mu0_1500mu2
@@ -74,3 +74,14 @@ def test_v_hop_equivariance(config_1500, config_1200, psi_test):
     psibar_hop_first = v_gauge_transform(V, v_hop(U, 1, 1, psi))
 
     assert torch.allclose(psibar_trns_first, psibar_hop_first)
+
+
+def test_m_hop_equivariance(config_1500, config_1200):
+    U = config_1500
+    V = config_1200[0]
+    M = torch.randn_like(U[0])
+
+    M_trns_first = m_hop(link_gauge_transform(U, V), 1, 1, m_gauge_transform(V, M))
+    M_hop_first = m_gauge_transfor(V, m_hop(U, 1, 1, M))
+
+    assert torch.allclose(M_trns_first, M_hop_first)
