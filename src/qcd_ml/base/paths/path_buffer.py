@@ -13,7 +13,7 @@ class PathBuffer:
     def __init__(self, U, path
                  , gauge_group_compose=SU3_group_compose
                  , v_gauge_transform=v_gauge_transform
-                 , m_gauge_transform=None
+                 , m_gauge_transform=m_gauge_transform
                  , adjoin=lambda x: x.adjoint()
                  , gauge_identity=torch.tensor([[1, 0, 0], [0, 1, 0], [0, 0, 1]], dtype=torch.cdouble)):
         if isinstance(U, list):
@@ -23,6 +23,7 @@ class PathBuffer:
 
         self.gauge_group_compose = gauge_group_compose
         self.v_gauge_transform = v_gauge_transform
+        self.m_gauge_transform = m_gauge_transform
         self.adjoin = adjoin
 
         if len(self.path) == 0:

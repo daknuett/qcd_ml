@@ -82,6 +82,6 @@ def test_m_hop_equivariance(config_1500, config_1200):
     M = torch.randn_like(U[0])
 
     M_trns_first = m_hop(link_gauge_transform(U, V), 1, 1, m_gauge_transform(V, M))
-    M_hop_first = m_gauge_transfor(V, m_hop(U, 1, 1, M))
+    M_hop_first = m_gauge_transform(V, m_hop(U, 1, 1, M))
 
     assert torch.allclose(M_trns_first, M_hop_first)

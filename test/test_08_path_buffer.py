@@ -51,7 +51,7 @@ def test_path_buffer_m03(config_1500):
 
     pb = PathBuffer(config_1500, path)
 
-    assert torch.allclose(pb.m_transport(psi), m_evaluate_path(config_1500, path, psi))
+    assert torch.allclose(pb.m_transport(m), m_evaluate_path(config_1500, path, m))
 
 
 def test_path_buffer_reverse(config_1500, psi_test):
