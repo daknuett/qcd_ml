@@ -9,7 +9,7 @@ Gauge-equivariant hops.
 
 import torch
 
-from .operations import v_gauge_transform
+from .operations import v_gauge_transform, m_gauge_transform
 
 def v_hop(U, mu, direction, v):
     """
