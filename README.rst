@@ -51,7 +51,8 @@ Neural Network
 
 Currently, only vector-like objects an be handled by neural networks.
 
-- ``v_PTC`` and ``v_LPTC``
+- ``v_PTC``, ``v_LPTC``, and ``v_LPTC_NG`` that implement `2302.05419 <http://arxiv.org/abs/2302.05419>`_.
+- ``v_ProjectLayer`` that implements `2304.10438 <https://arxiv.org/abs/2304.10438>`_ parallel transport pooling. 
 
 
 QCD
@@ -59,12 +60,14 @@ QCD
 
 - Euclidean gamma matrices.
 - Wilson Dirac operator and Wilson-Clover Dirac operator.
+- Stout link smearing.
 
 Utilities
 ---------
 
 - GMRES iterative solver.
 - ``ZPP_Multigrid``: Zero-Point-Projected Multigrid.
+- Coarsened 9-point operators for Multigrid.
 
 Compatibility
 -------------
