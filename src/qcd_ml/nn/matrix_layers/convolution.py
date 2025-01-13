@@ -50,4 +50,4 @@ class LGE_Convolution(torch.nn.Module):
 
     def forward(self, features_in):
         transported = torch.stack([torch.stack([pi.m_transport(fj) for pi in self.path_buffers]) for fj in features_in])
-        return torch.einsum("ikl,il...->k", self.weights, transported)
+        return torch.einsum("ikl,il...->k...", self.weights, transported)
