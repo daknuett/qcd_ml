@@ -24,4 +24,4 @@ class LGE_Bilinear(torch.nn.Module):
                 torch.randn(n_input1, n_input2, n_output, dtype=torch.cdouble))
 
     def forward(self, features_in1, features_in2):
-        return torch.einsum("ijk,jabcdnr,kabcdrm->iabcdnm", self.weights, features_in1, features_in2)
+        return torch.einsum("jki,jabcdnr,kabcdrm->iabcdnm", self.weights, features_in1, features_in2)
