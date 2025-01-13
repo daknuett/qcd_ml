@@ -42,7 +42,11 @@ class LGE_Convolution(torch.nn.Module):
         self.n_output = n_output
         self.path_buffers = path_buffers
 
-        self.weights = torch.nn.Parameter(torch.Tensor(n_input, n_output, len(path_buffers)))
+        self.weights = torch.nn.Parameter(
+                torch.Tensor(n_input
+                             , n_output
+                             , len(path_buffers)
+                             , dtype=torch.cdouble))
 
     def forward(self, features_in):
         transported = torch.stack([torch.stack([pi.m_transport(fj) for pi in self.path_buffers]) for fj in features_in])
