@@ -61,3 +61,9 @@ python.install_sources(
   pure: true,
   subdir: 'qcd_ml/util/qcd'
 )
+
+python.install_sources(
+  'nn/matrix_layers/__init__.py', 'nn/matrix_layers/convolution.py',
+  pure: true,
+  subdir: 'qcd_ml/nn/matrix_layers'
+)
