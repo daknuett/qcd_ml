@@ -1,16 +1,15 @@
-import torch 
+import torch
 import numpy as np
 from ...base.paths import PathBuffer, path_get_orig_point
 from ...base.operations import v_spin_transform, v_gauge_transform
 
 import warnings
 
-try: 
+try:
     from qcd_ml_accel.pool4d import v_pool4d, v_unpool4d
 except ImportError:
     from .pool4d import v_pool4d, v_unpool4d
     warnings.warn("Using slow python implementation of v_pool4d and v_unpool4d (install qcd_ml_accel for faster implementation)")
-
 
 
 class v_ProjectLayer(torch.nn.Module):
@@ -50,6 +49,7 @@ class v_ProjectLayer(torch.nn.Module):
         qcd_ml.nn.pt_pool.get_paths.get_paths_*
 
     """
+
     def __init__(self, gauges_and_paths, L_fine, L_coarse, _gpt_compat=False):
         super().__init__()
         self.path_buffers = [[PathBuffer(Ui, pij) for pij in pi] for Ui, pi in gauges_and_paths]
@@ -96,7 +96,6 @@ class v_ProjectLayer(torch.nn.Module):
                 # I have no idea why lehner/gpt does this, but we need to do it to match.
                 self.gauge_fields[i] /= l2norm(self.gauge_fields[i])**0.5
 
-            
     def v_project(self, features_in):
         if features_in.shape[0] != 1:
             raise NotImplementedError()
@@ -104,7 +103,7 @@ class v_ProjectLayer(torch.nn.Module):
                                  , dtype=torch.cdouble)
         for i, fea_i in enumerate(features_in):
             for j, (gfj, wj) in enumerate(zip(self.gauge_fields, self.weights)):
-                before_pool[i,j] = v_spin_transform(wj, v_gauge_transform(gfj, fea_i))
+                before_pool[i, j] = v_spin_transform(wj, v_gauge_transform(gfj, fea_i))
 
         return torch.stack([v_pool4d(torch.sum(before_pool, axis=1)[0], self.block_size)])
 
@@ -114,16 +113,14 @@ class v_ProjectLayer(torch.nn.Module):
         before_weights = torch.zeros(features_in.shape[0], self.gauge_fields.shape[0]
                                      , *(self.L_fine), *(features_in.shape[5:])
                                      , dtype=torch.cdouble)
-        
 
         for i in range(self.gauge_fields.shape[0]):
-            before_weights[0,i] = v_unpool4d(features_in[0], self.block_size)
+            before_weights[0, i] = v_unpool4d(features_in[0], self.block_size)
 
         before_accumulate = torch.zeros_like(before_weights)
 
         for i, fea_i in enumerate(before_weights):
             for j, (gfj, wj) in enumerate(zip(self.gauge_fields, self.weights)):
-                before_accumulate[i,j] = v_spin_transform(wj.adjoint(), v_gauge_transform(gfj.adjoint(), fea_i[j]))
+                before_accumulate[i, j] = v_spin_transform(wj.adjoint(), v_gauge_transform(gfj.adjoint(), fea_i[j]))
 
         return torch.sum(before_accumulate, axis=1)
-

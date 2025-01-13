@@ -21,11 +21,13 @@ See also: :ref:`doc-datatypes:qcd_ml Datatypes`.
 
 import torch
 
+
 def _mul(iterable):
     res = 1
     for i in iterable:
         res *= i
     return res
+
 
 def _es_SU3_group_compose(A, B):
     return torch.einsum("abcdij,abcdjk->abcdik", A, B)
@@ -59,6 +61,7 @@ def v_gauge_transform(Umu, v):
 def _es_v_spin_transform(M, v):
     return torch.einsum("abcdij,abcdjG->abcdiG", M, v)
 
+
 def v_spin_transform(M, v):
     """
     Applies a spin matrix field to a vector field.
@@ -68,6 +71,7 @@ def v_spin_transform(M, v):
     return torch.bmm(M.reshape((vol, *(M.shape[4:])))
                      , v.reshape((vol, *(v.shape[4:])))
                      ).reshape(old_shape)
+
 
 def v_spin_const_transform(M, v):
     """

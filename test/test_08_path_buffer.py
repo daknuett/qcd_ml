@@ -1,5 +1,5 @@
 import torch
-import numpy as np 
+import numpy as np
 
 import pytest
 
@@ -69,7 +69,7 @@ def test_path_buffer_equivariance_v(config_1500, psi_test, V_1500mu0_1500mu2):
 
     path = [(0,1), (2, -2), (3,1)]
     pb = PathBuffer(config_1500, path)
-    
+
     psibar_ngt = pb.v_transport(psi_test)
     psibar_gta = v_gauge_transform(V, psibar_ngt)
 
@@ -77,7 +77,7 @@ def test_path_buffer_equivariance_v(config_1500, psi_test, V_1500mu0_1500mu2):
     psi_test_gt = v_gauge_transform(V, psi_test)
     pb_trans = PathBuffer(U, path)
     psibar_gtb = pb_trans.v_transport(psi_test_gt)
-    
+
     assert torch.allclose(psibar_gtb, psibar_gta)
 
 
@@ -87,7 +87,7 @@ def test_path_buffer_equivariance_m(config_1500, V_1500mu0_1500mu2):
 
     path = [(0,1), (2, -2), (3,1)]
     pb = PathBuffer(config_1500, path)
-    
+
     Mbar_ngt = pb.m_transport(M_test)
     Mbar_gta = m_gauge_transform(V, Mbar_ngt)
 
@@ -95,5 +95,5 @@ def test_path_buffer_equivariance_m(config_1500, V_1500mu0_1500mu2):
     M_test_gt = m_gauge_transform(V, M_test)
     pb_trans = PathBuffer(U, path)
     Mbar_gtb = pb_trans.m_transport(M_test_gt)
-    
+
     assert torch.allclose(Mbar_gtb, Mbar_gta)
