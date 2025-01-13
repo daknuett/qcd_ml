@@ -43,7 +43,7 @@ class LGE_Convolution(torch.nn.Module):
         self.path_buffers = path_buffers
 
         self.weights = torch.nn.Parameter(
-                torch.Tensor(n_input
+                torch.randn(n_input
                              , n_output
                              , len(path_buffers)
                              , dtype=torch.cdouble))
