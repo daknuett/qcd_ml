@@ -1,6 +1,6 @@
 import torch
 
-from qcd_ml.nn.matrix_layers import LGE_Convolution
+from qcd_ml.nn.matrix_layers import LGE_Convolution, LGE_Bilinear
 from qcd_ml.base.paths import PathBuffer
 from qcd_ml.base.operations import m_gauge_transform, link_gauge_transform
 
