@@ -29,7 +29,7 @@ def test_LGE_Convolution_equivariance(config_1500, V_1500mu0_1500mu2):
 
 
 def test_LGE_Bilinear_equivariance(config_1500, V_1500mu0_1500mu2):
-    n_input1 = 2,
+    n_input1 = 2
     n_input2 = 2
     n_output = 1
 
