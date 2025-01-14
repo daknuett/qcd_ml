@@ -57,7 +57,7 @@ class LGE_Convolution(torch.nn.Module):
         self.weights = torch.nn.Parameter(
                 torch.randn(n_input
                              , n_output
-                             , len(path_buffers)
+                             , len(paths)
                              , dtype=torch.cdouble))
 
     def clear_path_buffers(self):
