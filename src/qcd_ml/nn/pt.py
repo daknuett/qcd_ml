@@ -43,3 +43,18 @@ class v_PT(torch.nn.Module):
             features_out[i] = p.v_transport(features_in[i])
 
         return torch.stack(features_out)
+
+    def gauge_transform_using_transformed(self, U_transformed):
+        """
+        Update the v_PT layer: The old gauge field U is replaced by
+        U_transformed. The weights are kept.
+
+        NOTE: This does not create a transformed copy of the layer!
+              Instead the layer is updated.
+
+        Mostly used for testing.
+        """
+        for i, pi in enumerate(self.path_buffers):
+            self.path_buffers[i] = PathBuffer(
+                U_transformed, pi.path, **self.path_buffer_kwargs
+            )

@@ -12,7 +12,7 @@ from qcd_ml.base.operations import v_spin_const_transform
 
 class v_Dense(torch.nn.Module):
     """
-    Dense Layer for objects that transform vector-like.
+    Dense Layer for vectors.
 
     Weights are stored as [feature_in, feature_out].
     """
@@ -22,10 +22,6 @@ class v_Dense(torch.nn.Module):
         self.weights = torch.nn.Parameter(
             torch.randn(n_feature_in, n_feature_out, 4, 4, dtype=torch.cdouble)
         )
-        self.weights.data = 0.001 * torch.randn_like(
-            self.weights.data, dtype=torch.cdouble
-        )
-        self.weights.data[0, 0] += torch.eye(4)
 
         self.n_feature_in = n_feature_in
         self.n_feature_out = n_feature_out
@@ -49,7 +45,7 @@ class v_Dense(torch.nn.Module):
 
 class Copy(torch.nn.Module):
     """
-    Copy Layer for objects that transform vector-like.
+    Copy Layer.
 
     It has no weights.
     """
@@ -72,7 +68,7 @@ class Copy(torch.nn.Module):
 
 class Add(torch.nn.Module):
     """
-    Add Layer for objects that transform vector-like.
+    Add Layer.
 
     It has no weights.
     """
