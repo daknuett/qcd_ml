@@ -15,6 +15,9 @@ class v_Dense(torch.nn.Module):
     Dense Layer for vectors.
 
     Weights are stored as [feature_in, feature_out].
+
+    The output features are a linear combination of input features, multiplied
+    by weights in the form of 4x4 spin matrices.
     """
 
     def __init__(self, n_feature_in, n_feature_out):
