@@ -6,6 +6,7 @@ Dense Layers.
 """
 
 import torch
+
 from qcd_ml.base.operations import v_spin_const_transform
 
 
@@ -46,7 +47,7 @@ class v_Dense(torch.nn.Module):
         return torch.stack(features_out)
 
 
-class v_Copy(torch.nn.Module):
+class Copy(torch.nn.Module):
     """
     Copy Layer for objects that transform vector-like.
 
@@ -69,7 +70,7 @@ class v_Copy(torch.nn.Module):
         return torch.stack(features_out)
 
 
-class v_Add(torch.nn.Module):
+class Add(torch.nn.Module):
     """
     Add Layer for objects that transform vector-like.
 
