@@ -114,7 +114,9 @@ def GMRES(A, b, x0
           , inner_iter=30
           , eps=1e-5
           , innerproduct=lambda x,y: (x.conj() * y).sum()
-          , preconditioner=None):
+          , preconditioner=None
+          , verbose=False
+          ):
     """
     Implementation of thr GMRES algorithm for solving the linear system Ax = b.
     
@@ -156,6 +158,8 @@ def GMRES(A, b, x0
         x, info = GMRES_inner(apply_A, b, x, stopat_residual, niters_this, innerproduct, preconditioner)
         hist[iters: iters+niters_this] = info["history"]
         iters += info["k"]
+        if verbose:
+            print(f"GMRES: iter {iters}, res {info['res']}, target {info['target_residual']}")
         if info["converged"] or info["breakdown"]:
             break
         if iters >= maxiter:

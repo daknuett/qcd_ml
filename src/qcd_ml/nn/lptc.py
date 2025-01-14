@@ -20,15 +20,16 @@ class v_LPTC(torch.nn.Module):
     paths is a list of paths. Every path is a list [(direction, nhops)].
     An empty list is the path that does not perform any hops.
     """
-    def __init__(self, n_feature_in, n_feature_out, paths, U):
+    def __init__(self, n_feature_in, n_feature_out, paths, U, **path_buffer_kwargs):
         super().__init__()
         self.weights = torch.nn.Parameter(
-                torch.randn(n_feature_in, n_feature_out, len(paths), *tuple(U[0].shape[0:-2]), 4, 4, dtype=torch.cdouble)
+                torch.randn(n_feature_in, n_feature_out, len(paths), *tuple(U[0].shape[0:4]), 4, 4, dtype=torch.cdouble)
                 )
 
         self.n_feature_in = n_feature_in
         self.n_feature_out = n_feature_out
-        self.path_buffers = [PathBuffer(U, pi) for pi in paths]
+        self.path_buffer_kwargs = path_buffer_kwargs
+        self.path_buffers = [PathBuffer(U, pi, **path_buffer_kwargs) for pi in paths]
 
 
     def forward(self, features_in):
@@ -56,7 +57,7 @@ class v_LPTC(torch.nn.Module):
         Mostly used for testing.
         """
         for i, pi in enumerate(self.path_buffers):
-            self.path_buffers[i] = PathBuffer(U_transformed, pi.path)
+            self.path_buffers[i] = PathBuffer(U_transformed, pi.path, **self.path_buffer_kwargs)
 
 
 class v_LPTC_NG(torch.nn.Module):

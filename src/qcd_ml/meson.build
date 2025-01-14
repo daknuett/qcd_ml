@@ -16,15 +16,32 @@ python.install_sources(
 )
 
 python.install_sources(
-  'qcd/__init__.py', 'qcd/static.py', 'qcd/dirac.py',
+  'qcd/__init__.py', 'qcd/static.py',
   pure: true,
   subdir: 'qcd_ml/qcd'
+)
+python.install_sources(
+  'qcd/dirac/__init__.py', 'qcd/dirac/coarsened.py',
+  pure: true,
+  subdir: 'qcd_ml/qcd/dirac'
+)
+
+python.install_sources(
+  'qcd/gauge/__init__.py', 'qcd/gauge/smear.py',
+  pure: true,
+  subdir: 'qcd_ml/qcd/gauge'
 )
 
 python.install_sources(
   'nn/__init__.py', 'nn/ptc.py', 'nn/lptc.py',
   pure: true,
   subdir: 'qcd_ml/nn'
+)
+
+python.install_sources(
+  'nn/pt_pool/__init__.py', 'nn/pt_pool/pool.py', 'nn/pt_pool/pool4d.py', 'nn/pt_pool/get_paths.py',
+  pure: true,
+  subdir: 'qcd_ml/nn/pt_pool'
 )
 
 python.install_sources(
