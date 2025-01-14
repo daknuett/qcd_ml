@@ -7,7 +7,7 @@ Dense Layers.
 
 import torch
 
-from qcd_ml.base.operations import v_spin_const_transform
+from ..base.operations import v_spin_const_transform
 
 
 class v_Dense(torch.nn.Module):

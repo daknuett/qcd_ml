@@ -7,7 +7,7 @@ Parallel Transport Layers.
 
 import torch
 
-from qcd_ml.base.paths import PathBuffer
+from ..base.paths import PathBuffer
 
 
 class v_PT(torch.nn.Module):
