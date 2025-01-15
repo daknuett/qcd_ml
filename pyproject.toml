@@ -8,7 +8,7 @@ requires-python=">=3.4"
 readme="README.rst"
 dependencies=['numpy', 'torch']
 
-version="0.3.0"
+version="0.3.3"
 
 [project.urls]
 repository="https://github.com/daknuett/qcd_ml"

@@ -150,8 +150,11 @@ def GMRES(A, b, x0
         stopat_residual = eps * norm_r0
 
     hist = np.zeros(maxiter)
-    iters = 0 
+    iters = 0
     x = x0
+    # This is a curious edge case found in a single workflow.
+    # Under exotic circumstances info may be uninitialized.
+    info = {"warning": "no application of GMRES_inner yet"}
 
     while iters < maxiter:
         niters_this = min((inner_iter, maxiter - iters))

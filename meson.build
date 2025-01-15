@@ -1,4 +1,4 @@
-project('qcd_ml', version:'0.3.0')
+project('qcd_ml', version:'0.3.3')
 
 
 pymod = import('python')
