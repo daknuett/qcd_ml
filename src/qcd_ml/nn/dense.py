@@ -35,12 +35,4 @@ class v_Dense(torch.nn.Module):
                 f"shape mismatch: got {features_in.shape[0]} but expected {self.n_feature_in}"
             )
 
-        features_out = [
-            torch.zeros_like(features_in[0]) for _ in range(self.n_feature_out)
-        ]
-
-        for fi, wfi in zip(features_in, self.weights):
-            for io, wfo in enumerate(wfi):
-                features_out[io] += v_spin_const_transform(wfo, fi)
-
-        return torch.stack(features_out)
+        return torch.einsum("iojk,iabcdkG->oabcdjG", self.weights, features_in)
