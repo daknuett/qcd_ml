@@ -9,6 +9,8 @@ class PathBuffer:
     This class brings the same functionality as v_evaluate_path and
     v_reverse_evaluate_path but pre-computes the costly gauge transport matrix
     multiplications.
+
+    To access the gauge transport matrix, use ``PathBuffer(U, path).gauge_transport_matrix``.
     """
     def __init__(self, U, path
                  , gauge_group_compose=SU3_group_compose
@@ -51,6 +53,14 @@ class PathBuffer:
                         U = torch.roll(U, -1, mu + 1)
 
             self.path = compile_path(self.path)
+
+    @property
+    def gauge_transport_matrix(self):
+        if not self._is_identity:
+            return self.accumulated_U
+        accumulated_U = torch.zeros_like(U[0])
+        accumulated_U[:,:,:,:] = torch.clone(gauge_identity)
+        return accumulated_U
 
     def v_transport(self, v):
         """
