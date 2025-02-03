@@ -7,7 +7,7 @@ Parallel Transport Layers.
 
 import torch
 
-from qcd_ml.base.paths import PathBuffer
+from ..base.paths import PathBuffer
 
 
 class v_PT(torch.nn.Module):
@@ -18,6 +18,13 @@ class v_PT(torch.nn.Module):
 
     paths is a list of paths. Every path is a list [(direction, nhops)].
     An empty list is the path that does not perform any hops.
+
+    For a PT layer with all 0- and 1-hop paths, construct the layer like this::
+
+        U = torch.tensor(np.load("path/to/gauge/config.npy"))
+
+        paths = [[]] + [[(mu, 1)] for mu in range(4)] + [[(mu, -1)] for mu in range(4)]
+        layer = v_PT(paths, U)
     """
 
     def __init__(self, paths, U, **path_buffer_kwargs):
