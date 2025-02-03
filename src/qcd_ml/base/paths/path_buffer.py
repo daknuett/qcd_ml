@@ -29,8 +29,10 @@ class PathBuffer:
         self.adjoin = adjoin
 
         if len(self.path) == 0:
-            # save computational cost and memory.
+            # save computational cost.
             self._is_identity = True
+            self.accumulated_U = torch.zeros_like(U[0])
+            self.accumulated_U[:,:,:,:] = torch.clone(gauge_identity)
         else:
             self._is_identity = False
 
@@ -56,11 +58,7 @@ class PathBuffer:
 
     @property
     def gauge_transport_matrix(self):
-        if not self._is_identity:
-            return self.accumulated_U
-        accumulated_U = torch.zeros_like(U[0])
-        accumulated_U[:,:,:,:] = torch.clone(gauge_identity)
-        return accumulated_U
+        return self.accumulated_U
 
     def v_transport(self, v):
         """
