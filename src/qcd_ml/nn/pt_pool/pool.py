@@ -83,7 +83,7 @@ class v_ProjectLayer(torch.nn.Module):
                             , base_point[0]::self.block_size[0]
                             , base_point[1]::self.block_size[1]
                             , base_point[2]::self.block_size[2]
-                            , base_point[3]::self.block_size[3]] = pb.accumulated_U[base_point[0]::self.block_size[0]
+                            , base_point[3]::self.block_size[3]] = pb.gauge_transport_matrix[base_point[0]::self.block_size[0]
                                                                         , base_point[1]::self.block_size[1]
                                                                         , base_point[2]::self.block_size[2]
                                                                         , base_point[3]::self.block_size[3]]

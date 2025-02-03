@@ -29,7 +29,7 @@ def plaquette_field(U, _gpt_compat=False):
             list(reversed(Hp(mu, Hp(nu, Hm(mu, Hm(nu, []))))))
              for nu in range(4)] for mu in range(4)]
     
-    untraced_plaquettes = [[PathBuffer(U, pmunu).accumulated_U  for pmunu in pmu] for pmu in plaquette_paths]
+    untraced_plaquettes = [[PathBuffer(U, pmunu).gauge_transport_matrix  for pmunu in pmu] for pmu in plaquette_paths]
     untraced_plaquette = torch.zeros_like(U[0])
     
     for mu, pmu in enumerate(untraced_plaquettes):
@@ -68,7 +68,7 @@ def topological_charge_density_clover(U, _gpt_compat=False):
                 , Hp(mu, Hp(nu, Hm(mu, Hm(nu, []))))
                 ] for nu in range(4)] for mu in range(4)]
 
-    clover_terms = [[[PathBuffer(U, pi).accumulated_U for pi in pnu] for pnu in pmu] for pmu in clover_paths]
+    clover_terms = [[[PathBuffer(U, pi).gauge_transport_matrix for pi in pnu] for pnu in pmu] for pmu in clover_paths]
     Qmunu = [[sum(pnu) / 4 for pnu in pmu] for pmu in clover_terms]
     Fmunu = [[Qmunu[mu][nu] - Qmunu[nu][mu] for nu in range(4)] for mu in range(4)]
 
