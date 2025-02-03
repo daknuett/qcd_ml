@@ -7,6 +7,7 @@ Convolutions for matrix-like fields, i.e., fields that transform as
 """
 
 import torch
+from ...base.paths import PathBuffer
 
 
 class LGE_Convolution(torch.nn.Module):
@@ -36,18 +37,41 @@ class LGE_Convolution(torch.nn.Module):
 
         W_i(x) \rightarrow \sum_{jik} \omega_{j i k} T_{p_k}(W_j)(x)
     """
-    def __init__(self, n_input, n_output, path_buffers):
+
+    def __init__(self, n_input, n_output, paths, disable_caching=False):
         super(LGE_Convolution, self).__init__()
         self.n_input = n_input
         self.n_output = n_output
-        self.path_buffers = path_buffers
+        self.paths = paths
+        self.disable_caching = disable_caching
+
+        # Store path buffers by link field.
+        # We expect that the link field is a torch tensor. In this case
+        # use id(U) as a key for the hash. This seems OK, since it is
+        # recommended here:
+        # https://github.com/pytorch/pytorch/issues/7733#issuecomment-390912112
+        # See also the entire issue discussion
+        # https://github.com/pytorch/pytorch/issues/7733.
+        self.path_buffer_cache = {}
 
         self.weights = torch.nn.Parameter(
                 torch.randn(n_input
                              , n_output
-                             , len(path_buffers)
+                             , len(paths)
                              , dtype=torch.cdouble))
 
-    def forward(self, features_in):
-        transported = torch.stack([torch.stack([pi.m_transport(fj) for pi in self.path_buffers]) for fj in features_in])
+    def clear_path_buffers(self):
+        self.path_buffer_cache = {}
+
+    def forward(self, U, features_in):
+        if id(U) in self.path_buffer_cache:
+            path_buffers = self.path_buffer_cache[id(U)]
+        else:
+            path_buffers = [PathBuffer(U, path) for path in self.paths]
+            if not self.disable_caching:
+                self.path_buffer_cache[id(U)] = path_buffers
+
+        transported = torch.stack([
+                torch.stack([pi.m_transport(fj) for pi in path_buffers])
+                for fj in features_in])
         return torch.einsum("ikl,il...->k...", self.weights, transported)
