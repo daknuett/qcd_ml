@@ -5,10 +5,11 @@ qcd_ml.nn.lptc
 Local Parallel Transport Convolutions.
 """
 
-import torch 
+import torch
 
 from ..base.paths import v_ng_evaluate_path, PathBuffer
 from ..base.operations import v_spin_transform, v_ng_spin_transform
+
 
 class v_LPTC(torch.nn.Module):
     """
@@ -20,6 +21,7 @@ class v_LPTC(torch.nn.Module):
     paths is a list of paths. Every path is a list [(direction, nhops)].
     An empty list is the path that does not perform any hops.
     """
+
     def __init__(self, n_feature_in, n_feature_out, paths, U, **path_buffer_kwargs):
         super().__init__()
         self.weights = torch.nn.Parameter(
@@ -31,11 +33,10 @@ class v_LPTC(torch.nn.Module):
         self.path_buffer_kwargs = path_buffer_kwargs
         self.path_buffers = [PathBuffer(U, pi, **path_buffer_kwargs) for pi in paths]
 
-
     def forward(self, features_in):
         if features_in.shape[0] != self.n_feature_in:
             raise ValueError(f"shape mismatch: got {features_in.shape[0]} but expected {self.n_feature_in}")
-        
+
         features_out = [torch.zeros_like(features_in[0]) for _ in range(self.n_feature_out)]
 
         for fi, wfi in zip(features_in, self.weights):
@@ -45,10 +46,9 @@ class v_LPTC(torch.nn.Module):
 
         return torch.stack(features_out)
 
-    
     def gauge_transform_using_transformed(self, U_transformed):
         """
-        Update the v_LPTC layer: The old gauge field U is replaced by 
+        Update the v_LPTC layer: The old gauge field U is replaced by
         U_transformed. The weights are kept.
 
         NOTE: This does not create a transformed copy of the layer!
@@ -62,7 +62,7 @@ class v_LPTC(torch.nn.Module):
 
 class v_LPTC_NG(torch.nn.Module):
     """
-    Local Parallel Transport Convolution for objects that 
+    Local Parallel Transport Convolution for objects that
     transform vector-like but with no gauge degrees of freedom.
 
     Weights are stored as [feature_in, feature_out, path].
@@ -70,6 +70,7 @@ class v_LPTC_NG(torch.nn.Module):
     paths is a list of paths. Every path is a list [(direction, nhops)].
     An empty list is the path that does not perform any hops.
     """
+
     def __init__(self, n_feature_in, n_feature_out, paths, grid_dims, internal_dof):
         super().__init__()
         self.weights = torch.nn.Parameter(
@@ -82,11 +83,10 @@ class v_LPTC_NG(torch.nn.Module):
         self.internal_dof = internal_dof
         self.grid_dims = grid_dims
 
-
     def forward(self, features_in):
         if features_in.shape[0] != self.n_feature_in:
             raise ValueError(f"shape mismatch: got {features_in.shape[0]} but expected {self.n_feature_in}")
-        
+
         features_out = [torch.zeros_like(features_in[0]) for _ in range(self.n_feature_out)]
 
         for fi, wfi in zip(features_in, self.weights):

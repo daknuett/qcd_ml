@@ -75,8 +75,8 @@ class stout:
                          for nu in range(4)] for mu in range(4)]
         staple_paths2 = [[Hp(nu, Hp(mu, Hm(nu, [])))
                          for nu in range(4)] for mu in range(4)]
-        staple1 = [[PathBuffer(U, pnu).accumulated_U.adjoint() for pnu in pmu] for pmu in staple_paths1]
-        staple2 = [[PathBuffer(U, pnu).accumulated_U.adjoint() for pnu in pmu] for pmu in staple_paths2]
+        staple1 = [[PathBuffer(U, pnu).gauge_transport_matrix.adjoint() for pnu in pmu] for pmu in staple_paths1]
+        staple2 = [[PathBuffer(U, pnu).gauge_transport_matrix.adjoint() for pnu in pmu] for pmu in staple_paths2]
         
         staples = torch.stack([torch.stack(stapmu) for stapmu in staple1]) + torch.stack([torch.stack(stapmu) for stapmu in staple2])
        

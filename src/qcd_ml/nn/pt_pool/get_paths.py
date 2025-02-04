@@ -7,6 +7,7 @@ See the documentation of the functions for more information.
 import itertools
 import numpy as np
 
+
 def get_paths_lexicographic(block_size, _gpt_compat=False):
     """
     For a reference point (1,1,1,1) and a point (x_1 + 1, x_2 + 1, x_3 + 1, x_4 + 1) the path 
@@ -28,7 +29,6 @@ def get_paths_lexicographic(block_size, _gpt_compat=False):
         return [list(reversed(pth)) for pth in paths]
 
 
-
 def get_paths_reverse_lexicographic(block_size, _gpt_compat=False):
     """
     Reverse order of get_paths_lexicographic.
@@ -41,7 +41,7 @@ def get_paths_reverse_lexicographic(block_size, _gpt_compat=False):
 
 def get_paths_one_step_lexicographic(block_size, _gpt_compat=False):
     """
-    For a reference point (1,1,1,1) and a point (x_1 + 1, x_2 + 1, x_3 + 1, x_4 + 1) the path 
+    For a reference point (1,1,1,1) and a point (x_1 + 1, x_2 + 1, x_3 + 1, x_4 + 1) the path
     is generated as such:
     .. math::
 
@@ -68,7 +68,7 @@ def get_paths_one_step_lexicographic(block_size, _gpt_compat=False):
 
 def get_paths_one_step_reverse_lexicographic(block_size, _gpt_compat=False):
     """
-    For a reference point (1,1,1,1) and a point (x_1 + 1, x_2 + 1, x_3 + 1, x_4 + 1) the path 
+    For a reference point (1,1,1,1) and a point (x_1 + 1, x_2 + 1, x_3 + 1, x_4 + 1) the path
     is generated as such:
     .. math::
 
