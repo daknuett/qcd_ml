@@ -28,7 +28,7 @@ class PolyakovLoopGenerator(torch.nn.Module):
             loops = self.cache[id(U)]
         else:
             paths = [[(mu, 1) for _ in L_mu] for mu, L_mu in U[0].shape]
-            loops = [PathBuffer(U, path).gauge_transport_matrix for path in paths]
+            loops = torch.stack([PathBuffer(U, path).gauge_transport_matrix for path in paths])
             if not self.disable_cache:
                 self.cache[id(U)] = loops
         return loops
@@ -60,7 +60,7 @@ class PositiveOrientationPlaquetteGenerator(torch.nn.Module):
             # Remove the empty path generated above.
             paths = [pi for pi in paths if len(pi)]
 
-            loops = [PathBuffer(U, path).gauge_transport_matrix for path in paths]
+            loops = torch.stack([PathBuffer(U, path).gauge_transport_matrix for path in paths])
             if not self.disable_cache:
                 self.cache[id(U)] = loops
         return loops
