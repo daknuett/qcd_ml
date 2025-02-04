@@ -63,7 +63,7 @@ python.install_sources(
 )
 
 python.install_sources(
-  'nn/matrix_layers/__init__.py', 'nn/matrix_layers/convolution.py', 'nn/matrix_layers/bilinear.py',
+  'nn/matrix_layers/__init__.py', 'nn/matrix_layers/convolution.py', 'nn/matrix_layers/bilinear.py', 'nn/matrix_layers/loop_generator.py',
   pure: true,
   subdir: 'qcd_ml/nn/matrix_layers'
 )
