@@ -82,6 +82,9 @@ def V_1500mu0_1500mu2():
 def config_1500_smeared_stout_rho0p1():
     return torch.load(os.path.join(os.path.dirname(__file__), "assets","1500_smeared_stout_rho0.1.pt"), weights_only=True)
 
+@pytest.fixture
+def config_1500_smeared_stout_rho0p1_10():
+    return torch.load(os.path.join(os.path.dirname(__file__), "assets", "config_1500_smeared_stout_rho0.1_10.pt"), weights_only=True)
 
 @pytest.fixture 
 def psi_Dw1500_m0p5_psitest():
