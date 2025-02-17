@@ -1,6 +1,6 @@
 import torch
 
-from qcd_ml.nn.matrix_layers import LGE_Convolution, LGE_Bilinear
+from qcd_ml.nn.matrix_layers import LGE_Convolution, LGE_Bilinear, LGE_ReTrAct
 from qcd_ml.base.paths import PathBuffer
 from qcd_ml.base.operations import m_gauge_transform, link_gauge_transform
 
@@ -45,3 +45,18 @@ def test_LGE_Bilinear_equivariance(config_1500, V_1500mu0_1500mu2):
     features_out = layer.forward(input1_features_gt, input2_features_gt)
 
     assert torch.allclose(transformed_after, features_out[0])
+
+
+def test_LGE_ReTrAct_equivariance(config_1500, V_1500mu0_1500mu2):
+    n_input = 3
+    activation = torch.nn.functional.relu
+
+    layer = LGE_ReTrAct(f, n_input)
+    input_features = torch.randn(n_input, 8,8,8,16, 3,3, dtype=torch.cdouble)
+
+    features_out = layer.forward(input_features)
+    transformed_after = m_gauge_transform(V_1500mu0_1500mu2, features_out[0])
+
+    transformed_U = link_gauge_transform(config_1500, V_1500mu0_1500mu2)
+    features_out_gt = layer.forward(torch.stack([m_gauge_transform(V_1500mu0_1500mu2, features_in[0])]))
+    assert torch.allclose(transformed_after, features_out_gt[0])
