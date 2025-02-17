@@ -51,12 +51,12 @@ def test_LGE_ReTrAct_equivariance(config_1500, V_1500mu0_1500mu2):
     n_input = 3
     activation = torch.nn.functional.relu
 
-    layer = LGE_ReTrAct(f, n_input)
+    layer = LGE_ReTrAct(activation, n_input)
     input_features = torch.randn(n_input, 8,8,8,16, 3,3, dtype=torch.cdouble)
 
     features_out = layer.forward(input_features)
     transformed_after = m_gauge_transform(V_1500mu0_1500mu2, features_out[0])
 
     transformed_U = link_gauge_transform(config_1500, V_1500mu0_1500mu2)
-    features_out_gt = layer.forward(torch.stack([m_gauge_transform(V_1500mu0_1500mu2, features_in[0])]))
+    features_out_gt = layer.forward(torch.stack([m_gauge_transform(V_1500mu0_1500mu2, input_features[i]) for i in range(n_input)]))
     assert torch.allclose(transformed_after, features_out_gt[0])
