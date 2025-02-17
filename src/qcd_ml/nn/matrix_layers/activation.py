@@ -23,7 +23,7 @@ class LGE_ReTrAct(torch.nn.Module):
 
     def forward(self, features):
         re_tr = torch.einsum("...ii->...", features.real)
-        prefactor = self.activation(self.weights.expand_as(re_tr) * re_tr + biases.expand_as(re_tr))
+        prefactor = self.activation(self.weights.expand_as(re_tr) * re_tr + self.biases.expand_as(re_tr))
 
         return torch.einsum("fabcd, fabcdij->fabcdij"
                             , prefactor, features)
