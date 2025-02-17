@@ -27,4 +27,3 @@ class LGE_ReTrAct(torch.nn.Module):
 
         return torch.einsum("fabcd, fabcdij->fabcdij"
                             , prefactor, features)
-
