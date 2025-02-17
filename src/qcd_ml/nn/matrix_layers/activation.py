@@ -8,6 +8,7 @@ Activation functions for matrix-like fields, i.e., fields that transform as
 
 import torch
 
+
 class LGE_ReTrAct(torch.nn.Module):
     r"""
     Given an activation function ``activation`` (:math:`F`) applies
