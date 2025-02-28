@@ -38,12 +38,12 @@ class LGE_Convolution(torch.nn.Module):
         W_i(x) \rightarrow \sum_{jik} \omega_{j i k} T_{p_k}(W_j)(x)
     """
 
-    def __init__(self, n_input, n_output, paths, disable_caching=False):
+    def __init__(self, n_input, n_output, paths, disable_cache=False):
         super(LGE_Convolution, self).__init__()
         self.n_input = n_input
         self.n_output = n_output
         self.paths = paths
-        self.disable_caching = disable_caching
+        self.disable_cache = disable_cache
 
         # Store path buffers by link field.
         # We expect that the link field is a torch tensor. In this case
@@ -68,7 +68,7 @@ class LGE_Convolution(torch.nn.Module):
             path_buffers = self.path_buffer_cache[id(U)]
         else:
             path_buffers = [PathBuffer(U, path) for path in self.paths]
-            if not self.disable_caching:
+            if not self.disable_cache:
                 self.path_buffer_cache[id(U)] = path_buffers
 
         transported = torch.stack([
