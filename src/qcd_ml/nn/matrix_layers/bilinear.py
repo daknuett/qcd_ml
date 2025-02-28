@@ -10,8 +10,9 @@ import torch
 class LGE_Bilinear(torch.nn.Module):
     r"""
     This class provides lattice gauge equivariant bilinear layers.
+
     .. math::
-        W_{x,i} \rightarrow \sum_{j,k} \alpha_{i,j,k} W_{x,j} W_{x,k}'
+        W_{x,i}, W_{x,i}' \rightarrow \sum_{j,k} \alpha_{i,j,k} W_{x,j} W_{x,k}'
 
     See 10.1103/PhysRevLett.128.032003 for more details.
     """
@@ -26,4 +27,10 @@ class LGE_Bilinear(torch.nn.Module):
                 torch.randn(n_input1, n_input2, n_output, dtype=torch.cdouble))
 
     def forward(self, features_in1, features_in2):
+        r"""
+        This class provides lattice gauge equivariant bilinear layers.
+        .. math::
+            W_{x,i}, W_{x,i}' \rightarrow \sum_{j,k} \alpha_{i,j,k} W_{x,j} W_{x,k}'
+        """
+
         return torch.einsum("jki,jabcdnr,kabcdrm->iabcdnm", self.weights, features_in1, features_in2)

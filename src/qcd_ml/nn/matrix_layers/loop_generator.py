@@ -31,8 +31,10 @@ class AbstractLoopGenerator(metaclass=ABCMeta):
 class PolyakovLoopGenerator(torch.nn.Module, AbstractLoopGenerator):
     r"""
     Generates the Polyakov loops
+
     .. math::
         P_\mu(x) = \prod\limits_{k=0}^{L_\mu} U_\mu(x + k\mu)
+
     for :math:`\mu = 0,1,2,3`.
     """
 
@@ -47,6 +49,9 @@ class PolyakovLoopGenerator(torch.nn.Module, AbstractLoopGenerator):
         self.cache = {}
 
     def forward(self, U):
+        """
+        Compite the Polyakov loops.
+        """
         if id(U) in self.cache:
             loops = self.cache[id(U)]
         else:
@@ -59,9 +64,11 @@ class PolyakovLoopGenerator(torch.nn.Module, AbstractLoopGenerator):
 
 class PositiveOrientationPlaquetteGenerator(torch.nn.Module, AbstractLoopGenerator):
     r"""
-    Generates the positivly oriented Plaquettes, i.e.,
+    Generates the positivly oriented plaquettes, i.e.,
+
     .. math::
         P_{\mu\nu}(x) = U_\mu(x) U_\nu(x+\mu) U_\mu^\dagger(x+\nu) U_\nu^\dagger(x)
+
     """
 
     property_nfeatures_out = 6
@@ -76,6 +83,9 @@ class PositiveOrientationPlaquetteGenerator(torch.nn.Module, AbstractLoopGenerat
         self.cache = {}
 
     def forward(self, U):
+        """
+        Compute the positivly oriented plaquettes.
+        """
         if id(U) in self.cache:
             loops = self.cache[id(U)]
         else:
