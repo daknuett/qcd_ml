@@ -40,7 +40,7 @@ class PolyakovLoopGenerator(torch.nn.Module, AbstractLoopGenerator):
 
     property_nfeatures_out = 4  # XXX This expects 4D fields.
 
-    def __init__(self, disable_cache=False):
+    def __init__(self, disable_cache=True):
         super(PolyakovLoopGenerator, self).__init__()
         self.cache = {}
         self.disable_cache = disable_cache
@@ -73,7 +73,7 @@ class PositiveOrientationPlaquetteGenerator(torch.nn.Module, AbstractLoopGenerat
 
     property_nfeatures_out = 6
 
-    def __init__(self, disable_cache=False):
+    def __init__(self, disable_cache=True):
         super(PositiveOrientationPlaquetteGenerator, self).__init__()
 
         self.cache = {}

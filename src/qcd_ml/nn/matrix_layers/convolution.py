@@ -45,7 +45,7 @@ class LGE_Convolution(torch.nn.Module):
         W_i(x) \rightarrow \sum_{jik} \omega_{j i k} T_{p_k}(W_j)(x)
     """
 
-    def __init__(self, n_input, n_output, paths, disable_cache=False):
+    def __init__(self, n_input, n_output, paths, disable_cache=True):
         super(LGE_Convolution, self).__init__()
         self.n_input = n_input
         self.n_output = n_output
