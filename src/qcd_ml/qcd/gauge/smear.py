@@ -68,8 +68,6 @@ class stout:
             self.rho[mu, mu] = 0
 
     def __call__(self, U):
-        if isinstance(U, list):
-            U = torch.stack(U)
 
         Hp = lambda mu, lst: lst + [(mu, 1)]
         Hm = lambda mu, lst: lst + [(mu, -1)]
