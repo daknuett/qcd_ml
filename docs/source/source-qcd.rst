@@ -9,3 +9,10 @@
    :members:
 
 .. automodule:: qcd_ml.qcd.gauge
+   :members:
+
+.. automodule:: qcd_ml.qcd.gauge.smear
+   :members:
+
+.. automodule:: qcd_ml.qcd.gauge.observables
+   :members:

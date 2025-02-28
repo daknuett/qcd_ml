@@ -44,15 +44,28 @@ Base
 
 - Various group operations of gauge and spin group.
 - Gauge-equivariant vector hop.
-- Gauge-equivariant paths for vector-like objects.
+- Gauge-equivariant paths for vector-like and matrix-like objects.
+- Gauge-equivariant path-buffers for vector-like and matrix-like objects.
 
 Neural Network
 --------------
 
-Currently, only vector-like objects an be handled by neural networks.
+For vector-like objects the following layers are provided:
 
 - ``v_PTC``, ``v_LPTC``, and ``v_LPTC_NG`` that implement `2302.05419 <http://arxiv.org/abs/2302.05419>`_.
 - ``v_ProjectLayer`` that implements `2304.10438 <https://arxiv.org/abs/2304.10438>`_ parallel transport pooling. 
+- ``v_PT`` and ``v_Dense``
+
+For matrix-like objects the following layers are provided:
+
+- ``LGE_Convolution``
+- ``LGE_Bilinear``
+- ``LGE_ReTrAct``
+- ``LGE_Exp``
+- ``PolyakovLoopGenerator`` and ``PositiveOrientationPlaquetteGenerator``
+
+See `10.1103/PhysRevLett.128.032003 <https://doi.org/10.1103/PhysRevLett.128.032003>`_.
+
 
 
 QCD
@@ -61,6 +74,7 @@ QCD
 - Euclidean gamma matrices.
 - Wilson Dirac operator and Wilson-Clover Dirac operator.
 - Stout link smearing.
+- Plaquette and topological charge field.
 
 Utilities
 ---------

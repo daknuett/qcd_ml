@@ -13,7 +13,7 @@ but may be more memory intensve.
 """
 
 from .simple_paths import (
-        v_evaluate_path, v_ng_evaluate_path, v_reverse_evaluate_path, v_ng_reverse_evaluate_path
+        v_evaluate_path, v_ng_evaluate_path, v_reverse_evaluate_path, v_ng_reverse_evaluate_path, m_evaluate_path
         )
 
 from .path_buffer import PathBuffer
