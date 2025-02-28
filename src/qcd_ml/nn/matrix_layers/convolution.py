@@ -15,10 +15,12 @@ from ...base.paths import PathBuffer
 class LGE_Convolution(torch.nn.Module):
     r"""
     Provides a convolution for matrix-like fields, i.e., fields that transform as
+
     .. math::
         M(x) \rightarrow \Omega(x) M(x) \Omega(x)
 
     The convolution is defined as
+
     .. math::
 
         W_i(x) \rightarrow \sum_{j\mu k} \omega_{i\mu k j} U_{\mu k}(x) W_j(x+k\mu) U_{\mu k}^\dagger(x)
@@ -26,15 +28,18 @@ class LGE_Convolution(torch.nn.Module):
     See 10.1103/PhysRevLett.128.032003 for more details.
 
     We implement this convolution differently: We define a gauge transporter along an arbitrary path :math:`T_p` as
+
     .. math::
 
         (T_p(M))(x) = ((\prod\limits_{\mu_k \in p} H_{\mu_k}) M)(x)
 
     where
+
     .. math::
         (H_{\mu} M)(x) = U_{\mu}(x) M(x + \mu) U_{\mu}(x+\mu)^\dagger
 
     Then, the convolution is defined as
+
     .. math::
 
         W_i(x) \rightarrow \sum_{jik} \omega_{j i k} T_{p_k}(W_j)(x)
@@ -63,9 +68,17 @@ class LGE_Convolution(torch.nn.Module):
                              , dtype=torch.cdouble))
 
     def clear_path_buffers(self):
+        """
+        If ``disable_cache=False``, this method can be used to clear the pre-computed cache.
+        """
         self.path_buffer_cache = {}
 
     def forward(self, U, features_in):
+        r"""
+        .. math::
+
+            W_i(x) \rightarrow \sum_{j\mu k} \omega_{i\mu k j} U_{\mu k}(x) W_j(x+k\mu) U_{\mu k}^\dagger(x)
+        """
         if id(U) in self.path_buffer_cache:
             path_buffers = self.path_buffer_cache[id(U)]
         else:
