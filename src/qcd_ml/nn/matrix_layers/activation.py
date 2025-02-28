@@ -1,4 +1,6 @@
 r"""
+------------
+
 Activation functions for matrix-like fields, i.e., fields that transform as 
 
 .. math::

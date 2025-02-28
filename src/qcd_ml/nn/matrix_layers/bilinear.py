@@ -1,4 +1,6 @@
 """
+------------
+
 This module contains lattice gauge equvariant bilinear layers.
 """
 

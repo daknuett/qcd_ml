@@ -1,4 +1,6 @@
 """
+------------
+
 This module provides loop generator layers, i.e., layers that take a
 link field :math:`U` and compute a set of gauge equivariant loops.
 
