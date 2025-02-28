@@ -9,7 +9,7 @@ class LGE_Bilinear(torch.nn.Module):
     r"""
     This class provides lattice gauge equivariant bilinear layers.
     .. math::
-        W_{x,i} \rightarrow \sum_{j,k} \alpha_{i,j,k} W_{x,j} W'_{x,k}
+        W_{x,i} \rightarrow \sum_{j,k} \alpha_{i,j,k} W_{x,j} W_{x,k}'
 
     See 10.1103/PhysRevLett.128.032003 for more details.
     """
