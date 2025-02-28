@@ -33,7 +33,7 @@ python.install_sources(
 )
 
 python.install_sources(
-  'nn/__init__.py', 'nn/ptc.py', 'nn/lptc.py',
+  'nn/__init__.py', 'nn/ptc.py', 'nn/lptc.py', 'nn/pt.py', 'nn/dense.py',
   pure: true,
   subdir: 'qcd_ml/nn'
 )

@@ -6,6 +6,7 @@ from ...base.hop import v_hop
 from ...base.paths import PathBuffer
 
 from ...util.comptime import comptime
+from ...util import get_device_by_reference
 
 """
 qcd_ml.qcd.dirac
@@ -20,6 +21,7 @@ def sigmamunu(mu, nu):
     return (mspin_const_group_compose(gamma[mu], gamma[nu]) 
             - mspin_const_group_compose(gamma[nu], gamma[mu])) / 2
 
+
 class dirac_wilson:
     """
     Dirac Wilson operator. See arXiv:2302.05419.
@@ -27,6 +29,9 @@ class dirac_wilson:
     def __init__(self, U, mass_parameter):
         self.U = U
         self.mass_parameter = mass_parameter
+
+        # copy gamma to local device.
+        self.gamma = torch.stack(gamma).to(get_device_by_reference(U[0]))
 
 
     def __call__(self, v):
@@ -52,6 +57,13 @@ class dirac_wilson_clover:
         self.mass_parameter = mass_parameter
         self.csw = csw
 
+        # copy both gamma and sigma to local device.
+        self.gamma = torch.stack(gamma).to(get_device_by_reference(U[0]))
+
+        self.sigmamunu = torch.stack([
+                                torch.stack([sigmamunu(mu, nu) for nu in range(4)])
+                            for mu in range(4)]).to(get_device_by_reference(U[0]))
+
         Hp = lambda mu, lst: lst + [(mu, 1)]
         Hm = lambda mu, lst: lst + [(mu, -1)]
         
@@ -73,26 +85,24 @@ class dirac_wilson_clover:
                 + paths[3].v_transport(v)
                 )
 
-
     def field_strength(self, mu, nu, v):
         return (self.Qmunu(mu, nu, v) - self.Qmunu(nu, mu, v)) / 8
 
     def __call__(self, v):
-        result = (4 + self.mass_parameter) * v 
+        result = (4 + self.mass_parameter) * v
         for mu in range(4):
             result -= v_hop(self.U, mu, 1, v) / 2
             result -= v_hop(self.U, mu, -1, v) / 2
 
-            result += v_spin_const_transform(gamma[mu], v_hop(self.U, mu, -1, v)) / 2
-            result -= v_spin_const_transform(gamma[mu], v_hop(self.U, mu, 1, v)) / 2
+            result += v_spin_const_transform(self.gamma[mu], v_hop(self.U, mu, -1, v)) / 2
+            result -= v_spin_const_transform(self.gamma[mu], v_hop(self.U, mu, 1, v)) / 2
 
         improvement = 0
         for mu in range(4):
             for nu in range(mu):
                 # sigma and field_strength are both anti symmetric.
-                improvement = (improvement 
-                               + 2*v_spin_const_transform(sigmamunu(mu, nu), self.field_strength(mu, nu, v))
+                improvement = (improvement
+                               + 2*v_spin_const_transform(self.sigmamunu[mu, nu], self.field_strength(mu, nu, v))
                                )
 
         return result - self.csw / 4 * improvement
-
