@@ -58,8 +58,12 @@ class Apply_LGE_Bilinear(torch.autograd.Function):
         return torch.conj(grad_f1), torch.conj(grad_f2), torch.conj(grad_weights)
 
 
-class LGE_Bilinear2(torch.nn.Module):
+class LGE_BilinearLM(torch.nn.Module):
     r"""
+    This is an implementation that provides the same functionality as
+    LGE_Bilinear. The backward pass is slower by a factor of 2, but with significantly
+    less memory consumption.
+
     This class provides lattice gauge equivariant bilinear layers.
 
     .. math::
