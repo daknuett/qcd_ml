@@ -73,7 +73,7 @@ class LGE_BilinearLM(torch.nn.Module):
     """
 
     def __init__(self, n_input1, n_input2, n_output):
-        super(LGE_Bilinear2, self).__init__()
+        super(LGE_BilinearLM, self).__init__()
         self.n_input1 = n_input1
         self.n_input2 = n_input2
         self.n_output = n_output
