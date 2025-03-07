@@ -1,6 +1,8 @@
+import pytest
 import torch
 
 from qcd_ml.nn.matrix_layers import LGE_Convolution, LGE_Bilinear, LGE_ReTrAct, LGE_Exp
+from qcd_ml.nn.matrix_layers.bilinear import LGE_BilinearLM, Apply_LGE_Bilinear
 from qcd_ml.base.paths import PathBuffer
 from qcd_ml.base.operations import m_gauge_transform, link_gauge_transform
 
@@ -78,3 +80,27 @@ def test_LGE_Exp_equivariance(config_1500, V_1500mu0_1500mu2):
 
     assert torch.allclose(transformed_after, transformed_before)
 
+
+@pytest.mark.slow
+def test_LGE_BilinearLM_autograd():
+    n_input1 = 2
+    n_input2 = 2
+    n_output = 1
+
+    layer1 = LGE_Bilinear(n_input1, n_input2, n_output)
+    layer2 = LGE_BilinearLM(n_input1, n_input2, n_output)
+
+    layer2.weights.data = layer1.weights.data
+
+    input1_features = torch.randn(n_input1, 4,4,2,2, 3,3, dtype=torch.cdouble)
+    input2_features = torch.randn(n_input2, 4,4,2,2, 3,3, dtype=torch.cdouble)
+
+    features_out1 = layer1.forward(input1_features, input2_features)
+    features_out2 = layer2.forward(input1_features, input2_features)
+
+    assert torch.allclose(features_out1, features_out2)
+
+    input1_features.requires_grad = True
+    input2_features.requires_grad = True
+
+    assert torch.autograd.gradcheck(Apply_LGE_Bilinear.apply, (input1_features, input2_features, layer2.weights))
