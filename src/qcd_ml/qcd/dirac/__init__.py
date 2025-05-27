@@ -25,23 +25,48 @@ def sigmamunu(mu, nu):
 class dirac_wilson:
     """
     Dirac Wilson operator. See arXiv:2302.05419.
+
+    ``boundary_phases`` is a list of 4 elements, each being either 1 or -1.
+    It is used to set the boundary phases of the fermion fields. Usually,
+    fermions are anti-periodic in the time direction, and periodic in the spatial
+    directions, which gives [1, 1, 1, -1] for (x, y, z, t). The default is
+    [1, 1, 1, 1], which corresponds to periodic boundary conditions in all directions.
     """
-    def __init__(self, U, mass_parameter):
+    def __init__(self, U, mass_parameter, boundary_phases=[1,1,1,1]):
         self.U = U
         self.mass_parameter = mass_parameter
 
+        self.boundary_phases = boundary_phases
+
         # copy gamma to local device.
         self.gamma = torch.stack(gamma).to(get_device_by_reference(U[0]))
+
+        Hp = lambda mu, lst: lst + [(mu, 1)]
+        Hm = lambda mu, lst: lst + [(mu, -1)]
+
+        self.hop_buffers_forward = [PathBuffer(U, Hp(mu, [])) for mu in range(4)]
+        self.hop_buffers_backward = [PathBuffer(U, Hm(mu, [])) for mu in range(4)]
+
+        for mu, bf in enumerate(self.boundary_phases):
+            def get_slice_forward(mu):
+                return [slice(None,None,None)]*mu + [-1] + [slice(None,None,None)]*(3-mu)
+            def get_slice_backward(mu):
+                return [slice(None,None,None)]*mu + [0] + [slice(None,None,None)]*(3-mu)
+
+            self.hop_buffers_forward[mu].accumulated_U[ get_slice_forward(mu) ] *= bf
+            self.hop_buffers_backward[mu].accumulated_U[ get_slice_backward(mu) ] *= bf
 
 
     def __call__(self, v):
         result = (4 + self.mass_parameter) * v 
         for mu in range(4):
-            result -= v_hop(self.U, mu, 1, v) / 2
-            result -= v_hop(self.U, mu, -1, v) / 2
+            forward = self.hop_buffers_forward[mu].v_transport(v)
+            backward = self.hop_buffers_backward[mu].v_transport(v)
+            result -= forward / 2
+            result -= backward / 2
 
-            result += v_spin_const_transform(gamma[mu], v_hop(self.U, mu, -1, v)) / 2
-            result -= v_spin_const_transform(gamma[mu], v_hop(self.U, mu, 1, v)) / 2
+            result += v_spin_const_transform(self.gamma[mu], backward) / 2
+            result -= v_spin_const_transform(self.gamma[mu], forward) / 2
 
         return result
 
@@ -51,11 +76,19 @@ class dirac_wilson_clover:
     Dirac Wilson operator with clover term improvement.
 
     See arXiv:2302.05419.
+
+    ``boundary_phases`` is a list of 4 elements, each being either 1 or -1.
+    It is used to set the boundary phases of the fermion fields. Usually,
+    fermions are anti-periodic in the time direction, and periodic in the spatial
+    directions, which gives [1, 1, 1, -1] for (x, y, z, t). The default is
+    [1, 1, 1, 1], which corresponds to periodic boundary conditions in all directions.
     """
-    def __init__(self, U, mass_parameter, csw):
+    def __init__(self, U, mass_parameter, csw, boundary_phases=[1,1,1,1]):
         self.U = U
         self.mass_parameter = mass_parameter
         self.csw = csw
+
+        self.boundary_phases = boundary_phases
 
         # copy both gamma and sigma to local device.
         self.gamma = torch.stack(gamma).to(get_device_by_reference(U[0]))
@@ -76,6 +109,18 @@ class dirac_wilson_clover:
 
         self.plaquette_path_buffers = [[[PathBuffer(U, pi) for pi in pnu] for pnu in pmu] for pmu in plaquette_paths]
 
+        self.hop_buffers_forward = [PathBuffer(U, Hp(mu, [])) for mu in range(4)]
+        self.hop_buffers_backward = [PathBuffer(U, Hm(mu, [])) for mu in range(4)]
+
+        for mu, bf in enumerate(self.boundary_phases):
+            def get_slice_forward(mu):
+                return [slice(None,None,None)]*mu + [-1] + [slice(None,None,None)]*(3-mu)
+            def get_slice_backward(mu):
+                return [slice(None,None,None)]*mu + [0] + [slice(None,None,None)]*(3-mu)
+
+            self.hop_buffers_forward[mu].accumulated_U[ get_slice_forward(mu) ] *= bf
+            self.hop_buffers_backward[mu].accumulated_U[ get_slice_backward(mu) ] *= bf
+
     def Qmunu(self, mu, nu, v):
         paths = self.plaquette_path_buffers[mu][nu]
         return (
@@ -91,11 +136,13 @@ class dirac_wilson_clover:
     def __call__(self, v):
         result = (4 + self.mass_parameter) * v
         for mu in range(4):
-            result -= v_hop(self.U, mu, 1, v) / 2
-            result -= v_hop(self.U, mu, -1, v) / 2
+            forward = self.hop_buffers_forward[mu].v_transport(v)
+            backward = self.hop_buffers_backward[mu].v_transport(v)
+            result -= forward / 2
+            result -= backward / 2
 
-            result += v_spin_const_transform(self.gamma[mu], v_hop(self.U, mu, -1, v)) / 2
-            result -= v_spin_const_transform(self.gamma[mu], v_hop(self.U, mu, 1, v)) / 2
+            result += v_spin_const_transform(self.gamma[mu], backward) / 2
+            result -= v_spin_const_transform(self.gamma[mu], forward) / 2
 
         improvement = 0
         for mu in range(4):
