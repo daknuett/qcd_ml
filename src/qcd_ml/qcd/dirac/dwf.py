@@ -1,5 +1,6 @@
 import torch
-from ..static import gamma
+from ..static import gamma5
+from ...util import get_device_by_reference
 
 
 class dirac_dwf5_None:
