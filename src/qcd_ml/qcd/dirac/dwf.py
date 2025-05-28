@@ -15,6 +15,8 @@ class dirac_dwf5_None:
         self.c = c
         self.Ls = Ls
 
+        self.gamma5 = gamma5.to(get_device_by_reference(U[0]))
+
         self.kernel = None
 
     def __call__(self, v):
@@ -22,16 +24,16 @@ class dirac_dwf5_None:
             raise ValueError(f"expected v to be of shape [Ls={self.Ls}, x,y,z,t, 4,3] but got {v.shape}")
 
         # project to positive/negative chirality
-        chiral_positive = 0.5 * v + 0.5*torch.einsum("ij,sxyztjg->sxyztig", gamma[5], v)
-        chiral_negative = 0.5 * v - 0.5*torch.einsum("ij,sxyztjg->sxyztig", gamma[5], v)
+        chiral_positive = 0.5 * v + 0.5*torch.einsum("ij,sxyztjg->sxyztig", self.gamma5, v)
+        chiral_negative = 0.5 * v - 0.5*torch.einsum("ij,sxyztjg->sxyztig", self.gamma5, v)
 
         # 5d propagation
         result = torch.empty_like(v)
         for s in range(self.Ls):
             result[s] = self.b * self.kernel(v[s]) + v[s]
-        for s in range(1, Ls):
+        for s in range(1, self.Ls):
             result[s] += self.c * self.kernel(chiral_positive[s-1]) - chiral_positive[s-1]
-        for s in range(Ls - 1):
+        for s in range(self.Ls - 1):
             result[s] += self.c * self.kernel(chiral_negative[s+1]) - chiral_negative[s+1]
 
         # mass term
