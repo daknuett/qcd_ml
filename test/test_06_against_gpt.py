@@ -1,6 +1,6 @@
 import numpy as np
 import torch
-from qcd_ml.qcd.dirac import dirac_wilson_clover, dirac_wilson
+from qcd_ml.qcd.dirac import dirac_wilson_clover, dirac_wilson, dirac_dwf5_kw
 from qcd_ml.util.solver import GMRES
 from qcd_ml.util.qcd.multigrid import ZPP_Multigrid
 import pytest
@@ -56,6 +56,28 @@ try:
         psi_torch = torch.tensor(lattice2ndarray(psi))
 
         assert torch.allclose(w_torch(psi_torch), w(psi_torch))
+
+
+    def test_dirac_dwf5_kw(config_1500):
+        b = 1.5
+        c = 0.5
+        Ls = 12
+        m = 0.5
+        M5 = -1.8
+
+        grid = g.grid([8,8,8,16], g.double)
+        U = [ndarray2lattice(Ui.numpy(), grid, g.mcolor) for Ui in config_1500]
+
+        w_torch = dirac_dwf5_kw(config_1500, m, M5, b, c, Ls, boundary_phases=[1,1,1,-1])
+        w_gpt = g.qcd.fermion.mobius(U, M5=-M5, mass=m, Ls=Ls, b=b, c=c, boundary_phases=[1,1,1,-1])
+        w = lambda x: torch.tensor(lattice2ndarray(w_gpt(ndarray2lattice(x.numpy(), w_gpt.F_grid, g.vspincolor))))
+        
+        src_trch = torch.randn(Ls, 8,8,8,16, 4,3, dtype=torch.cdouble)
+        res_torch = w_torch(src_trch)
+        res_gpt = w(src_trch)
+
+        assert torch.allclose(res_gpt, res_torch)
+
 
 
     def test_wilson_clover_boundary_conditions(config_1500):
@@ -432,6 +454,10 @@ except ImportError:
     
     @pytest.mark.skip("missing gpt")
     def test_wilson_clover2(config_1500):
+        pass
+    
+    @pytest.mark.skip("missing gpt")
+    def test_dirac_dwf5_kw(config_1500):
         pass
     
     @pytest.mark.skip("missing gpt")

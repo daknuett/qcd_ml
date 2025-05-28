@@ -21,7 +21,7 @@ python.install_sources(
   subdir: 'qcd_ml/qcd'
 )
 python.install_sources(
-  'qcd/dirac/__init__.py', 'qcd/dirac/coarsened.py',
+  'qcd/dirac/__init__.py', 'qcd/dirac/coarsened.py', 'qcd/dirac/dwf.py',
   pure: true,
   subdir: 'qcd_ml/qcd/dirac'
 )

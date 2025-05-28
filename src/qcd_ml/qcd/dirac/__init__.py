@@ -8,6 +8,8 @@ from ...base.paths import PathBuffer
 from ...util.comptime import comptime
 from ...util import get_device_by_reference
 
+from .dwf import dirac_dwf5_None
+
 """
 qcd_ml.qcd.dirac
 ================
@@ -153,3 +155,39 @@ class dirac_wilson_clover:
                                )
 
         return result - self.csw / 4 * improvement
+
+
+class dirac_dwf5_kwc(dirac_dwf5_None):
+    r"""
+    5D domain wall fermion dirac operator using Wilson-clover kernel.
+
+    M5 is the mass parameter of the 4D kernel operator.
+    m is the mass parameter of the 5D operator.
+
+    See
+    - http://arxiv.org/abs/1206.5214
+    - 10.1016/j.nuclphysbps.2004.11.180
+    """
+    def __init__(self, U, m, M5, b, c, Ls, csw, boundary_phases=[1,1,1,1]):
+        super().__init__(U, m, M5, b, c, Ls)
+        self.csw = csw
+        self.boundary_phases = boundary_phases
+        self.kernel = dirac_wilson_clover(U, self.M5, csw, boundary_phases)
+
+
+class dirac_dwf5_kw(dirac_dwf5_None):
+    r"""
+    5D domain wall fermion dirac operator using Wilson kernel.
+
+    M5 is the mass parameter of the 4D kernel operator.
+    m is the mass parameter of the 5D operator.
+
+    See
+    - http://arxiv.org/abs/1206.5214
+    - 10.1016/j.nuclphysbps.2004.11.180
+    """
+    def __init__(self, U, m, M5, b, c, Ls, boundary_phases=[1,1,1,-1]):
+        super().__init__(U, m, M5, b, c, Ls)
+
+        self.boundary_phases = boundary_phases
+        self.kernel = dirac_wilson(U, self.M5, boundary_phases)
