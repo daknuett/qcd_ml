@@ -27,9 +27,9 @@ gamma = [torch.tensor([[0, 0, 0, 1j]
                         , [0, 0, 0, 1]
                         , [1, 0, 0, 0]
                         , [0, 1, 0, 0]], dtype=torch.cdouble)
-         , None
-         , torch.tensor([[1, 0, 0, 0]
+         ]
+
+gamma5 = torch.tensor([[1, 0, 0, 0]
                          , [0, 1, 0, 0]
                          , [0, 0, -1, 0]
                          , [0, 0, 0, -1]], dtype=torch.cdouble)
-         ]
