@@ -86,6 +86,10 @@ class C_Convolution(torch.nn.Module):
         """
         nu = U.dim()
 
+        # expected input shape (C, x_0, ..., x_{nd-1}, ...)
+        if nu <= self.nd:
+            raise ValueError(f"shape mismatch: got {nu} but expected bigger than {self.nd}")
+
         # apply padding
         U = self._circular_pad(U)
 
