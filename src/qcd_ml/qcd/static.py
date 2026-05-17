@@ -11,20 +11,25 @@ The matrices are chosen to be identical to the default choice
 in `lehner/gpt <https://github.com/lehner/gpt>`_.
 """
 
-gamma = [torch.tensor([[0,0,0,1j]
-                      ,[0,0,1j,0]
-                      ,[0,-1j,0,0]
-                      ,[-1j,0,0,0]], dtype=torch.cdouble)
-         , torch.tensor([[0,0,0,-1]
-                        ,[0,0,1,0]
-                        ,[0,1,0,0]
-                        ,[-1,0,0,0]], dtype=torch.cdouble)
-         , torch.tensor([[0,0,1j,0]
-                        ,[0,0,0,-1j]
-                        ,[-1j,0,0,0]
-                        ,[0,1j,0,0]], dtype=torch.cdouble)
-         , torch.tensor([[0,0,1,0]
-                        ,[0,0,0,1]
-                        ,[1,0,0,0]
-                        ,[0,1,0,0]], dtype=torch.cdouble)
+gamma = [torch.tensor([[0, 0, 0, 1j]
+                      , [0, 0, 1j, 0]
+                      , [0, -1j, 0, 0]
+                      , [-1j, 0, 0, 0]], dtype=torch.cdouble)
+         , torch.tensor([[0, 0, 0, -1]
+                        , [0, 0, 1, 0]
+                        , [0, 1, 0, 0]
+                        , [-1, 0, 0, 0]], dtype=torch.cdouble)
+         , torch.tensor([[0, 0, 1j, 0]
+                        , [0, 0, 0, -1j]
+                        , [-1j, 0, 0, 0]
+                        , [0, 1j, 0, 0]], dtype=torch.cdouble)
+         , torch.tensor([[0, 0, 1, 0]
+                        , [0, 0, 0, 1]
+                        , [1, 0, 0, 0]
+                        , [0, 1, 0, 0]], dtype=torch.cdouble)
          ]
+
+gamma5 = torch.tensor([[1, 0, 0, 0]
+                         , [0, 1, 0, 0]
+                         , [0, 0, -1, 0]
+                         , [0, 0, 0, -1]], dtype=torch.cdouble)

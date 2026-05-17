@@ -8,7 +8,7 @@ import torch
 
 
 class C_Convolution(torch.nn.Module):
-    """
+    r"""
         This class provides a :attr:`nd`-dimensional convolutional layer with circular padding.
         Originally described for 2D convolutions in the supplemental material of https://link.aps.org/doi/10.1103/PhysRevLett.128.032003.
 
@@ -55,7 +55,7 @@ class C_Convolution(torch.nn.Module):
             self.biases = None
 
     def forward(self, U):
-        """
+        r"""
 
             .. math::
                 U_i(x) \rightarrow b_i + \sum_j \omega_{ij} \star U_j(x)

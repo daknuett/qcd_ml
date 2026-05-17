@@ -32,6 +32,7 @@ def lattice2ndarray(lattice):
         q_top = g.qcd.gauge.topological_charge_5LI(U_smeared, field=True)
         plot_scalar_field(lattice2ndarray(q_top))
     """
+    fdims = lattice.grid.fdimensions
     shape = lattice.grid.fdimensions
     shape = list(reversed(shape))
     if lattice[:].shape[1:] != (1,):
@@ -40,8 +41,8 @@ def lattice2ndarray(lattice):
     coordinates = g.coordinates(lattice)
    
     result = lattice[coordinates].reshape(shape)
-    result = np.swapaxes(result, 0, 3)
-    result = np.swapaxes(result, 1, 2)
+    for i in range(len(fdims) // 2):
+        result = np.swapaxes(result, i, len(fdims) - i - 1)
     return result
 
 def ndarray2lattice(ndarray, grid, lat_constructor):
@@ -52,9 +53,14 @@ def ndarray2lattice(ndarray, grid, lat_constructor):
 
         lat = ndarray2lattice(arr, g.grid([4,4,4,8], g.double), g.vspincolor)
     """
+    data = ndarray
+    fdims = grid.fdimensions
+    
     lat = lat_constructor(grid)
-    data = np.swapaxes(ndarray, 0, 3)
-    data = np.swapaxes(data, 1, 2)
+    
+    for i in range(len(fdims) // 2):
+        data = np.swapaxes(data, i, len(fdims) - i - 1)
+        
     coordinates = g.coordinates(lat)
-    lat[coordinates] = data.reshape([data.shape[0] * data.shape[1] * data.shape[2] * data.shape[3]] + list(data.shape[4:]))
+    lat[coordinates] = data.reshape([np.prod(np.array(fdims))] + list(data.shape[len(fdims):]))
     return lat
