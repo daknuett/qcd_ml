@@ -1,10 +1,10 @@
 import functools
 from typing import Iterable, Callable
 
-
 """
 Brings comptime evaluation to functions.
 """
+
 
 class ComptimeFunc:
     def __init__(self, func: Callable, comptime_args: Iterable):
@@ -17,10 +17,11 @@ class ComptimeFunc:
         try:
             return self._values[args]
         except:
-            pass
-        raise ValueError(f"{args} were not known at compile time")
+            raise ValueError(f"{args} were not known at compile time")
+
 
 def comptime(comptime_args: Iterable):
     def _comptime_eval(func: Callable):
         return ComptimeFunc(func, comptime_args)
+
     return _comptime_eval
