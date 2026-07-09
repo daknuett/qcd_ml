@@ -3,9 +3,8 @@ QCD observables that are computed on the gauge field.
 
 """
 import torch
-import numpy
 from ...base.paths import PathBuffer
-from ...base.operations import SU3_group_compose
+from ...base.operations import SU3_group_compose, _mul
 from ...util.tensor import levi_civita_index_and_sign_iterator
 
 
@@ -43,12 +42,6 @@ def plaquette_field(U, _gpt_compat=False):
         return plaquette_field
 
 
-def _mul(iterable):
-    res = 1
-    for i in iterable:
-        res *= i
-    return res
-
 def topological_charge_density_clover(U, _gpt_compat=False):
     """
     The topological charge density field :math:`q(n)` [1]_ [2]_ using the clover 
@@ -80,9 +73,9 @@ def topological_charge_density_clover(U, _gpt_compat=False):
         q_field += sgn * torch.einsum("abcdii->abcd", identity - SU3_group_compose(Fmunu[mu][nu], Fmunu[rho][sigma]))
         
     if not _gpt_compat:
-        rescale = 1 / 32 / numpy.pi**2
+        rescale = 1 / 32 / torch.pi**2
     else:
-        rescale = 16.0 / (32.0 * numpy.pi**2) * (0.125**2.0) * _mul(U[0].shape[0:4])
+        rescale = 16.0 / (32.0 * torch.pi**2) * (0.125**2.0) * _mul(U[0].shape[0:4])
     return q_field * rescale
 
 
