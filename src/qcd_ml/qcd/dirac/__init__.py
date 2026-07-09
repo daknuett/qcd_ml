@@ -1,3 +1,10 @@
+"""
+qcd_ml.qcd.dirac
+================
+
+Dirac operators.
+"""
+
 import torch
 
 from ...base.hop import v_hop
