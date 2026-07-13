@@ -55,19 +55,19 @@ def _es_SU3_group_compose(A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:
 
 def SU3_group_compose(A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:
     """
-    :math:`SU(3)` group composition of two :math:`SU(3)` fields.
+    :math:`SU(Nc)` group composition of two :math:`SU(Nc)` fields.
     
     Args:
-        A: First SU(3) field tensor of shape (Lx, Ly, Lz, Lt, 3, 3).
-        B: Second SU(3) field tensor of shape (Lx, Ly, Lz, Lt, 3, 3).
+        A: First SU(Nc) field tensor of shape (Lx, Ly, Lz, Lt, Nc, Nc).
+        B: Second SU(Nc) field tensor of shape (Lx, Ly, Lz, Lt, Nc, Nc).
         
     Returns:
-        The composed SU(3) field tensor of shape (Lx, Ly, Lz, Lt, 3, 3).
+        The composed SU(Nc) field tensor of shape (Lx, Ly, Lz, Lt, Nc, Nc).
     """
     vol = _mul(A.shape[:4])
     old_shape = A.shape
     return torch.bmm(A.reshape((vol, *(A.shape[4:])))
-                     , B.reshape((vol, *(A.shape[4:])))).reshape(old_shape)
+                     , B.reshape((vol, *(B.shape[4:])))).reshape(old_shape)
 
 
 def _es_v_gauge_transform(Umu: torch.Tensor, v: torch.Tensor) -> torch.Tensor:
@@ -89,11 +89,11 @@ def v_gauge_transform(Umu: torch.Tensor, v: torch.Tensor) -> torch.Tensor:
     Gauge transformation of vector-like fields.
     
     Args:
-        Umu: SU(3) gauge field tensor of shape (4, Lx, Ly, Lz, Lt, 3, 3).
-        v: Vector-like field tensor of shape (Lx, Ly, Lz, Lt, 4, 3).
+        Umu: SU(Nc) gauge field tensor of shape (Lx, Ly, Lz, Lt, Nc, Nc).
+        v: Vector-like field tensor of shape (Lx, Ly, Lz, Lt, Ns, Nc).
         
     Returns:
-        Gauge-transformed vector field tensor of shape (Lx, Ly, Lz, Lt, 4, 3).
+        Gauge-transformed vector field tensor of shape (Lx, Ly, Lz, Lt, Ns, Nc).
     """
     vol = _mul(v.shape[:4])
     old_shape = v.shape
@@ -182,16 +182,19 @@ def link_gauge_transform(U: torch.Tensor, V: torch.Tensor) -> torch.Tensor:
     A link-like field is typically a gauge configuration.
     
     Args:
-        U: Gauge field tensor of shape (4, Lx, Ly, Lz, Lt, 3, 3) where 4 is the number
-            of spacetime directions.
-        V: Gauge transformation matrix tensor of shape (Lx, Ly, Lz, Lt, 3, 3).
+        U: Gauge field tensor of shape (4, Lx, Ly, Lz, Lt, Nc, Nc) where 4 is the number
+            of spacetime directions, and Nc is the number of colors.
+        V: Gauge transformation matrix tensor of shape (Lx, Ly, Lz, Lt, Nc, Nc).
         
     Returns:
-        Gauge-transformed gauge field tensor of shape (4, Lx, Ly, Lz, Lt, 3, 3).
+        Gauge-transformed gauge field tensor of shape (4, Lx, Ly, Lz, Lt, Nc, Nc).
     """
     Vdg = V.adjoint()
-    U_trans = torch.stack([SU3_group_compose(V, U[mu]) for mu in range(4)])
+    # U is already a tensor of shape (4, Lx, Ly, Lz, Lt, Nc, Nc)
+    # so U[mu] gives us the mu-th direction
+    U_trans = torch.zeros_like(U)
     for mu in range(4):
+        U_trans[mu] = SU3_group_compose(V, U[mu])
         U_trans[mu] = SU3_group_compose(U_trans[mu], torch.roll(Vdg, -1, mu))
     return U_trans
 
@@ -229,11 +232,11 @@ def m_gauge_transform(Umu: torch.Tensor, m: torch.Tensor) -> torch.Tensor:
     Gauge transformation of matrix-like fields.
     
     Args:
-        Umu: SU(3) gauge field tensor of shape (4, Lx, Ly, Lz, Lt, 3, 3).
-        m: Matrix-like field tensor of shape (Lx, Ly, Lz, Lt, 3, 3).
+        Umu: SU(Nc) gauge field tensor of shape (Lx, Ly, Lz, Lt, Nc, Nc).
+        m: Matrix-like field tensor of shape (Lx, Ly, Lz, Lt, Nc, Nc).
         
     Returns:
-        Gauge-transformed matrix field tensor of shape (Lx, Ly, Lz, Lt, 3, 3).
+        Gauge-transformed matrix field tensor of shape (Lx, Ly, Lz, Lt, Nc, Nc).
     """
     vol = _mul(m.shape[:4])
     old_shape = m.shape

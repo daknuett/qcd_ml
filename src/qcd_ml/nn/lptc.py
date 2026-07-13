@@ -43,13 +43,13 @@ class v_LPTC(torch.nn.Module):
 
         Notes:
             Weights are initialized as a random tensor with shape
-            [n_feature_in, n_feature_out, len(paths), *U[0].shape[0:4], 4, 4]
+            [n_feature_in, n_feature_out, len(paths), Lx, Ly, Lz, Lt, 4, 4]
             and dtype torch.cdouble.
             The path_buffers are created for each path in paths.
         """
         super().__init__()
         self.weights = torch.nn.Parameter(
-                torch.randn(n_feature_in, n_feature_out, len(paths), *tuple(U[0].shape[0:4]), 4, 4, dtype=torch.cdouble)
+                torch.randn(n_feature_in, n_feature_out, len(paths), *U.shape[1:5], 4, 4, dtype=torch.cdouble)
                 )
 
         self.n_feature_in = n_feature_in

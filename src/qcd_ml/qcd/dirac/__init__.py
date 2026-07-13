@@ -53,18 +53,18 @@ class dirac_wilson:
     in lattice QCD, including a Wilson term to remove fermion doubling.
 
     Attributes:
-        U (Union[torch.Tensor, List[torch.Tensor]]): Gauge field configuration.
+        U (torch.Tensor): Gauge field configuration.
         mass_parameter (float): Bare mass parameter.
         gamma (torch.Tensor): Stacked gamma matrices on the same device as U.
         dag (bool): Whether to use the dagger (adjoint) operator.
     """
 
-    def __init__(self, U: Union[torch.Tensor, List[torch.Tensor]], mass_parameter: float, dag: bool = False) -> None:
+    def __init__(self, U: torch.Tensor, mass_parameter: float, dag: bool = False) -> None:
         """Initialize the Wilson Dirac operator.
 
         Args:
-            U (Union[torch.Tensor, List[torch.Tensor]]): Gauge field configuration.
-                Can be a single tensor or a list of tensors, one for each direction.
+            U (torch.Tensor): Gauge field configuration of shape (4, Lx, Ly, Lz, Lt, Nc, Nc)
+                where 4 is the number of spacetime dimensions.
             mass_parameter (float): Bare mass parameter in lattice units.
             dag (bool, optional): If True, use the adjoint operator. Defaults to False.
         """
@@ -72,7 +72,7 @@ class dirac_wilson:
         self.mass_parameter = mass_parameter
 
         # copy gamma to local device.
-        self.gamma = torch.stack(gamma).to(U[0].device)
+        self.gamma = torch.stack(gamma).to(U.device)
 
         self.dag = dag
 
@@ -164,7 +164,7 @@ class dirac_wilson_clover:
     improve the action and reduce O(a) errors. See arXiv:2302.05419.
 
     Attributes:
-        U (Union[torch.Tensor, List[torch.Tensor]]): Gauge field configuration.
+        U (torch.Tensor): Gauge field configuration.
         mass_parameter (float): Bare mass parameter.
         csw (float): Clover improvement coefficient.
         gamma (torch.Tensor): Stacked gamma matrices on the same device as U.
@@ -173,12 +173,12 @@ class dirac_wilson_clover:
         dag (bool): Whether to use the dagger (adjoint) operator.
     """
 
-    def __init__(self, U: Union[torch.Tensor, List[torch.Tensor]], mass_parameter: float, csw: float, dag: bool = False) -> None:
+    def __init__(self, U: torch.Tensor, mass_parameter: float, csw: float, dag: bool = False) -> None:
         """Initialize the clover-improved Wilson Dirac operator.
 
         Args:
-            U (Union[torch.Tensor, List[torch.Tensor]]): Gauge field configuration.
-                Can be a single tensor or a list of tensors, one for each direction.
+            U (torch.Tensor): Gauge field configuration of shape (4, Lx, Ly, Lz, Lt, Nc, Nc)
+                where 4 is the number of spacetime dimensions.
             mass_parameter (float): Bare mass parameter in lattice units.
             csw (float): Clover improvement coefficient.
             dag (bool, optional): If True, use the adjoint operator. Defaults to False.
@@ -188,14 +188,14 @@ class dirac_wilson_clover:
         self.csw = csw
 
         # copy both gamma and sigma to local device.
-        self.gamma = torch.stack(gamma).to(U[0].device)
+        self.gamma = torch.stack(gamma).to(U.device)
 
         self.sigmamunu = torch.stack(
             [
                 torch.stack([sigmamunu(mu, nu) for nu in range(4)])
                 for mu in range(4)
             ]
-        ).to(U[0].device)
+        ).to(U.device)
 
         Hp = lambda mu, lst: lst + [(mu, 1)]
         Hm = lambda mu, lst: lst + [(mu, -1)]

@@ -89,7 +89,7 @@ class stout:
         trace = torch.einsum("mabcdii->mabcd", hermitian)
 
         identity = torch.clone(hermitian)
-        identity[:, :, :, :, :] = torch.eye(3, 3, dtype=torch.cdouble)
+        identity[:, :, :, :, :] = torch.eye(3, dtype=torch.cdouble)
         trace_removal = torch.einsum("mabcdij,mabcd->mabcdij"
                                      , identity, trace)
         traceless_hermitian = 1j/2 * (hermitian - trace_removal / 3)

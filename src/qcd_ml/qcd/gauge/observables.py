@@ -72,7 +72,7 @@ def topological_charge_density_clover(U: torch.Tensor, _gpt_compat: bool = False
     if not _gpt_compat:
         rescale = 1 / 32 / torch.pi**2
     else:
-        rescale = 16.0 / (32.0 * torch.pi**2) * (0.125**2.0) * _mul(U[0].shape[0:4])
+        rescale = 16.0 / (32.0 * torch.pi**2) * (0.125**2.0) * _mul(U.shape[1:5])
     return q_field * rescale
 
 def topological_charge_density_plaquette(U: torch.Tensor) -> torch.Tensor:

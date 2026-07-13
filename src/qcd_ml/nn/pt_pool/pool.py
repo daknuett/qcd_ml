@@ -64,7 +64,7 @@ class v_ProjectLayer(torch.nn.Module):
 
         Args:
             gauges_and_paths: List of tuples (gauge_field, paths) where gauge_field is a
-                4D tensor and paths is a list of paths.
+                tensor of shape (4, Lx, Ly, Lz, Lt, Nc, Nc) and paths is a list of paths.
             L_fine: Fine lattice dimensions as a tuple.
             L_coarse: Coarse lattice dimensions as a tuple.
             _gpt_compat: Whether to use gpt-compatible normalization. Defaults to False.
