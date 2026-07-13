@@ -176,22 +176,23 @@ def v_ng_spin_const_transform(M: torch.Tensor, v: torch.Tensor) -> torch.Tensor:
     return torch.einsum("ij,abcdj->abcdi", M, v)
 
 
-def link_gauge_transform(U: list[torch.Tensor], V: torch.Tensor) -> list[torch.Tensor]:
+def link_gauge_transform(U: torch.Tensor, V: torch.Tensor) -> torch.Tensor:
     """
     Gauge-transforms a link-like field.
     A link-like field is typically a gauge configuration.
     
     Args:
-        U: List of gauge field tensors, one for each direction.
+        U: Gauge field tensor of shape (4, Lx, Ly, Lz, Lt, 3, 3) where 4 is the number
+            of spacetime directions.
         V: Gauge transformation matrix tensor of shape (Lx, Ly, Lz, Lt, 3, 3).
         
     Returns:
-        List of gauge-transformed gauge field tensors.
+        Gauge-transformed gauge field tensor of shape (4, Lx, Ly, Lz, Lt, 3, 3).
     """
     Vdg = V.adjoint()
-    U_trans = [SU3_group_compose(V, Umu) for Umu in U]
-    for mu, U_transmu in enumerate(U_trans):
-        U_trans[mu] = SU3_group_compose(U_transmu, torch.roll(Vdg, -1, mu))
+    U_trans = torch.stack([SU3_group_compose(V, U[mu]) for mu in range(4)])
+    for mu in range(4):
+        U_trans[mu] = SU3_group_compose(U_trans[mu], torch.roll(Vdg, -1, mu))
     return U_trans
 
 

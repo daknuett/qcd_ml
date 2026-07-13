@@ -12,12 +12,13 @@ from typing import List
 
 from .operations import v_gauge_transform, m_gauge_transform
 
-def v_hop(U: list[torch.Tensor], mu: int, direction: int, v: torch.Tensor) -> torch.Tensor:
+def v_hop(U: torch.Tensor, mu: int, direction: int, v: torch.Tensor) -> torch.Tensor:
     """
     Gauge-equivariant hop for a vector-like field.
     
     Args:
-        U: List of gauge field tensors, one for each direction.
+        U: Gauge field tensor of shape (4, Lx, Ly, Lz, Lt, 3, 3) where 4 is the number
+            of spacetime directions.
         mu: The direction index (0-3 for 4D spacetime).
         direction: The direction of the hop (1 for forward, -1 for backward).
         v: The vector-like field tensor.
@@ -49,12 +50,13 @@ def v_ng_hop(mu: int, direction: int, v: torch.Tensor) -> torch.Tensor:
     return torch.roll(v, direction,  mu)
 
 
-def m_hop(U: list[torch.Tensor], mu: int, direction: int, m: torch.Tensor) -> torch.Tensor:
+def m_hop(U: torch.Tensor, mu: int, direction: int, m: torch.Tensor) -> torch.Tensor:
     """
     Gauge-equivariant hop for a matrix-like field.
     
     Args:
-        U: List of gauge field tensors, one for each direction.
+        U: Gauge field tensor of shape (4, Lx, Ly, Lz, Lt, 3, 3) where 4 is the number
+            of spacetime directions.
         mu: The direction index (0-3 for 4D spacetime).
         direction: The direction of the hop (1 for forward, -1 for backward).
         m: The matrix-like field tensor.
