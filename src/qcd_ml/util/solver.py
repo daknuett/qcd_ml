@@ -4,12 +4,11 @@ qcd_ml.util.solver
 
 Solvers for systems of linear equations.
 """
-import torch 
+import torch
 import numpy as np
+from typing import Callable, Union, Any, Dict, List, Tuple
 
-
-
-def update_qr(H, s, c, j):
+def update_qr(H: np.ndarray, s: np.ndarray, c: np.ndarray, j: int) -> None:
     """
     Runs and updates the QR decomposition of the matrix H.
     This function is used internally by GMRES_inner.
@@ -29,10 +28,9 @@ def update_qr(H, s, c, j):
     H[j,j] = beta
     H[j+1,j] = 0.0
 
-    
-def update_result(x, Z, gamma, H, y, j):
+def update_result(x: torch.Tensor, Z: List[torch.Tensor], gamma: np.ndarray, H: np.ndarray, y: np.ndarray, j: int) -> torch.Tensor:
     """
-    Updates the result of GMRES_inner by going from the Krylov space 
+    Updates the result of GMRES_inner by going from the Krylov space
     (spanned by Z, coefficients H and gamma) to the solution x.
     """
     for i in reversed(range(j + 1)):
@@ -43,9 +41,7 @@ def update_result(x, Z, gamma, H, y, j):
 
     return x
 
-
-
-def GMRES_inner(A, b, x0, stopat_residual, niterations, innerproduct, preconditioner):
+def GMRES_inner(A: Callable[[torch.Tensor], torch.Tensor], b: torch.Tensor, x0: torch.Tensor, stopat_residual: float, niterations: int, innerproduct: Callable[[torch.Tensor, torch.Tensor], torch.Tensor], preconditioner: Union[Callable[[torch.Tensor], torch.Tensor], None]) -> Tuple[torch.Tensor, Dict[str, Any]]:
     """
     Inner GMRES, i.e., ``niterations`` without restart.
     """
@@ -100,7 +96,7 @@ def GMRES_inner(A, b, x0, stopat_residual, niterations, innerproduct, preconditi
 
         res = np.abs(gamma[j+1])
         history[j] = res
-        
+
         if res < stopat_residual:
             converged = True
             break
@@ -109,18 +105,19 @@ def GMRES_inner(A, b, x0, stopat_residual, niterations, innerproduct, preconditi
 
     return x, {"converged": converged, "breakdown": breakdown, "res": res, "k": j + 1, "target_residual": stopat_residual, "history": history}
 
-
-def GMRES(A, b, x0
-          , maxiter=1000
-          , inner_iter=30
-          , eps=1e-5
-          , innerproduct=lambda x,y: (x.conj() * y).sum()
-          , preconditioner=None
-          , verbose=False
-          ):
+def GMRES(A: Union[Callable[[torch.Tensor], torch.Tensor], Any],
+          b: torch.Tensor,
+          x0: torch.Tensor,
+          maxiter: int = 1000,
+          inner_iter: int = 30,
+          eps: float = 1e-5,
+          innerproduct: Callable[[torch.Tensor, torch.Tensor], torch.Tensor] = lambda x,y: (x.conj() * y).sum(),
+          preconditioner: Union[Callable[[torch.Tensor], torch.Tensor], None] = None,
+          verbose: bool = False
+          ) -> Tuple[torch.Tensor, Dict[str, Any]]:
     """
     Implementation of thr GMRES algorithm for solving the linear system Ax = b.
-    
+
     ``A``: callable or a matrix that allows ``A @ x`` to be computed.
     ``b``: right-hand side of the linear system.
     ``x0``: initial guess for the solution.
@@ -151,7 +148,7 @@ def GMRES(A, b, x0
         stopat_residual = eps * norm_r0
 
     hist = np.zeros(maxiter)
-    iters = 0 
+    iters = 0
     x = x0
 
     while iters < maxiter:
