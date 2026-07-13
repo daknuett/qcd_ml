@@ -137,7 +137,7 @@ class C_Convolution(torch.nn.Module):
         """Padding size to preserve lattice size.
 
         Returns:
-            List of padding sizes [left_0, right_0, left_1, right_1, ...].
+            list: List of padding sizes [left_0, right_0, left_1, right_1, ...].
         """
         padding = []
         for ks in reversed(self.kernel_size):
@@ -155,7 +155,7 @@ class C_Convolution(torch.nn.Module):
         """Extra representation for the layer.
 
         Returns:
-            String representation of the layer's key attributes.
+            str: String representation of the layer's key attributes.
         """
         return (
             f"{self.n_input}, {self.n_output}, kernel_size={self.kernel_size}"

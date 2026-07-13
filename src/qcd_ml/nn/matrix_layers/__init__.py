@@ -96,11 +96,12 @@ class LGE_CB(torch.nn.Module):
         """Forward pass of the LGE_CB layer.
 
         Args:
-            U: The link field tensor.
-            features_in: Input features tensor.
+            U: The link field tensor of shape (4, Lx, Ly, Lz, Lt, Nc, Nc).
+            features_in: Input features tensor of shape (n_features_in, ...).
 
         Returns:
-            Output features tensor after applying the convolution-bilinear operation.
+            Output features tensor of shape (n_features_out, ...) after applying 
+            the convolution-bilinear operation.
         """
         path_buffers = self.get_path_buffers(U)
         transported_features = torch.stack([pk.m_transport(fj) for pk, fj in itertools.product(path_buffers, features_in)])

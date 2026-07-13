@@ -12,6 +12,12 @@ def update_qr(H: np.ndarray, s: np.ndarray, c: np.ndarray, j: int) -> None:
     """
     Runs and updates the QR decomposition of the matrix H.
     This function is used internally by GMRES_inner.
+    
+    Args:
+        H: Matrix to decompose, modified in place.
+        s: Array of sine values for Givens rotations, modified in place.
+        c: Array of cosine values for Givens rotations, modified in place.
+        j: Current column index being processed.
     """
     # Apply previous Givens rotations to the new column of H
     for i in range(j):
@@ -32,6 +38,17 @@ def update_result(x: torch.Tensor, Z: List[torch.Tensor], gamma: np.ndarray, H: 
     """
     Updates the result of GMRES_inner by going from the Krylov space
     (spanned by Z, coefficients H and gamma) to the solution x.
+    
+    Args:
+        x: Current solution estimate, modified in place.
+        Z: List of basis vectors for the Krylov subspace.
+        gamma: Array of coefficients for the right-hand side in the Krylov basis.
+        H: Upper Hessenberg matrix from the Arnoldi process.
+        y: Coefficient array for the solution in the Krylov basis.
+        j: Number of iterations completed.
+        
+    Returns:
+        Updated solution tensor x.
     """
     for i in reversed(range(j + 1)):
         y[i] = (gamma[i] - np.dot(H[i, i+1:j+1], y[i+1:j+1])) / H[i,i]
@@ -44,6 +61,25 @@ def update_result(x: torch.Tensor, Z: List[torch.Tensor], gamma: np.ndarray, H: 
 def GMRES_inner(A: Callable[[torch.Tensor], torch.Tensor], b: torch.Tensor, x0: torch.Tensor, stopat_residual: float, niterations: int, innerproduct: Callable[[torch.Tensor, torch.Tensor], torch.Tensor], preconditioner: Union[Callable[[torch.Tensor], torch.Tensor], None]) -> Tuple[torch.Tensor, Dict[str, Any]]:
     """
     Inner GMRES, i.e., ``niterations`` without restart.
+    
+    Args:
+        A: Linear operator as a callable that takes a tensor and returns a tensor.
+        b: Right-hand side vector.
+        x0: Initial guess for the solution.
+        stopat_residual: Target residual norm for convergence.
+        niterations: Maximum number of iterations.
+        innerproduct: Function to compute inner products of tensors.
+        preconditioner: Optional preconditioner function, or None.
+        
+    Returns:
+        Tuple of (solution tensor x, dictionary with convergence information).
+        The dictionary contains:
+        - 'converged': bool indicating if convergence was achieved
+        - 'breakdown': bool indicating if breakdown occurred
+        - 'res': final residual norm
+        - 'k': number of iterations performed
+        - 'target_residual': target residual
+        - 'history': array of residual norms at each iteration
     """
     r0 = b - A(x0)
     v1 = r0 / innerproduct(r0, r0) ** 0.5
@@ -116,16 +152,30 @@ def GMRES(A: Union[Callable[[torch.Tensor], torch.Tensor], Any],
           verbose: bool = False
           ) -> Tuple[torch.Tensor, Dict[str, Any]]:
     """
-    Implementation of thr GMRES algorithm for solving the linear system Ax = b.
+    Implementation of the GMRES algorithm for solving the linear system Ax = b.
 
-    ``A``: callable or a matrix that allows ``A @ x`` to be computed.
-    ``b``: right-hand side of the linear system.
-    ``x0``: initial guess for the solution.
-    ``maxiter``: maximum number of iterations.
-    ``inner_iter``: number of iterations before restarting.
-    ``eps``: tolerance for the residual. The true tolerance is ``eps * ||b||`` or ``eps * ||r0||``.
-    ``innerproduct``: inner product function.
-    ``preconditioner``: preconditioner function. Should be a function that takes a vector and returns a vector.
+    Args:
+        A: Callable or a matrix that allows ``A @ x`` to be computed.
+        b: Right-hand side of the linear system.
+        x0: Initial guess for the solution.
+        maxiter: Maximum number of iterations. Defaults to 1000.
+        inner_iter: Number of iterations before restarting. Defaults to 30.
+        eps: Tolerance for the residual. The true tolerance is ``eps * ||b||`` or ``eps * ||r0||``.
+            Defaults to 1e-5.
+        innerproduct: Inner product function. Defaults to lambda x,y: (x.conj() * y).sum().
+        preconditioner: Preconditioner function. Should be a function that takes a vector 
+            and returns a vector. Defaults to None.
+        verbose: If True, print convergence information. Defaults to False.
+        
+    Returns:
+        Tuple of (solution tensor x, dictionary with convergence information).
+        The dictionary contains:
+        - 'converged': bool indicating if convergence was achieved
+        - 'breakdown': bool indicating if breakdown occurred
+        - 'res': final residual norm
+        - 'k': total number of iterations performed
+        - 'target_residual': target residual
+        - 'history': array of residual norms at each iteration
     """
 
     if hasattr(A, "__call__"):

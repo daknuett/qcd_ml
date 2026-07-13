@@ -97,6 +97,10 @@ class v_PTC(torch.nn.Module):
               Instead the layer is updated.
 
         Mostly used for testing.
+
+        Args:
+            U_transformed: Transformed gauge field tensor of shape (4, Lx, Ly, Lz, Lt, Nc, Nc)
+                to replace the current gauge field.
         """
         for i, pi in enumerate(self.path_buffers):
             self.path_buffers[i] = PathBuffer(U_transformed, pi.path, **self.path_buffer_kwargs)

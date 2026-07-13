@@ -49,9 +49,17 @@ class v_Dense(torch.nn.Module):
 
     def forward(self, features_in: torch.Tensor) -> torch.Tensor:
         r"""
+        Apply the dense layer to input features.
+        
         .. math::
 
             \phi_o(x) = \sum\limits_i W_{io} \phi_i(x)
+        
+        Args:
+            features_in: Input features tensor of shape (n_feature_in, ...).
+            
+        Returns:
+            Output features tensor of shape (n_feature_out, ...).
         """
         if features_in.shape[0] != self.n_feature_in:
             raise ValueError(
@@ -67,6 +75,12 @@ class v_Dense(torch.nn.Module):
         .. math::
 
             \phi_i(x) = \sum\limits_o W_{io}^\dagger \phi_o(x).
+        
+        Args:
+            features_in: Input features tensor of shape (n_feature_out, ...).
+            
+        Returns:
+            Output features tensor of shape (n_feature_in, ...).
         """
         if features_in.shape[0] != self.n_feature_out:
             raise ValueError(

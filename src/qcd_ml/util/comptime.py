@@ -39,8 +39,7 @@ class ComptimeFunc:
             *args: Positional arguments to pass to the function.
 
         Returns:
-            The pre-computed value if args match a compile-time known argument,
-            otherwise raises ValueError.
+            Any: The pre-computed value if args match a compile-time known argument.
 
         Raises:
             ValueError: If the provided arguments were not known at compile time.

@@ -45,6 +45,15 @@ class coarse_9point_op_NG:
         self.L_coarse = L_coarse
 
         def pseudo_gauge_apply(ps_gauge: torch.Tensor, vec: torch.Tensor) -> torch.Tensor:
+            """Apply pseudo-gauge transformation.
+            
+            Args:
+                ps_gauge: Pseudo-gauge field tensor.
+                vec: Vector to transform.
+                
+            Returns:
+                Transformed vector.
+            """
             return torch.einsum("abcdij,abcdj->abcdi", ps_gauge, vec)
     
         self.pseudo_gauge_transform = pseudo_gauge_apply
@@ -98,9 +107,27 @@ class coarse_9point_op_NG:
         vec = torch.zeros(*mg.L_coarse, mg.n_basis)
 
         def update_idx_p(idx: list, mu: int) -> Tuple:
+            """Update index in positive direction.
+            
+            Args:
+                idx: Current index as a list.
+                mu: Direction index to increment.
+                
+            Returns:
+                Updated index as a tuple.
+            """
             idx[mu] = (idx[mu] + 1) % mg.L_coarse[mu]
             return tuple(idx)
         def update_idx_m(idx: list, mu: int) -> Tuple:
+            """Update index in negative direction.
+            
+            Args:
+                idx: Current index as a list.
+                mu: Direction index to decrement.
+                
+            Returns:
+                Updated index as a tuple.
+            """
             idx[mu] = (idx[mu] + mg.L_coarse[mu] - 1) % mg.L_coarse[mu]
             return tuple(idx)
         
@@ -161,6 +188,15 @@ class coarse_9point_op_IFG:
         self.L_coarse = L_coarse
 
         def pseudo_gauge_apply(ps_gauge: torch.Tensor, vec: torch.Tensor) -> torch.Tensor:
+            """Apply pseudo-gauge transformation.
+            
+            Args:
+                ps_gauge: Pseudo-gauge field tensor.
+                vec: Vector to transform.
+                
+            Returns:
+                Transformed vector.
+            """
             return torch.einsum("abcdijkl,abcdjl->abcdik", ps_gauge, vec)
     
         self.pseudo_gauge_transform = pseudo_gauge_apply
@@ -213,9 +249,27 @@ class coarse_9point_op_IFG:
         vec = torch.zeros(*pooling.L_coarse, 4,3, dtype=torch.cdouble)
 
         def update_idx_p(idx: list, mu: int) -> Tuple:
+            """Update index in positive direction.
+            
+            Args:
+                idx: Current index as a list.
+                mu: Direction index to increment.
+                
+            Returns:
+                Updated index as a tuple.
+            """
             idx[mu] = (idx[mu] + 1) % pooling.L_coarse[mu]
             return tuple(idx)
         def update_idx_m(idx: list, mu: int) -> Tuple:
+            """Update index in negative direction.
+            
+            Args:
+                idx: Current index as a list.
+                mu: Direction index to decrement.
+                
+            Returns:
+                Updated index as a tuple.
+            """
             idx[mu] = (idx[mu] + pooling.L_coarse[mu] - 1) % pooling.L_coarse[mu]
             return tuple(idx)
         
