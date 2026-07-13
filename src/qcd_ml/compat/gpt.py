@@ -18,15 +18,25 @@ use gpt operators in torch or numpy::
     w = lambda x: torch.tensor(lattice2ndarray(w_gpt(ndarray2lattice(x.numpy(), U_gpt[0].grid, g.vspincolor))))
 
 """
+from typing import Any, Callable
 
 import gpt as g
 import numpy as np
 
 
-def lattice2ndarray(lattice):
-    """ 
-    Converts a `lehner/gpt <https://github.com/lehner/gpt>`_ lattice to a numpy ndarray 
+def lattice2ndarray(lattice: Any) -> np.ndarray:
+    """
+    Converts a `lehner/gpt <https://github.com/lehner/gpt>`_ lattice to a numpy ndarray
     keeping the ordering of axes as one would expect.
+
+    Args:
+        lattice: A gpt lattice object to convert.
+
+    Returns:
+        A numpy ndarray with axes reordered to match the standard convention.
+        The axes are swapped such that the time dimension is first, followed by
+        the spatial dimensions.
+
     Example::
 
         q_top = g.qcd.gauge.topological_charge_5LI(U_smeared, field=True)
@@ -38,16 +48,31 @@ def lattice2ndarray(lattice):
         shape.extend(lattice[:].shape[1:])
 
     coordinates = g.coordinates(lattice)
-   
+
     result = lattice[coordinates].reshape(shape)
     result = np.swapaxes(result, 0, 3)
     result = np.swapaxes(result, 1, 2)
     return result
 
-def ndarray2lattice(ndarray, grid, lat_constructor):
+
+def ndarray2lattice(
+    ndarray: np.ndarray,
+    grid: Any,
+    lat_constructor: Callable[..., Any]
+) -> Any:
     """
-    Converts an ndarray to a gpt lattice, it is the inverse 
+    Converts an ndarray to a gpt lattice, it is the inverse
     of lattice2ndarray.
+
+    Args:
+        ndarray: The numpy array to convert to a gpt lattice.
+        grid: The gpt grid object defining the lattice dimensions.
+        lat_constructor: The gpt lattice constructor (e.g., g.vspincolor, g.vcolor, etc.)
+            that defines the type of the lattice.
+
+    Returns:
+        A gpt lattice object with data from the ndarray.
+
     Example::
 
         lat = ndarray2lattice(arr, g.grid([4,4,4,8], g.double), g.vspincolor)
