@@ -1,6 +1,4 @@
 r"""
-------------
-
 Convolutions for matrix-like fields, i.e., fields that transform as
 
 .. math::
@@ -9,6 +7,7 @@ Convolutions for matrix-like fields, i.e., fields that transform as
 """
 
 import torch
+from typing import List, Dict, Any
 from ...base.paths import PathBuffer
 
 
@@ -43,9 +42,25 @@ class LGE_Convolution(torch.nn.Module):
     .. math::
 
         W_i(x) \rightarrow \sum_{jik} \omega_{j i k} T_{p_k}(W_j)(x)
+    
+    Attributes:
+        n_input (int): Number of input features.
+        n_output (int): Number of output features.
+        paths (list): List of paths for the convolution.
+        disable_cache (bool): Whether to disable caching.
+        path_buffer_cache (dict): Cache for path buffers.
+        weights (torch.nn.Parameter): Learnable weights.
     """
 
-    def __init__(self, n_input, n_output, paths, disable_cache=True):
+    def __init__(self, n_input: int, n_output: int, paths: list, disable_cache: bool = True) -> None:
+        """Initialize the LGE_Convolution layer.
+
+        Args:
+            n_input: Number of input features.
+            n_output: Number of output features.
+            paths: List of paths for the convolution.
+            disable_cache: Whether to disable caching of path buffers.
+        """
         super(LGE_Convolution, self).__init__()
         self.n_input = n_input
         self.n_output = n_output
@@ -59,7 +74,7 @@ class LGE_Convolution(torch.nn.Module):
         # https://github.com/pytorch/pytorch/issues/7733#issuecomment-390912112
         # See also the entire issue discussion
         # https://github.com/pytorch/pytorch/issues/7733.
-        self.path_buffer_cache = {}
+        self.path_buffer_cache: Dict[int, List[PathBuffer]] = {}
 
         self.weights = torch.nn.Parameter(
                 torch.randn(n_input
@@ -67,17 +82,27 @@ class LGE_Convolution(torch.nn.Module):
                              , len(paths)
                              , dtype=torch.cdouble))
 
-    def clear_path_buffers(self):
-        """
+    def clear_path_buffers(self) -> None:
+        """Clear the cache of pre-computed path buffers.
+
         If ``disable_cache=False``, this method can be used to clear the pre-computed cache.
         """
         self.path_buffer_cache = {}
 
-    def forward(self, U, features_in):
+    def forward(self, U: torch.Tensor, features_in: torch.Tensor) -> torch.Tensor:
         r"""
+        Apply the lattice gauge equivariant convolution.
+
         .. math::
 
             W_i(x) \rightarrow \sum_{j\mu k} \omega_{i\mu k j} U_{\mu k}(x) W_j(x+k\mu) U_{\mu k}^\dagger(x)
+        
+        Args:
+            U: The gauge field tensor.
+            features_in: Input features tensor.
+
+        Returns:
+            Output features tensor after applying the convolution.
         """
         if id(U) in self.path_buffer_cache:
             path_buffers = self.path_buffer_cache[id(U)]

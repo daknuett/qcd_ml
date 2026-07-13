@@ -31,6 +31,21 @@ class v_PTC(torch.nn.Module):
 
     """
     def __init__(self, n_feature_in: int, n_feature_out: int, paths: List[List[tuple]], U: list[torch.Tensor], **path_buffer_kwargs):
+        """
+        Initialize a Parallel Transport Convolution layer for vector-like objects.
+
+        Args:
+            n_feature_in: Number of input features.
+            n_feature_out: Number of output features.
+            paths: List of paths, where each path is a list of tuples (direction, nhops).
+                An empty list represents a path with no hops.
+            U: List of gauge field tensors.
+            **path_buffer_kwargs: Additional keyword arguments to pass to PathBuffer.
+
+        Note:
+            Weights are stored as a tensor of shape [n_feature_in, n_feature_out, len(paths), 4, 4]
+            with dtype=torch.cdouble.
+        """
         super().__init__()
         self.weights = torch.nn.Parameter(
                 torch.randn(n_feature_in, n_feature_out, len(paths), 4, 4, dtype=torch.cdouble)
@@ -47,6 +62,19 @@ class v_PTC(torch.nn.Module):
         self.path_buffers = [PathBuffer(U, pi, **path_buffer_kwargs) for pi in paths]
 
     def forward(self, features_in: list[torch.Tensor]) -> torch.Tensor:
+        """
+        Forward pass of the Parallel Transport Convolution.
+
+        Args:
+            features_in: List of input feature tensors. The first dimension should match
+                n_feature_in.
+
+        Returns:
+            Stacked output feature tensors of shape [n_feature_out, ...].
+
+        Raises:
+            ValueError: If the number of input features does not match n_feature_in.
+        """
         if features_in.shape[0] != self.n_feature_in:
             raise ValueError(f"shape mismatch: got {features_in.shape[0]} but expected {self.n_feature_in}")
 

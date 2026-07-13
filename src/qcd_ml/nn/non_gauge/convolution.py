@@ -1,6 +1,4 @@
 r"""
-------------
-
 Non gauge equivariant convolutions.
 """
 
@@ -8,22 +6,41 @@ import torch
 
 
 class C_Convolution(torch.nn.Module):
+    r"""
+    This class provides a :attr:`nd`-dimensional convolutional layer with circular padding.
+    Originally described for 2D convolutions in the supplemental material of https://link.aps.org/doi/10.1103/PhysRevLett.128.032003.
+
+    The convolution is defined as
+
+    .. math::
+        U_i(x) \rightarrow b_i + \sum_j \omega_{ij} \star U_j(x)
+
+    where :math:`\star` is the :attr:`nd`-dimensional `cross-correlation` operator with periodic boundary conditions.
+
+    Note:
+        Padding and stride are set automatically to preserve lattice size.
+
+    Attributes:
+        nd (int): Number of spatial dimensions.
+        n_input (int): Number of input channels.
+        n_output (int): Number of output channels.
+        kernel_size (tuple): Size of the convolution kernel.
+        padding (list): Padding size.
+        stride (list): Stride size.
+        weights (torch.nn.Parameter): Learnable convolution weights.
+        biases (torch.nn.Parameter or None): Learnable biases, or None if disabled.
     """
-        This class provides a :attr:`nd`-dimensional convolutional layer with circular padding.
-        Originally described for 2D convolutions in the supplemental material of https://link.aps.org/doi/10.1103/PhysRevLett.128.032003.
 
-        The convolution is defined as
+    def __init__(self, n_input: int, n_output: int, kernel_size: int, bias: bool = True, nd: int = 4) -> None:
+        """Initialize the C_Convolution layer.
 
-        .. math::
-            U_i(x) \rightarrow b_i + \sum_j \omega_{ij} \star U_j(x)
-
-        where :math:`\star` is the :attr:`nd`-dimensional `cross-correlation` operator with periodic boundary conditions.
-
-        Note:
-            Padding and stride are set automatically to preserve lattice size.
-    """
-
-    def __init__(self, n_input, n_output, kernel_size, bias=True, nd=4):
+        Args:
+            n_input: Number of input channels.
+            n_output: Number of output channels.
+            kernel_size: Size of the convolution kernel (can be a single int or a sequence).
+            bias: Whether to include a bias term. Defaults to True.
+            nd: Number of spatial dimensions. Defaults to 4.
+        """
         super(C_Convolution, self).__init__()
 
         # number of lattice dimensions
@@ -54,12 +71,18 @@ class C_Convolution(torch.nn.Module):
         else:
             self.biases = None
 
-    def forward(self, U):
-        """
+    def forward(self, U: torch.Tensor) -> torch.Tensor:
+        r"""
+        Apply the convolution.
 
-            .. math::
-                U_i(x) \rightarrow b_i + \sum_j \omega_{ij} \star U_j(x)
+        .. math::
+            U_i(x) \rightarrow b_i + \sum_j \omega_{ij} \star U_j(x)
 
+        Args:
+            U: Input tensor of shape (n_input, *spatial_dims, ...).
+
+        Returns:
+            Output tensor of shape (n_output, *spatial_dims, ...).
         """
         nu = U.dim()
         assert nu > self.nd # (C, x_0, ..., x_{nd-1}, ...)
@@ -83,9 +106,14 @@ class C_Convolution(torch.nn.Module):
 
         return U
 
-    def _circular_pad(self, U):
-        """
-        Apply circular padding.
+    def _circular_pad(self, U: torch.Tensor) -> torch.Tensor:
+        """Apply circular padding.
+
+        Args:
+            U: Input tensor to pad.
+
+        Returns:
+            Padded tensor.
         """
         for i, ks in enumerate(self.kernel_size):
             if ks > 1:
@@ -105,9 +133,11 @@ class C_Convolution(torch.nn.Module):
 
         return U
 
-    def _padding(self):
-        """
-        Padding size to preserve lattice size.
+    def _padding(self) -> list:
+        """Padding size to preserve lattice size.
+
+        Returns:
+            List of padding sizes [left_0, right_0, left_1, right_1, ...].
         """
         padding = []
         for ks in reversed(self.kernel_size):
@@ -121,7 +151,12 @@ class C_Convolution(torch.nn.Module):
                 padding.append(ks // 2)
         return padding
 
-    def extra_repr(self):
+    def extra_repr(self) -> str:
+        """Extra representation for the layer.
+
+        Returns:
+            String representation of the layer's key attributes.
+        """
         return (
             f"{self.n_input}, {self.n_output}, kernel_size={self.kernel_size}"
             f", bias={self.biases is not None}"

@@ -32,7 +32,13 @@ class v_Dense(torch.nn.Module):
         \phi_i(x) = \sum\limits_o} W_{io}^\dagger \phi_o(x).
     """
 
-    def __init__(self, n_feature_in, n_feature_out):
+    def __init__(self, n_feature_in: int, n_feature_out: int) -> None:
+        """Initialize the dense layer.
+
+        Args:
+            n_feature_in: Number of input features.
+            n_feature_out: Number of output features.
+        """
         super().__init__()
         self.weights = torch.nn.Parameter(
             torch.randn(n_feature_in, n_feature_out, 4, 4, dtype=torch.cdouble)
@@ -41,7 +47,7 @@ class v_Dense(torch.nn.Module):
         self.n_feature_in = n_feature_in
         self.n_feature_out = n_feature_out
 
-    def forward(self, features_in):
+    def forward(self, features_in: torch.Tensor) -> torch.Tensor:
         r"""
         .. math::
 
@@ -54,13 +60,13 @@ class v_Dense(torch.nn.Module):
 
         return torch.einsum("iojk,iabcdkG->oabcdjG", self.weights, features_in)
 
-    def reverse(self, features_in):
+    def reverse(self, features_in: torch.Tensor) -> torch.Tensor:
         r"""
         Hermitian adjoint operation of ``forward``.
 
-        ..math::
+        .. math::
 
-            \phi_i(x) = \sum\limits_o} W_{io}^\dagger \phi_o(x).
+            \phi_i(x) = \sum\limits_o W_{io}^\dagger \phi_o(x).
         """
         if features_in.shape[0] != self.n_feature_out:
             raise ValueError(
