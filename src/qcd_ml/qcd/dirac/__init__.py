@@ -10,7 +10,6 @@ import torch
 from ...base.hop import v_hop
 from ...base.operations import mspin_const_group_compose, v_spin_const_transform
 from ...base.paths import PathBuffer
-from ...util import get_device_by_reference
 from ...util.comptime import comptime
 from ..static import gamma
 
@@ -40,7 +39,7 @@ class dirac_wilson:
         self.mass_parameter = mass_parameter
 
         # copy gamma to local device.
-        self.gamma = torch.stack(gamma).to(get_device_by_reference(U[0]))
+        self.gamma = torch.stack(gamma).to(U[0].device)
 
         self.dag = dag
 
@@ -95,14 +94,14 @@ class dirac_wilson_clover:
         self.csw = csw
 
         # copy both gamma and sigma to local device.
-        self.gamma = torch.stack(gamma).to(get_device_by_reference(U[0]))
+        self.gamma = torch.stack(gamma).to(U[0].device)
 
         self.sigmamunu = torch.stack(
             [
                 torch.stack([sigmamunu(mu, nu) for nu in range(4)])
                 for mu in range(4)
             ]
-        ).to(get_device_by_reference(U[0]))
+        ).to(U[0].device)
 
         Hp = lambda mu, lst: lst + [(mu, 1)]
         Hm = lambda mu, lst: lst + [(mu, -1)]
