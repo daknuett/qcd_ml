@@ -3,6 +3,7 @@ import numpy as np
 import pytest
 
 import torch
+from qcd_ml.util.linear_algebra import innerproduct, norm
 
 try:
     import gpt as g
@@ -13,8 +14,6 @@ try:
         Test the inner product between two vectors against the gpt implementation.
         The inner product is used for instance in the GMRES algorithm.
         """
-        innerproduct = lambda x,y: (x.conj() * y).sum()
-
         vec = torch.randn(8,8,8,16, 4,3, dtype=torch.cdouble)
         vec2 = torch.randn_like(vec)
 
@@ -38,17 +37,14 @@ try:
         Test the norm2 of a vector against the gpt implementation.
         The norm2 is used for instance in the GMRES algorithm.
         """
-        innerproduct = lambda x,y: (x.conj() * y).sum()
-
         vec3 = torch.randn(8,8,8,16, 4,3, dtype=torch.cdouble)
 
         grid = g.grid([8,8,8,16], g.double)
         rng = g.random("deadbeef")
 
         vec3_gpt = qcd_ml.compat.gpt.ndarray2lattice(vec3.numpy(), grid, g.vspincolor)
-        norm2 = lambda x: innerproduct(x, x)
 
-        val_qcdml = norm2(vec3)
+        val_qcdml = norm(vec3)
 
         val_gpt = g.norm2(vec3_gpt)
 

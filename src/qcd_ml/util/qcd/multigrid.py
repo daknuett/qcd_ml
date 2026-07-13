@@ -4,41 +4,11 @@
 Provides Multigrid with zero point projection.
 """
 
-from typing import Callable, List, Tuple, Union
+from typing import Callable, List, Tuple
 import torch
 import itertools
 import numpy as np
-
-def innerproduct(x: Union[torch.Tensor, List[torch.Tensor]],
-                 y: Union[torch.Tensor, List[torch.Tensor]]) -> torch.Tensor:
-    """Compute the inner product of two tensors or lists of tensors.
-
-    The inner product is computed as the sum of the element-wise product of x conjugated
-    and y.
-
-    Args:
-        x: First tensor or list of tensors.
-        y: Second tensor or list of tensors.
-
-    Returns:
-        torch.Tensor: The complex inner product value.
-
-    Note:
-        If x and y are lists, they should contain single-element tensors for this
-        to work correctly with the current implementation.
-    """
-    return (x.conj() * y).sum()
-
-def norm(x: Union[torch.Tensor, List[torch.Tensor]]) -> torch.Tensor:
-    """Compute the L2 norm of a tensor or list of tensors.
-
-    Args:
-        x: Tensor or list of tensors to compute norm of.
-
-    Returns:
-        torch.Tensor: The real-valued norm (sqrt of inner product with self).
-    """
-    return torch.sqrt(innerproduct(x, x).real)
+from qcd_ml.util.linear_algebra import innerproduct, norm
 
 def orthonormalize(vecs: List[torch.Tensor]) -> List[torch.Tensor]:
     """Orthonormalize a list of vectors using the Gram-Schmidt process.

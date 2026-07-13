@@ -7,6 +7,7 @@ Solvers for systems of linear equations.
 import torch
 import numpy as np
 from typing import Callable, Union, Any, Dict, List, Tuple
+from qcd_ml.util.linear_algebra import innerproduct
 
 def update_qr(H: np.ndarray, s: np.ndarray, c: np.ndarray, j: int) -> None:
     """
@@ -147,7 +148,7 @@ def GMRES(A: Union[Callable[[torch.Tensor], torch.Tensor], Any],
           maxiter: int = 1000,
           inner_iter: int = 30,
           eps: float = 1e-5,
-          innerproduct: Callable[[torch.Tensor, torch.Tensor], torch.Tensor] = lambda x,y: (x.conj() * y).sum(),
+          innerproduct: Callable[[torch.Tensor, torch.Tensor], torch.Tensor] = innerproduct,
           preconditioner: Union[Callable[[torch.Tensor], torch.Tensor], None] = None,
           verbose: bool = False
           ) -> Tuple[torch.Tensor, Dict[str, Any]]:
@@ -162,7 +163,7 @@ def GMRES(A: Union[Callable[[torch.Tensor], torch.Tensor], Any],
         inner_iter: Number of iterations before restarting. Defaults to 30.
         eps: Tolerance for the residual. The true tolerance is ``eps * ||b||`` or ``eps * ||r0||``.
             Defaults to 1e-5.
-        innerproduct: Inner product function. Defaults to lambda x,y: (x.conj() * y).sum().
+        innerproduct: Inner product function. Defaults to qcd_ml.util.linear_algebra.innerproduct.
         preconditioner: Preconditioner function. Should be a function that takes a vector 
             and returns a vector. Defaults to None.
         verbose: If True, print convergence information. Defaults to False.

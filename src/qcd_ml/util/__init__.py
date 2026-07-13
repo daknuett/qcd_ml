@@ -6,8 +6,10 @@ This module provides utility functions for working with tensors and solving line
 - Iterative solvers (GMRES)
 - QCD-specific utilities (multigrid)
 - Compile-time evaluation utilities
+- Linear algebra utilities
 """
 
 import torch
 import qcd_ml.util.qcd
 import qcd_ml.util.solver
+import qcd_ml.util.linear_algebra
