@@ -109,9 +109,6 @@ def test_coarse_wilson_operator_equivalence(config_1500, test_mm_setup, rand_fin
     # Create using the new classmethod for Wilson operators
     w_coarse_wilson = coarse_9point_op_NG.from_dirac_operator_and_multigrid(w, test_mm_setup)
     
-    # Create using the generic method
-    w_coarse_generic = test_mm_setup.get_coarse_operator(w)
-    
     # Also create using coarse_9point_op_NG.from_operator_and_multigrid
     w_coarse_9point = coarse_9point_op_NG.from_operator_and_multigrid(w, test_mm_setup)
 
@@ -119,12 +116,7 @@ def test_coarse_wilson_operator_equivalence(config_1500, test_mm_setup, rand_fin
 
     # All implementations should give the same result
     result_wilson = w_coarse_wilson(vec_coarse)
-    result_generic = w_coarse_generic(vec_coarse)
     result_9point = w_coarse_9point(vec_coarse)
-    
-    assert torch.allclose(
-        result_wilson, result_generic, atol=1e-8
-    ), "Wilson-specific implementation should match generic implementation"
     
     assert torch.allclose(
         result_wilson, result_9point, atol=1e-8

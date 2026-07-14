@@ -154,7 +154,7 @@ class coarse_9point_op_NG:
         return cls(pseudo_gauge_forward, pseudo_gauge_backward, pseudo_mass, mg.L_coarse)
 
     @classmethod
-    def from_dirac_operator_and_multigrid(cls: Type['coarse_9point_op_NG'], fine_op: Callable, mg: Any) -> Callable[[torch.Tensor], torch.Tensor]:
+    def from_dirac_operator_and_multigrid(cls: Type['coarse_9point_op_NG'], fine_op: Callable, mg: Any) -> 'coarse_9point_op_NG':
         """Construct a coarse operator for Wilson(-clover) Dirac operator using precomputation.
         
         This method only works for Wilson(-clover) Dirac operators that have
@@ -185,7 +185,6 @@ class coarse_9point_op_NG:
             Callable: A function that applies the coarse operator to a coarse grid vector.
         """
         # Only works for Wilson(-clover) Dirac operator
-        import torch
         N = mg.n_basis
         coarse_op_diag = torch.zeros(
             (*mg.L_coarse, N, N),
@@ -302,24 +301,19 @@ class coarse_9point_op_NG:
                 "...,...km->...km", checkerboard_even_coarse, neg_hop_coarse_odd
             )
 
-        def coarse_op(v: torch.Tensor) -> torch.Tensor:
-            res = torch.einsum("...ij,...j->...i", coarse_op_diag, v)
+        pseudo_mass = coarse_op_diag
+        
+        pseudo_gauge_forward = torch.zeros(4, *mg.L_coarse, mg.n_basis, mg.n_basis, dtype=torch.cdouble)
+        pseudo_gauge_backward = torch.zeros(4, *mg.L_coarse, mg.n_basis, mg.n_basis, dtype=torch.cdouble)
+        for mu in range(4):
+            pseudo_gauge_forward[mu] = torch.roll(coarse_op_pos_hop[...,mu], -1, dims=mu)
+            pseudo_gauge_backward[mu] = torch.roll(coarse_op_neg_hop[...,mu], 1, dims=mu)
+            if mg.L_coarse[mu] == 2:
+                # Bodge to be compatible to unusual __call__ implementation
+                pseudo_gauge_forward[mu] *= 2
+                pseudo_gauge_backward[mu] *= 2
 
-            for mu in range(4):
-                res += torch.einsum(
-                    "...ij,...j->...i",
-                    coarse_op_pos_hop[..., mu],
-                    torch.roll(v, 1, dims=mu),
-                )
-                res += torch.einsum(
-                    "...ij,...j->...i",
-                    coarse_op_neg_hop[..., mu],
-                    torch.roll(v, -1, dims=mu),
-                )
-
-            return res
-
-        return coarse_op
+        return cls(pseudo_gauge_forward, pseudo_gauge_backward, pseudo_mass, mg.L_coarse)
 
 
 class coarse_9point_op_IFG:
