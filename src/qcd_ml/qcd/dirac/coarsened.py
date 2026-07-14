@@ -104,7 +104,7 @@ class coarse_9point_op_NG:
         pseudo_mass = torch.zeros(*mg.L_coarse, mg.n_basis, mg.n_basis, dtype=torch.cdouble)
         
         coarse_op = mg.get_coarse_operator(operator)
-        vec = torch.zeros(*mg.L_coarse, mg.n_basis)
+        vec = torch.zeros(*mg.L_coarse, mg.n_basis, dtype=torch.cdouble)
 
         def update_idx_p(idx: list, mu: int) -> Tuple:
             """Update index in positive direction.
