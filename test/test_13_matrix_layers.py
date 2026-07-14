@@ -59,7 +59,6 @@ def test_LGE_ReTrAct_equivariance(config_1500, V_1500mu0_1500mu2):
     features_out = layer.forward(input_features)
     transformed_after = m_gauge_transform(V_1500mu0_1500mu2, features_out[0])
 
-    transformed_U = link_gauge_transform(config_1500, V_1500mu0_1500mu2)
     features_out_gt = layer.forward(torch.stack([m_gauge_transform(V_1500mu0_1500mu2, input_features[i]) for i in range(n_input)]))
     assert torch.allclose(transformed_after, features_out_gt[0])
 
@@ -71,10 +70,10 @@ def test_LGE_Exp_equivariance(config_1500, V_1500mu0_1500mu2):
     input_GE = torch.stack([PathBuffer(config_1500, [(0,1), (1,1), (0,-1), (1,-1)]).gauge_transport_matrix])
 
     features_out = layer.forward(input_features, input_GE)
-    transformed_after = torch.stack(link_gauge_transform(features_out, V_1500mu0_1500mu2))
+    transformed_after = link_gauge_transform(features_out, V_1500mu0_1500mu2)
 
     gauge_transformed_U = link_gauge_transform(config_1500, V_1500mu0_1500mu2)
-    input_features = torch.stack(gauge_transformed_U)
+    input_features = gauge_transformed_U
     input_GE = torch.stack([PathBuffer(gauge_transformed_U, [(0,1), (1,1), (0,-1), (1,-1)]).gauge_transport_matrix])
     transformed_before = layer.forward(input_features, input_GE)
 
