@@ -51,7 +51,7 @@ python.install_sources(
 )
 
 python.install_sources(
-  'util/__init__.py', 'util/solver.py', 'util/comptime.py', 'util/tensor.py',
+  'util/__init__.py', 'util/solver.py', 'util/comptime.py', 'util/tensor.py', 'util/linear_algebra.py',
   pure: true,
   subdir: 'qcd_ml/util'
 )
