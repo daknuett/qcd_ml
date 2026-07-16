@@ -14,7 +14,4 @@ This package provides:
 See the README for more information.
 """
 
-import qcd_ml.base
-import qcd_ml.nn
-import qcd_ml.qcd
-import qcd_ml.util
+from . import base, nn, qcd, util

@@ -8,6 +8,4 @@ This module provides QCD-specific operators and utilities:
 - Gauge field operations (observables, smearing)
 """
 
-import qcd_ml.qcd.dirac
-import qcd_ml.qcd.static
-import qcd_ml.qcd.gauge
+from . import dirac, gauge, static

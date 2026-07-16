@@ -1,5 +1,5 @@
 """
-This package provides 
+This package provides
 
 - ``v_ProjectLayer``: A parallel transport pooling projection layer.
 - ``get_paths.get_paths_*``: Functions to generate complete sets of paths for a given block size.
@@ -10,6 +10,6 @@ For a faster implementation of the pooling and unpooling, install the package ``
 For a detailed description of the parallel transport pooling, see the paper:
 https://arxiv.org/abs/2304.10438
 """
-from .pool import v_ProjectLayer
 
-import qcd_ml.nn.pt_pool.get_paths
+from . import get_paths
+from .pool import v_ProjectLayer

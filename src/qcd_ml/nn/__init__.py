@@ -1,14 +1,9 @@
 """
-This module provides neural networks for lattice QCD. 
+This module provides neural networks for lattice QCD.
 The modules ``ptc`` and ``lptc`` provide parallel transport pooling and local parallel transport pooling, respectively.
-The module ``pt_pool`` provides the ``v_ProjectLayer`` class for parallel transport pooling and some utility functions for 
+The module ``pt_pool`` provides the ``v_ProjectLayer`` class for parallel transport pooling and some utility functions for
 paralell transport pooling.
 The modules ``dense`` and ``pt`` provide dense layers and parallel transport layers, which can be used to build more general gauge-equivariant neural networks.
 """
 
-import qcd_ml.nn.dense
-import qcd_ml.nn.ptc
-import qcd_ml.nn.lptc
-import qcd_ml.nn.pt
-import qcd_ml.nn.matrix_layers
-import qcd_ml.nn.non_gauge
+from . import dense, lptc, matrix_layers, non_gauge, pt, ptc
