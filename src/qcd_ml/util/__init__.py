@@ -9,7 +9,4 @@ This module provides utility functions for working with tensors and solving line
 - Linear algebra utilities
 """
 
-import torch
-import qcd_ml.util.qcd
-import qcd_ml.util.solver
-import qcd_ml.util.linear_algebra
+from . import linear_algebra, qcd, solver

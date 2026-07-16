@@ -8,6 +8,4 @@ This module provides fundamental operations for working with QCD data:
 - Path evaluation for gauge-equivariant operations
 """
 
-import qcd_ml.base.hop
-import qcd_ml.base.operations
-import qcd_ml.base.paths
+from . import hop, operations, paths
