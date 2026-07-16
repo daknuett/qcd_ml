@@ -8,13 +8,24 @@ Contains:
 
 """
 
-def get_permutation_sign(permutation):
+from typing import Iterator, List, Tuple
+
+def get_permutation_sign(permutation: List[int]) -> int:
     """
     Returns the number of switches of neighboring elements necessary
     to sort ``permutation``.
 
     This is useful for instance in the case of the Levi Civita symbol
     where the tensor element depends on the sign of the permutation.
+
+    Note:
+        This function modifies the input list in place.
+
+    Args:
+        permutation: A list of integers representing a permutation.
+
+    Returns:
+        The sign of the permutation: 1 for even permutations, -1 for odd permutations.
 
     Example::
 
@@ -43,8 +54,25 @@ def get_permutation_sign(permutation):
                 n_switches += 1
     return (-1) ** n_switches
 
+def _continue_levi_civita_permutations(
+    idx_at: int,
+    idx_already: List[int],
+    c_sgn: int,
+    remaining_idcs: List[int]
+) -> Iterator[Tuple[List[int], int]]:
+    """
+    Recursive helper generator for generating Levi-Civita permutations and their signs.
 
-def _continue_levi_civita_permutations(idx_at, idx_already, c_sgn, remaining_idcs):
+    Args:
+        idx_at: Current position in the permutation being built.
+        idx_already: List of indices already placed in the permutation.
+        c_sgn: Current sign multiplier (1 or -1).
+        remaining_idcs: List of remaining indices to be placed.
+
+    Yields:
+        Tuples of (permutation, sign) for all permutations of the input indices.
+        Each permutation is a list of indices, and sign is either 1 or -1.
+    """
     if len(remaining_idcs) == 1:
         cix = remaining_idcs[0]
         yield idx_already + remaining_idcs, c_sgn
@@ -58,12 +86,18 @@ def _continue_levi_civita_permutations(idx_at, idx_already, c_sgn, remaining_idc
                                                       , this_c_sgn
                                                       , remaining_idcs[:i] + remaining_idcs[i+1:])
 
-
-def levi_civita_index_and_sign_iterator(nd):
+def levi_civita_index_and_sign_iterator(nd: int) -> Iterator[Tuple[List[int], int]]:
     r"""
     Iterator over the indices and (non-zero) elements of the Levi Civita symbol (or epsilon pseudo tensor).
     Yields ``index, element``, i.e., :math:`((i,j,k), \epsilon_{i,j,k})`.
     ``nd`` is the number of dimensions.
+
+    Args:
+        nd: The number of dimensions (size of the permutation).
+
+    Yields:
+        Tuples of (index, element) where index is a permutation of ``range(nd)``
+        and element is the corresponding Levi-Civita symbol value (1 or -1).
 
     Example::
 

@@ -1,20 +1,17 @@
-"""
-QCD observables that are computed on the gauge field.
+"""QCD observables that are computed on the gauge field.
 
 """
 import torch
-import numpy
 from ...base.paths import PathBuffer
-from ...base.operations import SU3_group_compose
+from ...base.operations import SU3_group_compose, _mul
 from ...util.tensor import levi_civita_index_and_sign_iterator
 
-
-def plaquette_field(U, _gpt_compat=False):
+def plaquette_field(U: torch.Tensor, _gpt_compat: bool = False) -> torch.Tensor:
     """
     Plaquette field of a gauge field. See [1]_ [2]_.
 
     If ``_gpt_compat=True``, the field is rescaled to match gpt's conventions.
-    
+
     .. [1]: 10.1103/PhysRevD.10.2445
     .. [2]: 10.1007/978-3-642-01850-3
     """
@@ -24,14 +21,14 @@ def plaquette_field(U, _gpt_compat=False):
     Hm = lambda mu, lst: lst + [(mu, -1)]
 
     gpt_rescale_factor = 2 / Nd / (Nd - 1) / ndims
-    
+
     plaquette_paths = [[
             list(reversed(Hp(mu, Hp(nu, Hm(mu, Hm(nu, []))))))
              for nu in range(4)] for mu in range(4)]
-    
+
     untraced_plaquettes = [[PathBuffer(U, pmunu).gauge_transport_matrix  for pmunu in pmu] for pmu in plaquette_paths]
     untraced_plaquette = torch.zeros_like(U[0])
-    
+
     for mu, pmu in enumerate(untraced_plaquettes):
         for pmunu in pmu[:mu]:
             untraced_plaquette += pmunu
@@ -42,16 +39,9 @@ def plaquette_field(U, _gpt_compat=False):
     else:
         return plaquette_field
 
-
-def _mul(iterable):
-    res = 1
-    for i in iterable:
-        res *= i
-    return res
-
-def topological_charge_density_clover(U, _gpt_compat=False):
+def topological_charge_density_clover(U: torch.Tensor, _gpt_compat: bool = False) -> torch.Tensor:
     """
-    The topological charge density field :math:`q(n)` [1]_ [2]_ using the clover 
+    The topological charge density field :math:`q(n)` [1]_ [2]_ using the clover
     field strength [3]_.
 
     .. [1]: 10.1007/BF02029132
@@ -74,19 +64,18 @@ def topological_charge_density_clover(U, _gpt_compat=False):
 
     identity = torch.zeros_like(Fmunu[0][0])
     identity[:,:,:,:] = torch.eye(3,3, dtype=torch.cdouble)
-    
+
     q_field = 0
     for (mu,nu,rho,sigma), sgn in levi_civita_index_and_sign_iterator(4):
         q_field += sgn * torch.einsum("abcdii->abcd", identity - SU3_group_compose(Fmunu[mu][nu], Fmunu[rho][sigma]))
-        
+
     if not _gpt_compat:
-        rescale = 1 / 32 / numpy.pi**2
+        rescale = 1 / 32 / torch.pi**2
     else:
-        rescale = 16.0 / (32.0 * numpy.pi**2) * (0.125**2.0) * _mul(U[0].shape[0:4])
+        rescale = 16.0 / (32.0 * torch.pi**2) * (0.125**2.0) * _mul(U.shape[1:5])
     return q_field * rescale
 
-
-def topological_charge_density_plaquette(U):
+def topological_charge_density_plaquette(U: torch.Tensor) -> torch.Tensor:
     r"""
     The topological charge density field :math:`q(n)` using the plaquette field
     strength.
@@ -103,11 +92,11 @@ def topological_charge_density_plaquette(U):
     Hm = lambda mu, lst: lst + [(mu, -1)]
 
     gpt_rescale_factor = 2 / Nd / (Nd - 1) / ndims
-    
+
     plaquette_paths = [[
             list(reversed(Hp(mu, Hp(nu, Hm(mu, Hm(nu, []))))))
              for nu in range(4)] for mu in range(4)]
-    
+
     untraced_plaquettes = [[PathBuffer(U, pmunu).gauge_transport_matrix  for pmunu in pmu] for pmu in plaquette_paths]
 
     q_field = 0

@@ -20,36 +20,80 @@ See also: :ref:`doc-datatypes:qcd_ml Datatypes`.
 
 
 import torch
+from typing import Iterable
 
 
-def _mul(iterable):
+def _mul(iterable: Iterable[int]) -> int:
+    """
+    Compute the product of all elements in an iterable.
+    
+    Args:
+        iterable: An iterable of integers.
+        
+    Returns:
+        The product of all elements.
+    """
     res = 1
     for i in iterable:
         res *= i
     return res
 
 
-def _es_SU3_group_compose(A, B):
+def _es_SU3_group_compose(A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:
+    """
+    Einstein summation implementation of SU3 group composition.
+    
+    Args:
+        A: First SU(3) field tensor.
+        B: Second SU(3) field tensor.
+        
+    Returns:
+        The composed SU(3) field tensor.
+    """
     return torch.einsum("abcdij,abcdjk->abcdik", A, B)
 
 
-def SU3_group_compose(A, B):
+def SU3_group_compose(A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:
     """
-    :math:`SU(3)` group composition of two :math:`SU(3)` fields.
+    :math:`SU(Nc)` group composition of two :math:`SU(Nc)` fields.
+    
+    Args:
+        A: First SU(Nc) field tensor of shape (Lx, Ly, Lz, Lt, Nc, Nc).
+        B: Second SU(Nc) field tensor of shape (Lx, Ly, Lz, Lt, Nc, Nc).
+        
+    Returns:
+        The composed SU(Nc) field tensor of shape (Lx, Ly, Lz, Lt, Nc, Nc).
     """
     vol = _mul(A.shape[:4])
     old_shape = A.shape
     return torch.bmm(A.reshape((vol, *(A.shape[4:])))
-                     , B.reshape((vol, *(A.shape[4:])))).reshape(old_shape)
+                     , B.reshape((vol, *(B.shape[4:])))).reshape(old_shape)
 
 
-def _es_v_gauge_transform(Umu, v):
+def _es_v_gauge_transform(Umu: torch.Tensor, v: torch.Tensor) -> torch.Tensor:
+    """
+    Einstein summation implementation of gauge transformation for vector-like fields.
+    
+    Args:
+        Umu: SU(3) gauge field tensor.
+        v: Vector-like field tensor.
+        
+    Returns:
+        Gauge-transformed vector field tensor.
+    """
     return torch.einsum("abcdij,abcdSj->abcdSi", Umu, v)
 
 
-def v_gauge_transform(Umu, v):
+def v_gauge_transform(Umu: torch.Tensor, v: torch.Tensor) -> torch.Tensor:
     """
     Gauge transformation of vector-like fields.
+    
+    Args:
+        Umu: SU(Nc) gauge field tensor of shape (Lx, Ly, Lz, Lt, Nc, Nc).
+        v: Vector-like field tensor of shape (Lx, Ly, Lz, Lt, Ns, Nc).
+        
+    Returns:
+        Gauge-transformed vector field tensor of shape (Lx, Ly, Lz, Lt, Ns, Nc).
     """
     vol = _mul(v.shape[:4])
     old_shape = v.shape
@@ -58,13 +102,30 @@ def v_gauge_transform(Umu, v):
                      ).transpose(-1, -2).reshape(old_shape)
 
 
-def _es_v_spin_transform(M, v):
+def _es_v_spin_transform(M: torch.Tensor, v: torch.Tensor) -> torch.Tensor:
+    """
+    Einstein summation implementation of spin transformation for vector-like fields.
+    
+    Args:
+        M: Spin matrix field tensor.
+        v: Vector field tensor.
+        
+    Returns:
+        Transformed vector field tensor.
+    """
     return torch.einsum("abcdij,abcdjG->abcdiG", M, v)
 
 
-def v_spin_transform(M, v):
+def v_spin_transform(M: torch.Tensor, v: torch.Tensor) -> torch.Tensor:
     """
     Applies a spin matrix field to a vector field.
+    
+    Args:
+        M: Spin matrix field tensor of shape (Lx, Ly, Lz, Lt, 4, 4).
+        v: Vector field tensor of shape (Lx, Ly, Lz, Lt, 4, Nc).
+        
+    Returns:
+        Transformed vector field tensor of shape (Lx, Ly, Lz, Lt, 4, Nc).
     """
     vol = _mul(v.shape[:4])
     old_shape = v.shape
@@ -73,51 +134,110 @@ def v_spin_transform(M, v):
                      ).reshape(old_shape)
 
 
-def v_spin_const_transform(M, v):
+def v_spin_const_transform(M: torch.Tensor, v: torch.Tensor) -> torch.Tensor:
     """
     Applies a spin matrix to a vector field.
+    
+    Args:
+        M: Spin matrix tensor of shape (4, 4).
+        v: Vector field tensor of shape (Lx, Ly, Lz, Lt, 4, Nc).
+        
+    Returns:
+        Transformed vector field tensor of shape (Lx, Ly, Lz, Lt, 4, Nc).
     """
     return torch.einsum("ij,abcdjG->abcdiG", M, v)
 
 
-def v_ng_spin_transform(M, v):
+def v_ng_spin_transform(M: torch.Tensor, v: torch.Tensor) -> torch.Tensor:
     """
     Applies a spin matrix field to a vector field without gauge freedom.
+    
+    Args:
+        M: Spin matrix field tensor of shape (Lx, Ly, Lz, Lt, 4, 4).
+        v: Vector field tensor of shape (Lx, Ly, Lz, Lt, 4).
+        
+    Returns:
+        Transformed vector field tensor of shape (Lx, Ly, Lz, Lt, 4).
     """
     return torch.einsum("abcdij,abcdj->abcdi", M, v)
 
 
-def v_ng_spin_const_transform(M, v):
+def v_ng_spin_const_transform(M: torch.Tensor, v: torch.Tensor) -> torch.Tensor:
     """
     Applies a spin matrix to a vector field without gauge freedom.
+    
+    Args:
+        M: Spin matrix tensor of shape (4, 4).
+        v: Vector field tensor of shape (Lx, Ly, Lz, Lt, 4).
+        
+    Returns:
+        Transformed vector field tensor of shape (Lx, Ly, Lz, Lt, 4).
     """
     return torch.einsum("ij,abcdj->abcdi", M, v)
 
 
-def link_gauge_transform(U, V):
+def link_gauge_transform(U: torch.Tensor, V: torch.Tensor) -> torch.Tensor:
     """
     Gauge-transforms a link-like field.
-    A link-like is typically a gauge configuration.
+    A link-like field is typically a gauge configuration.
+    
+    Args:
+        U: Gauge field tensor of shape (4, Lx, Ly, Lz, Lt, Nc, Nc) where 4 is the number
+            of spacetime directions, and Nc is the number of colors.
+        V: Gauge transformation matrix tensor of shape (Lx, Ly, Lz, Lt, Nc, Nc).
+        
+    Returns:
+        Gauge-transformed gauge field tensor of shape (4, Lx, Ly, Lz, Lt, Nc, Nc).
     """
     Vdg = V.adjoint()
-    U_trans = [SU3_group_compose(V, Umu) for Umu in U]
-    for mu, U_transmu in enumerate(U_trans):
-        U_trans[mu] = SU3_group_compose(U_transmu, torch.roll(Vdg, -1, mu))
+    # U is already a tensor of shape (4, Lx, Ly, Lz, Lt, Nc, Nc)
+    # so U[mu] gives us the mu-th direction
+    U_trans = torch.zeros_like(U)
+    for mu in range(4):
+        U_trans[mu] = SU3_group_compose(V, U[mu])
+        U_trans[mu] = SU3_group_compose(U_trans[mu], torch.roll(Vdg, -1, mu))
     return U_trans
 
 
-def mspin_const_group_compose(A, B):
+def mspin_const_group_compose(A: torch.Tensor, B: torch.Tensor) -> torch.Tensor:
     """
     Matrix-matrix multiplication for spin matrices.
+    
+    Args:
+        A: First spin matrix tensor of shape (4, 4).
+        B: Second spin matrix tensor of shape (4, 4).
+        
+    Returns:
+        The product spin matrix tensor of shape (4, 4).
     """
     return torch.einsum("ij,jk->ik", A, B)
 
 
-def _es_m_gauge_transform(Umu, m):
+def _es_m_gauge_transform(Umu: torch.Tensor, m: torch.Tensor) -> torch.Tensor:
+    """
+    Einstein summation implementation of gauge transformation for matrix-like fields.
+    
+    Args:
+        Umu: SU(3) gauge field tensor.
+        m: Matrix-like field tensor.
+        
+    Returns:
+        Gauge-transformed matrix field tensor.
+    """
     return torch.einsum("abcdij,abcdjk,abcdkl->abcdil", Umu, m, Umu.adjoint())
 
 
-def m_gauge_transform(Umu, m):
+def m_gauge_transform(Umu: torch.Tensor, m: torch.Tensor) -> torch.Tensor:
+    """
+    Gauge transformation of matrix-like fields.
+    
+    Args:
+        Umu: SU(Nc) gauge field tensor of shape (Lx, Ly, Lz, Lt, Nc, Nc).
+        m: Matrix-like field tensor of shape (Lx, Ly, Lz, Lt, Nc, Nc).
+        
+    Returns:
+        Gauge-transformed matrix field tensor of shape (Lx, Ly, Lz, Lt, Nc, Nc).
+    """
     vol = _mul(m.shape[:4])
     old_shape = m.shape
     Umu_reshaped = Umu.reshape((vol, *(Umu.shape[4:])))

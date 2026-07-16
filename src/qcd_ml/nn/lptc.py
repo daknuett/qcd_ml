@@ -6,6 +6,7 @@ Local Parallel Transport Convolutions.
 """
 
 import torch
+from typing import List, Tuple, Optional, Dict, Any
 
 from ..base.paths import v_ng_evaluate_path, PathBuffer
 from ..base.operations import v_spin_transform, v_ng_spin_transform
@@ -22,10 +23,33 @@ class v_LPTC(torch.nn.Module):
     An empty list is the path that does not perform any hops.
     """
 
-    def __init__(self, n_feature_in, n_feature_out, paths, U, **path_buffer_kwargs):
+    def __init__(
+        self,
+        n_feature_in: int,
+        n_feature_out: int,
+        paths: List[List[Tuple[int, int]]],
+        U: torch.Tensor,
+        **path_buffer_kwargs: Dict[str, Any]
+    ) -> None:
+        """
+        Initialize the v_LPTC layer.
+
+        Args:
+            n_feature_in: Number of input features.
+            n_feature_out: Number of output features.
+            paths: List of paths. Each path is a list of tuples (direction, nhops).
+            U: Gauge field tensor.
+            **path_buffer_kwargs: Additional keyword arguments for PathBuffer initialization.
+
+        Notes:
+            Weights are initialized as a random tensor with shape
+            [n_feature_in, n_feature_out, len(paths), Lx, Ly, Lz, Lt, 4, 4]
+            and dtype torch.cdouble.
+            The path_buffers are created for each path in paths.
+        """
         super().__init__()
         self.weights = torch.nn.Parameter(
-                torch.randn(n_feature_in, n_feature_out, len(paths), *tuple(U[0].shape[0:4]), 4, 4, dtype=torch.cdouble)
+                torch.randn(n_feature_in, n_feature_out, len(paths), *U.shape[1:5], 4, 4, dtype=torch.cdouble)
                 )
 
         self.n_feature_in = n_feature_in
@@ -33,7 +57,19 @@ class v_LPTC(torch.nn.Module):
         self.path_buffer_kwargs = path_buffer_kwargs
         self.path_buffers = [PathBuffer(U, pi, **path_buffer_kwargs) for pi in paths]
 
-    def forward(self, features_in):
+    def forward(self, features_in: torch.Tensor) -> torch.Tensor:
+        """
+        Forward pass of the v_LPTC layer.
+
+        Args:
+            features_in: Input features tensor with shape [n_feature_in, ...].
+
+        Returns:
+            Output features tensor with shape [n_feature_out, ...].
+
+        Raises:
+            ValueError: If the number of input features does not match n_feature_in.
+        """
         if features_in.shape[0] != self.n_feature_in:
             raise ValueError(f"shape mismatch: got {features_in.shape[0]} but expected {self.n_feature_in}")
 
@@ -46,7 +82,7 @@ class v_LPTC(torch.nn.Module):
 
         return torch.stack(features_out)
 
-    def gauge_transform_using_transformed(self, U_transformed):
+    def gauge_transform_using_transformed(self, U_transformed: torch.Tensor) -> None:
         """
         Update the v_LPTC layer: The old gauge field U is replaced by
         U_transformed. The weights are kept.
@@ -55,6 +91,9 @@ class v_LPTC(torch.nn.Module):
               Instead the layer is updated.
 
         Mostly used for testing.
+
+        Args:
+            U_transformed: The new gauge field tensor to replace the old U.
         """
         for i, pi in enumerate(self.path_buffers):
             self.path_buffers[i] = PathBuffer(U_transformed, pi.path, **self.path_buffer_kwargs)
@@ -71,7 +110,29 @@ class v_LPTC_NG(torch.nn.Module):
     An empty list is the path that does not perform any hops.
     """
 
-    def __init__(self, n_feature_in, n_feature_out, paths, grid_dims, internal_dof):
+    def __init__(
+        self,
+        n_feature_in: int,
+        n_feature_out: int,
+        paths: List[List[Tuple[int, int]]],
+        grid_dims: Tuple[int, ...],
+        internal_dof: int
+    ) -> None:
+        """
+        Initialize the v_LPTC_NG layer.
+
+        Args:
+            n_feature_in: Number of input features.
+            n_feature_out: Number of output features.
+            paths: List of paths. Each path is a list of tuples (direction, nhops).
+            grid_dims: Dimensions of the grid.
+            internal_dof: Internal degrees of freedom.
+
+        Notes:
+            Weights are initialized as a random tensor with shape
+            [n_feature_in, n_feature_out, len(paths), *grid_dims, internal_dof, internal_dof]
+            and dtype torch.cdouble.
+        """
         super().__init__()
         self.weights = torch.nn.Parameter(
                 torch.randn(n_feature_in, n_feature_out, len(paths), *tuple(grid_dims), internal_dof, internal_dof, dtype=torch.cdouble)
@@ -83,7 +144,19 @@ class v_LPTC_NG(torch.nn.Module):
         self.internal_dof = internal_dof
         self.grid_dims = grid_dims
 
-    def forward(self, features_in):
+    def forward(self, features_in: torch.Tensor) -> torch.Tensor:
+        """
+        Forward pass of the v_LPTC_NG layer.
+
+        Args:
+            features_in: Input features tensor with shape [n_feature_in, ...].
+
+        Returns:
+            Output features tensor with shape [n_feature_out, ...].
+
+        Raises:
+            ValueError: If the number of input features does not match n_feature_in.
+        """
         if features_in.shape[0] != self.n_feature_in:
             raise ValueError(f"shape mismatch: got {features_in.shape[0]} but expected {self.n_feature_in}")
 

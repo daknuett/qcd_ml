@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+from typing import List, Tuple, Any
 from ...base.paths import PathBuffer, path_get_orig_point
 from ...base.operations import v_spin_transform, v_gauge_transform
 
@@ -13,8 +14,7 @@ except ImportError:
 
 
 class v_ProjectLayer(torch.nn.Module):
-    """
-    This class provides the parallel transport pooling projection layer.
+    """This class provides the parallel transport pooling projection layer.
 
     The argument ``gauges_and_paths`` is a list of tuples, where the first element is a gauge field 
     and the second element is a list of paths. The gauge field is a 4D tensor of shape (4, Lx, Ly, Lz, Lt, 3, 3)
@@ -48,9 +48,27 @@ class v_ProjectLayer(torch.nn.Module):
 
         qcd_ml.nn.pt_pool.get_paths.get_paths_*
 
+    Attributes:
+        path_buffers: Nested list of PathBuffer objects.
+        weights: Learnable weights tensor.
+        L_fine: Fine lattice dimensions.
+        L_coarse: Coarse lattice dimensions.
+        block_size: Block size for pooling.
+        base_points: Array of base points for each path.
+        gauge_fields: Tensor storing gauge fields for each point.
+        _gpt_compat: Whether to use gpt-compatible normalization.
     """
 
-    def __init__(self, gauges_and_paths, L_fine, L_coarse, _gpt_compat=False):
+    def __init__(self, gauges_and_paths: List[Tuple[torch.Tensor, List[List[Tuple[int, int]]]]], L_fine: Tuple[int, ...], L_coarse: Tuple[int, ...], _gpt_compat: bool = False) -> None:
+        """Initialize the v_ProjectLayer.
+
+        Args:
+            gauges_and_paths: List of tuples (gauge_field, paths) where gauge_field is a
+                tensor of shape (4, Lx, Ly, Lz, Lt, Nc, Nc) and paths is a list of paths.
+            L_fine: Fine lattice dimensions as a tuple.
+            L_coarse: Coarse lattice dimensions as a tuple.
+            _gpt_compat: Whether to use gpt-compatible normalization. Defaults to False.
+        """
         super().__init__()
         self.path_buffers = [[PathBuffer(Ui, pij) for pij in pi] for Ui, pi in gauges_and_paths]
 
@@ -89,14 +107,25 @@ class v_ProjectLayer(torch.nn.Module):
                                                                         , base_point[3]::self.block_size[3]]
 
             # XXX: extract this into another module
-            def l2norm(v):
+            def l2norm(v: torch.Tensor) -> torch.Tensor:
                 return (v * v.conj()).real.sum()
 
             if _gpt_compat:
                 # I have no idea why lehner/gpt does this, but we need to do it to match.
                 self.gauge_fields[i] /= l2norm(self.gauge_fields[i])**0.5
 
-    def v_project(self, features_in):
+    def v_project(self, features_in: torch.Tensor) -> torch.Tensor:
+        """Project fine vector features to coarse grid.
+
+        Args:
+            features_in: Input features tensor of shape (1, ...).
+
+        Returns:
+            Projected features on coarse grid.
+
+        Raises:
+            NotImplementedError: If features_in has more than one feature.
+        """
         if features_in.shape[0] != 1:
             raise NotImplementedError()
         before_pool = torch.zeros(features_in.shape[0], self.gauge_fields.shape[0], *features_in.shape[1:]
@@ -107,7 +136,18 @@ class v_ProjectLayer(torch.nn.Module):
 
         return torch.stack([v_pool4d(torch.sum(before_pool, axis=1)[0], self.block_size)])
 
-    def v_prolong(self, features_in):
+    def v_prolong(self, features_in: torch.Tensor) -> torch.Tensor:
+        """Prolong coarse vector features to fine grid.
+
+        Args:
+            features_in: Input features tensor of shape (1, ...).
+
+        Returns:
+            Prolonged features on fine grid.
+
+        Raises:
+            NotImplementedError: If features_in has more than one feature.
+        """
         if features_in.shape[0] != 1:
             raise NotImplementedError()
         before_weights = torch.zeros(features_in.shape[0], self.gauge_fields.shape[0]

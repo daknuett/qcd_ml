@@ -1,7 +1,5 @@
 """
-------------
-
-This module contains lattice gauge equvariant bilinear layers.
+This module contains lattice gauge equivariant bilinear layers.
 """
 
 import torch
@@ -15,9 +13,22 @@ class LGE_Bilinear(torch.nn.Module):
         W_{x,i}, W_{x,i}' \rightarrow \sum_{j,k} \alpha_{i,j,k} W_{x,j} W_{x,k}'
 
     See 10.1103/PhysRevLett.128.032003 for more details.
+
+    Attributes:
+        n_input1 (int): Number of input features in first input.
+        n_input2 (int): Number of input features in second input.
+        n_output (int): Number of output features.
+        weights (torch.nn.Parameter): Learnable weights for the bilinear operation.
     """
 
-    def __init__(self, n_input1, n_input2, n_output):
+    def __init__(self, n_input1: int, n_input2: int, n_output: int) -> None:
+        """Initialize the LGE_Bilinear layer.
+
+        Args:
+            n_input1: Number of input features in first input.
+            n_input2: Number of input features in second input.
+            n_output: Number of output features.
+        """
         super(LGE_Bilinear, self).__init__()
         self.n_input1 = n_input1
         self.n_input2 = n_input2
@@ -26,11 +37,19 @@ class LGE_Bilinear(torch.nn.Module):
         self.weights = torch.nn.Parameter(
                 torch.randn(n_input1, n_input2, n_output, dtype=torch.cdouble))
 
-    def forward(self, features_in1, features_in2):
+    def forward(self, features_in1: torch.Tensor, features_in2: torch.Tensor) -> torch.Tensor:
         r"""
-        This class provides lattice gauge equivariant bilinear layers.
+        Apply the lattice gauge equivariant bilinear operation.
+
         .. math::
             W_{x,i}, W_{x,i}' \rightarrow \sum_{j,k} \alpha_{i,j,k} W_{x,j} W_{x,k}'
+
+        Args:
+            features_in1: First input features tensor.
+            features_in2: Second input features tensor.
+
+        Returns:
+            Output features tensor.
         """
 
         return torch.einsum("jki,jabcdnr,kabcdrm->iabcdnm", self.weights, features_in1, features_in2)
@@ -38,17 +57,17 @@ class LGE_Bilinear(torch.nn.Module):
 
 class Apply_LGE_Bilinear(torch.autograd.Function):
     @staticmethod
-    def forward(ctx, features_in1, features_in2, weights):
+    def forward(ctx: torch.Tensor, features_in1: torch.Tensor, features_in2: torch.Tensor, weights: torch.Tensor) -> torch.Tensor:
         ctx.save_for_backward(features_in1, features_in2, weights)
         return torch.einsum("jki,jabcdnr,kabcdrm->iabcdnm"
                             , weights, features_in1, features_in2)
 
     @staticmethod
-    def backward(ctx, grad_output):
+    def backward(ctx: torch.Tensor, grad_output: torch.Tensor) -> tuple:
         features_in1, features_in2, weights = ctx.saved_tensors
 
         grad_weights = torch.einsum("iabcdnm,jabcdnr,kabcdrm->jki"
-			                    	, torch.conj(grad_output), features_in1, features_in2)
+						, torch.conj(grad_output), features_in1, features_in2)
 
         grad_f1 = torch.einsum("iabcdnm,jki,kabcdrm->jabcdnr"
                                , torch.conj(grad_output), weights, features_in2)
@@ -70,9 +89,23 @@ class LGE_BilinearLM(torch.nn.Module):
         W_{x,i}, W_{x,i}' \rightarrow \sum_{j,k} \alpha_{i,j,k} W_{x,j} W_{x,k}'
 
     See 10.1103/PhysRevLett.128.032003 for more details.
+
+    Attributes:
+        n_input1 (int): Number of input features in first input.
+        n_input2 (int): Number of input features in second input.
+        n_output (int): Number of output features.
+        weights (torch.nn.Parameter): Learnable weights for the bilinear operation.
+        fn (function): The Apply_LGE_Bilinear function.
     """
 
-    def __init__(self, n_input1, n_input2, n_output):
+    def __init__(self, n_input1: int, n_input2: int, n_output: int) -> None:
+        """Initialize the LGE_BilinearLM layer.
+
+        Args:
+            n_input1: Number of input features in first input.
+            n_input2: Number of input features in second input.
+            n_output: Number of output features.
+        """
         super(LGE_BilinearLM, self).__init__()
         self.n_input1 = n_input1
         self.n_input2 = n_input2
@@ -82,11 +115,19 @@ class LGE_BilinearLM(torch.nn.Module):
                 torch.randn(n_input1, n_input2, n_output, dtype=torch.cdouble))
         self.fn = Apply_LGE_Bilinear.apply
 
-    def forward(self, features_in1, features_in2):
+    def forward(self, features_in1: torch.Tensor, features_in2: torch.Tensor) -> torch.Tensor:
         r"""
-        This class provides lattice gauge equivariant bilinear layers.
+        Apply the lattice gauge equivariant bilinear operation.
+
         .. math::
             W_{x,i}, W_{x,i}' \rightarrow \sum_{j,k} \alpha_{i,j,k} W_{x,j} W_{x,k}'
+
+        Args:
+            features_in1: First input features tensor.
+            features_in2: Second input features tensor.
+
+        Returns:
+            Output features tensor.
         """
 
         return self.fn(features_in1, features_in2, self.weights)
