@@ -30,14 +30,7 @@ class coarse_9point_op_NG:
     This operator is significantly faster than the operator constructed by ``ZPP_Multigrid.get_coarse_operator(Q)``.
     The ``from_dirac_operator_and_multigrid`` method is specialized for Wilson(-clover) Dirac
     operators and uses decomposed application (apply_diag, apply_pos_hop, apply_neg_hop) for
-    significantly better performance.
-
-    Attributes:
-        pseudo_gauge_forward: Forward pseudo-gauge field tensor.
-        pseudo_gauge_backward: Backward pseudo-gauge field tensor.
-        pseudo_mass: Pseudo-mass tensor.
-        L_coarse: Coarse lattice dimensions.
-        pseudo_gauge_transform: Function to apply pseudo-gauge transformation.
+    significantly better performance during initialization.
     """
 
     def __init__(self, pseudo_gauge_forward: torch.Tensor, pseudo_gauge_backward: torch.Tensor, pseudo_mass: torch.Tensor, L_coarse: Tuple[int, ...]) -> None:
