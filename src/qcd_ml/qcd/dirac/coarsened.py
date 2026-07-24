@@ -117,27 +117,9 @@ class coarse_9point_op_NG:
         vec = torch.zeros(*mg.L_coarse, mg.n_basis, dtype=torch.cdouble)
 
         def update_idx_p(idx: list, mu: int) -> Tuple:
-            """Update index in positive direction.
-            
-            Args:
-                idx: Current index as a list.
-                mu: Direction index to increment.
-                
-            Returns:
-                Updated index as a tuple.
-            """
             idx[mu] = (idx[mu] + 1) % mg.L_coarse[mu]
             return tuple(idx)
         def update_idx_m(idx: list, mu: int) -> Tuple:
-            """Update index in negative direction.
-            
-            Args:
-                idx: Current index as a list.
-                mu: Direction index to decrement.
-                
-            Returns:
-                Updated index as a tuple.
-            """
             idx[mu] = (idx[mu] + mg.L_coarse[mu] - 1) % mg.L_coarse[mu]
             return tuple(idx)
         
