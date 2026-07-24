@@ -347,13 +347,8 @@ class coarse_9point_op_IFG:
     """
 
     def __init__(self, pseudo_gauge_forward: torch.Tensor, pseudo_gauge_backward: torch.Tensor, pseudo_mass: torch.Tensor, L_coarse: Tuple[int, ...]) -> None:
-        """Initialize the coarse 9-point operator with inherited fine gauge.
-
-        Args:
-            pseudo_gauge_forward: Forward pseudo-gauge field of shape (4, *L_coarse, 4, 4, 3, 3).
-            pseudo_gauge_backward: Backward pseudo-gauge field of shape (4, *L_coarse, 4, 4, 3, 3).
-            pseudo_mass: Pseudo-mass field of shape (*L_coarse, 4, 4, 3, 3).
-            L_coarse: Coarse lattice dimensions as a tuple.
+        """For internal use only, to construct the operator use 
+        ``coarse_9point_op_IFG.from_operator_and_pooling``.
         """
         self.pseudo_gauge_forward = pseudo_gauge_forward
         self.pseudo_gauge_backward = pseudo_gauge_backward
