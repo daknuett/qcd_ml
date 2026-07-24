@@ -41,13 +41,9 @@ class coarse_9point_op_NG:
     """
 
     def __init__(self, pseudo_gauge_forward: torch.Tensor, pseudo_gauge_backward: torch.Tensor, pseudo_mass: torch.Tensor, L_coarse: Tuple[int, ...]) -> None:
-        """Initialize the coarse 9-point operator.
-
-        Args:
-            pseudo_gauge_forward: Forward pseudo-gauge field of shape (4, *L_coarse, n_basis, n_basis).
-            pseudo_gauge_backward: Backward pseudo-gauge field of shape (4, *L_coarse, n_basis, n_basis).
-            pseudo_mass: Pseudo-mass field of shape (*L_coarse, n_basis, n_basis).
-            L_coarse: Coarse lattice dimensions as a tuple.
+        """For internal use only, use ``coarse_9point_op_NG.from_operator_and_multigrid`` 
+        or ``coarse_9point_op_NG.from_dirac_operator_and_multigrid`` to obtain
+        a coarsened operator.
         """
         self.pseudo_gauge_forward = pseudo_gauge_forward
         self.pseudo_gauge_backward = pseudo_gauge_backward
