@@ -361,15 +361,6 @@ class coarse_9point_op_IFG:
         self.L_coarse = L_coarse
 
         def pseudo_gauge_apply(ps_gauge: torch.Tensor, vec: torch.Tensor) -> torch.Tensor:
-            """Apply pseudo-gauge transformation.
-            
-            Args:
-                ps_gauge: Pseudo-gauge field tensor.
-                vec: Vector to transform.
-                
-            Returns:
-                Transformed vector.
-            """
             return torch.einsum("abcdijkl,abcdjl->abcdik", ps_gauge, vec)
     
         self.pseudo_gauge_transform = pseudo_gauge_apply
