@@ -69,14 +69,6 @@ class coarse_9point_op_NG:
         self.pseudo_gauge_transform = pseudo_gauge_apply
         
     def __call__(self, x: torch.Tensor) -> torch.Tensor:
-        """Apply the coarse 9-point operator to input tensor x.
-
-        Args:
-            x: Input tensor to apply the operator to.
-
-        Returns:
-            Result of applying the coarse operator.
-        """
         result = self.pseudo_gauge_transform(self.pseudo_mass, x)
         for mu in range(4):
             result_mu = torch.roll(self.pseudo_gauge_transform(self.pseudo_gauge_forward[mu], x), 1, mu)
