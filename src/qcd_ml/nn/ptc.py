@@ -29,6 +29,13 @@ class v_PTC(torch.nn.Module):
         paths = [[]] + [[(mu, 1)] for mu in range(4)] + [[(mu, -1)] for mu in range(4)]
         layer = v_PTC(1, 1, paths, U)
 
+
+    Notes:
+        - Weights are stored as a tensor of shape ``[n_feature_in, n_feature_out, len(paths), 4, 4]``
+          with ``dtype=torch.cdouble``.
+        - To optimize gauge transport evaluations, the gauge transporters are pre-computed using
+          ``qcd_ml.base.paths.PathBuffer``. The ``**path_buffer_kwargs`` can be used to control
+          these. This will only be needed for non-SU(3) fields.
     """
     def __init__(self, n_feature_in: int, n_feature_out: int, paths: List[List[tuple]], U: torch.Tensor, **path_buffer_kwargs):
         """
@@ -42,10 +49,6 @@ class v_PTC(torch.nn.Module):
             U: Gauge field tensor of shape (4, Lx, Ly, Lz, Lt, Nc, Nc) where 4 is the number
                 of spacetime dimensions.
             **path_buffer_kwargs: Additional keyword arguments to pass to PathBuffer.
-
-        Note:
-            Weights are stored as a tensor of shape [n_feature_in, n_feature_out, len(paths), 4, 4]
-            with dtype=torch.cdouble.
         """
         super().__init__()
         self.weights = torch.nn.Parameter(
@@ -94,7 +97,7 @@ class v_PTC(torch.nn.Module):
         U_transformed. The weights are kept.
 
         NOTE: This does not create a transformed copy of the layer!
-              Instead the layer is updated.
+              Instead the layer is updated. (INPLACE)
 
         Mostly used for testing.
 

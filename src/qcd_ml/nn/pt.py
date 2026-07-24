@@ -43,12 +43,7 @@ class v_PT(torch.nn.Module):
             U: Gauge field tensor of shape (4, Lx, Ly, Lz, Lt, 3, 3) where 4 is the
                 number of spacetime dimensions and 3x3 represents SU(3) matrices.
             **path_buffer_kwargs: Additional keyword arguments passed to PathBuffer
-                instances for each path. These may include:
-                - gauge_group_compose: Function to compose gauge group elements
-                - v_gauge_transform: Function to gauge transform vector-like fields
-                - m_gauge_transform: Function to gauge transform matrix-like fields
-                - adjoin: Function to compute adjoint
-                - gauge_identity: Identity element of the gauge group
+                instances for each path. Refer to the documentation of PathBuffer.
         """
         super().__init__()
         self.n_feature_in = len(paths)
@@ -126,7 +121,7 @@ class v_PT(torch.nn.Module):
         U_transformed. The weights are kept.
 
         NOTE: This does not create a transformed copy of the layer!
-              Instead the layer is updated.
+              Instead the layer is updated. (INPLACE)
 
         Mostly used for testing.
 
