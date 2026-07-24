@@ -338,12 +338,8 @@ class coarse_9point_op_IFG:
         with torch.no_grad():
             coarse_op_9p = coarse_9point_op_IFG.from_operator_and_pooling(Q, tfp)
 
-    Attributes:
-        pseudo_gauge_forward: Forward pseudo-gauge field tensor.
-        pseudo_gauge_backward: Backward pseudo-gauge field tensor.
-        pseudo_mass: Pseudo-mass tensor.
-        L_coarse: Coarse lattice dimensions.
-        pseudo_gauge_transform: Function to apply pseudo-gauge transformation.
+    The operator has two effective pseudo-gauge fields (forward and backward directions)
+    that define how information is transferred between the coarse sites.
     """
 
     def __init__(self, pseudo_gauge_forward: torch.Tensor, pseudo_gauge_backward: torch.Tensor, pseudo_mass: torch.Tensor, L_coarse: Tuple[int, ...]) -> None:
