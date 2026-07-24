@@ -10,6 +10,8 @@ Currently the following operators are implemented:
         - ``from_operator_and_multigrid``: Generic method that works for any operator.
         - ``from_dirac_operator_and_multigrid``: Specialized method for Wilson(-clover) Dirac operators
           that uses precomputation for better performance.
+    - ``coarse_9point_op_IFG``: Coarse 9-point operators on a coarse grid that inherits 
+      its gauge field from a fine gauge field. An example is the use of a ``v_ProjectLayer``.
 """
 import torch
 import itertools
