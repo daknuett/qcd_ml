@@ -11,17 +11,6 @@ from qcd_ml.util.linear_algebra import innerproduct, norm
 
 def orthonormalize(vecs: List[torch.Tensor]) -> List[torch.Tensor]:
     """Orthonormalize a list of vectors using the Gram-Schmidt process.
-
-    Args:
-        vecs: List of input vectors (tensors) to orthonormalize.
-
-    Returns:
-        List[torch.Tensor]: List of orthonormalized vectors. The output has the same
-            length as the input, and each vector is normalized to unit length and
-            orthogonal to all previous vectors in the list.
-
-    Note:
-        This implementation uses the modified Gram-Schmidt process.
     """
     basis = []
     for vec in vecs:
@@ -41,14 +30,6 @@ class ZPP_Multigrid:
 
     use ``ZPP_Multigrid.gen_from_fine_vectors([random vectors], [i, j, k, l], lambda b, xo: <solve Dx = b for x>)``
     to construct a ``ZPP_Multigrid``.
-
-    Attributes:
-        block_size: Tuple of 4 integers specifying the block size in each dimension.
-        block_basis: Tensor of shape (Lx, Ly, Lz, Lt, ..., n_basis) containing all basis vectors
-            on the fine lattice.
-        n_basis: Number of basis vectors.
-        L_coarse: Tuple of 4 integers specifying the coarse lattice dimensions.
-        L_fine: Tuple of 4 integers specifying the fine lattice dimensions.
     """
 
     def __init__(self,
@@ -57,16 +38,6 @@ class ZPP_Multigrid:
                  n_basis: int,
                  L_coarse: Tuple[int, ...],
                  L_fine: Tuple[int, ...]) -> None:
-        """Initialize the ZPP_Multigrid.
-
-        Args:
-            block_size: Size of blocks in each of the 4 spacetime dimensions.
-            block_basis: Tensor of shape (Lx, Ly, Lz, Lt, ..., n_basis) containing all basis vectors
-                on the fine lattice.
-            n_basis: Number of basis vectors per block.
-            L_coarse: Dimensions of the coarse lattice (length 4 tuple).
-            L_fine: Dimensions of the fine lattice (length 4 tuple).
-        """
         self.block_size = block_size
         self.block_basis = block_basis
         self.n_basis = n_basis
@@ -174,13 +145,6 @@ class ZPP_Multigrid:
     
     def v_project(self, v: torch.Tensor) -> torch.Tensor:
         """project fine vector ``v`` to coarse grid.
-
-        Args:
-            v: Fine grid vector with shape (Lx, Ly, Lz, Lt, ...).
-
-        Returns:
-            torch.Tensor: Coarse grid projection with shape (L_coarse[0], L_coarse[1],
-                L_coarse[2], L_coarse[3], n_basis) and dtype torch.cdouble.
         """
         # Project onto block basis modes
         # block_basis has shape (*L_fine, ..., n_basis)
@@ -210,14 +174,6 @@ class ZPP_Multigrid:
     
     def v_prolong(self, v: torch.Tensor) -> torch.Tensor:
         """prolong coarse vector ``v`` to fine grid.
-
-        Args:
-            v: Coarse grid vector with shape (L_coarse[0], L_coarse[1], L_coarse[2],
-                L_coarse[3], n_basis).
-
-        Returns:
-            torch.Tensor: Fine grid vector with shape (L_fine[0], L_fine[1], L_fine[2],
-                L_fine[3], ...) and dtype torch.cdouble.
         """
         x = v
         x = x.repeat_interleave(self.block_size[0], dim=0)
@@ -258,21 +214,12 @@ class ZPP_Multigrid:
 
     def save(self, filename: str) -> None:
         """This is a stupid implementation. Saves all arguments as a list.
-
-        Args:
-            filename: Path to save the multigrid instance data.
         """
         torch.save([self.block_size, self.block_basis, self.n_basis, self.L_coarse, self.L_fine], filename)
 
     @classmethod
     def load(cls, filename: str) -> 'ZPP_Multigrid':
         """This is a stupid implementation. Loads all arguments as a list.
-
-        Args:
-            filename: Path to load the multigrid instance data from.
-
-        Returns:
-            ZPP_Multigrid: Loaded multigrid instance.
         """
         args = torch.load(filename)
         return cls(*tuple(args))
