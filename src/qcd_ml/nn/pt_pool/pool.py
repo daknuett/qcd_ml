@@ -48,27 +48,9 @@ class v_ProjectLayer(torch.nn.Module):
 
         qcd_ml.nn.pt_pool.get_paths.get_paths_*
 
-    Attributes:
-        path_buffers: Nested list of PathBuffer objects.
-        weights: Learnable weights tensor.
-        L_fine: Fine lattice dimensions.
-        L_coarse: Coarse lattice dimensions.
-        block_size: Block size for pooling.
-        base_points: Array of base points for each path.
-        gauge_fields: Tensor storing gauge fields for each point.
-        _gpt_compat: Whether to use gpt-compatible normalization.
     """
 
     def __init__(self, gauges_and_paths: List[Tuple[torch.Tensor, List[List[Tuple[int, int]]]]], L_fine: Tuple[int, ...], L_coarse: Tuple[int, ...], _gpt_compat: bool = False) -> None:
-        """Initialize the v_ProjectLayer.
-
-        Args:
-            gauges_and_paths: List of tuples (gauge_field, paths) where gauge_field is a
-                tensor of shape (4, Lx, Ly, Lz, Lt, Nc, Nc) and paths is a list of paths.
-            L_fine: Fine lattice dimensions as a tuple.
-            L_coarse: Coarse lattice dimensions as a tuple.
-            _gpt_compat: Whether to use gpt-compatible normalization. Defaults to False.
-        """
         super().__init__()
         self.path_buffers = [[PathBuffer(Ui, pij) for pij in pi] for Ui, pi in gauges_and_paths]
 
@@ -116,15 +98,6 @@ class v_ProjectLayer(torch.nn.Module):
 
     def v_project(self, features_in: torch.Tensor) -> torch.Tensor:
         """Project fine vector features to coarse grid.
-
-        Args:
-            features_in: Input features tensor of shape (1, ...).
-
-        Returns:
-            Projected features on coarse grid.
-
-        Raises:
-            NotImplementedError: If features_in has more than one feature.
         """
         if features_in.shape[0] != 1:
             raise NotImplementedError()
@@ -138,15 +111,6 @@ class v_ProjectLayer(torch.nn.Module):
 
     def v_prolong(self, features_in: torch.Tensor) -> torch.Tensor:
         """Prolong coarse vector features to fine grid.
-
-        Args:
-            features_in: Input features tensor of shape (1, ...).
-
-        Returns:
-            Prolonged features on fine grid.
-
-        Raises:
-            NotImplementedError: If features_in has more than one feature.
         """
         if features_in.shape[0] != 1:
             raise NotImplementedError()
