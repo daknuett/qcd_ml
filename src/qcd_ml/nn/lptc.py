@@ -60,15 +60,6 @@ class v_LPTC(torch.nn.Module):
     def forward(self, features_in: torch.Tensor) -> torch.Tensor:
         """
         Forward pass of the v_LPTC layer.
-
-        Args:
-            features_in: Input features tensor with shape [n_feature_in, ...].
-
-        Returns:
-            Output features tensor with shape [n_feature_out, ...].
-
-        Raises:
-            ValueError: If the number of input features does not match n_feature_in.
         """
         if features_in.shape[0] != self.n_feature_in:
             raise ValueError(f"shape mismatch: got {features_in.shape[0]} but expected {self.n_feature_in}")
@@ -147,15 +138,6 @@ class v_LPTC_NG(torch.nn.Module):
     def forward(self, features_in: torch.Tensor) -> torch.Tensor:
         """
         Forward pass of the v_LPTC_NG layer.
-
-        Args:
-            features_in: Input features tensor with shape [n_feature_in, ...].
-
-        Returns:
-            Output features tensor with shape [n_feature_out, ...].
-
-        Raises:
-            ValueError: If the number of input features does not match n_feature_in.
         """
         if features_in.shape[0] != self.n_feature_in:
             raise ValueError(f"shape mismatch: got {features_in.shape[0]} but expected {self.n_feature_in}")

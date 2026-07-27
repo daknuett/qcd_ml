@@ -68,16 +68,6 @@ class v_PTC(torch.nn.Module):
     def forward(self, features_in: list[torch.Tensor]) -> torch.Tensor:
         """
         Forward pass of the Parallel Transport Convolution.
-
-        Args:
-            features_in: List of input feature tensors. The first dimension should match
-                n_feature_in.
-
-        Returns:
-            Stacked output feature tensors of shape [n_feature_out, ...].
-
-        Raises:
-            ValueError: If the number of input features does not match n_feature_in.
         """
         if features_in.shape[0] != self.n_feature_in:
             raise ValueError(f"shape mismatch: got {features_in.shape[0]} but expected {self.n_feature_in}")
