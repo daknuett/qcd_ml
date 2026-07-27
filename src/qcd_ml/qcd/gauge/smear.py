@@ -33,20 +33,9 @@ class stout:
     - ``constant_rho``: ..math:`\rho` is a constant matrix.
     - ``spatial_only``: ..math:`\rho` is a constant matrix 
                         with the temporal components set to zero.
-
-    Attributes:
-        rho (torch.Tensor): The rho parameter tensor of shape (4, 4).
     """
 
     def __init__(self, rho: torch.Tensor) -> None:
-        """Initialize the stout smearing.
-
-        Args:
-            rho: The rho parameter tensor of shape (4, 4).
-
-        Raises:
-            ValueError: If rho is not a 4x4 tensor.
-        """
         if rho.shape != (4, 4):
             raise ValueError(f"expected 4x4 tensor, got {rho.shape}")
         self.rho = rho
@@ -58,12 +47,6 @@ class stout:
 
     def __call__(self, U: torch.Tensor) -> torch.Tensor:
         """Apply stout smearing to the gauge field.
-
-        Args:
-            U: Input gauge field tensor.
-
-        Returns:
-            Smeared gauge field tensor.
         """
 
         Hp = lambda mu, lst: lst + [(mu, 1)]
@@ -103,26 +86,16 @@ class stout:
 
     @classmethod
     def constant_rho(cls, rho: float) -> 'stout':
-        """Create a stout smearer with constant rho.
-
-        Args:
-            rho: Constant value for the rho matrix.
-
-        Returns:
-            A stout smearer instance with constant rho.
+        r"""
+        Create a stout smearer with :math:`\rho_{ij} = \rho`.
         """
         rho_tensor = rho * torch.ones(4, 4, dtype=torch.cdouble)
         return cls(rho_tensor)
 
     @classmethod
     def spatial_only(cls, rho: float) -> 'stout':
-        """Create a stout smearer with spatial-only rho (temporal components set to zero).
-
-        Args:
-            rho: Constant value for the spatial components of the rho matrix.
-
-        Returns:
-            A stout smearer instance with spatial-only rho.
+        """
+        The same as ``constant_rho`` but temporal direction is zero.
         """
         rho_tensor = rho * torch.ones(4, 4, dtype=torch.cdouble)
         rho_tensor[:, -1] *= 0
