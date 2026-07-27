@@ -12,11 +12,6 @@ class LGE_Exp(torch.nn.Module):
 
     .. math::
         U_\mu(x) \rightarrow \exp\left(\sum\limits_j \beta_{\mu,i} W_{i}(x)\right) U_\mu(x)
-
-    Attributes:
-        matrix_mode (str): Type of matrix used in the exponent.
-        ah_weights (torch.nn.Parameter or None): Anti-hermitian weights.
-        h_weights (torch.nn.Parameter or None): Hermitian weights.
     """
 
     def __init__(self, n_features_in: int, matrix_mode: Literal['a', 'h', 'ah'] = 'a') -> None:
@@ -28,9 +23,6 @@ class LGE_Exp(torch.nn.Module):
                 - 'a': exp(anti-hermitian)
                 - 'h': exp(i * hermitian)
                 - 'ah': exp(anti-hermitian + i * hermitian)
-
-        Raises:
-            ValueError: If matrix_mode is not one of ['a', 'h', 'ah'].
         """
         super(LGE_Exp, self).__init__()
         self.matrix_mode = matrix_mode
@@ -45,15 +37,6 @@ class LGE_Exp(torch.nn.Module):
                             "ah -> exp(anti-hermitian + i * hermitian)")
 
     def forward(self, U: torch.Tensor, W: torch.Tensor) -> torch.Tensor:
-        r"""Apply the exponentiation layer.
-
-        Args:
-            U: Input gauge field tensor.
-            W: Input matrix-like fields tensor.
-
-        Returns:
-            Exponentiated gauge field tensor.
-        """
         transform_matrix = torch.zeros(U.shape, dtype=torch.cdouble)
         W_adj = W.adjoint()
 
