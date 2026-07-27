@@ -95,12 +95,6 @@ class PathBuffer:
     def v_transport(self, v: torch.Tensor) -> torch.Tensor:
         """
         Gauge-equivariantly transport the vector-like field ``v`` along the path.
-
-        Args:
-            v: The vector-like field tensor to transport.
-
-        Returns:
-            The transported vector-like field tensor.
         """
         if not self._is_identity:
             v = self.v_gauge_transform(self.accumulated_U, v)
@@ -110,12 +104,6 @@ class PathBuffer:
     def v_reverse_transport(self, v: torch.Tensor) -> torch.Tensor:
         """
         Inverse of ``v_transport``, i.e, transport ``v`` along the reversed path.
-
-        Args:
-            v: The vector-like field tensor to transport.
-
-        Returns:
-            The reverse transported vector-like field tensor.
         """
         if not self._is_identity:
             v = v_ng_reverse_evaluate_path(self.path, v)
@@ -125,12 +113,6 @@ class PathBuffer:
     def m_transport(self, m: torch.Tensor) -> torch.Tensor:
         """
         Gauge-equivariantly transport the matrix-like field ``m`` along the path.
-
-        Args:
-            m: The matrix-like field tensor to transport.
-
-        Returns:
-            The transported matrix-like field tensor.
         """
         if not self._is_identity:
             m = self.m_gauge_transform(self.accumulated_U, m)
@@ -140,12 +122,6 @@ class PathBuffer:
     def m_reverse_transport(self, m: torch.Tensor) -> torch.Tensor:
         """
         Inverse of ``m_transport``, i.e., transport ``m`` along the reversed path.
-
-        Args:
-            m: The matrix-like field tensor to reverse transport.
-
-        Returns:
-            The reverse transported matrix-like field tensor.
         """
         if not self._is_identity:
             m = v_ng_reverse_evaluate_path(self.path, m)
