@@ -64,15 +64,46 @@ def test_MM_is_Id_on_fine(test_mm_setup, rand_fine_vec):
 
 
 @pytest.mark.slow
-def test_MM_save_load(test_mm_setup, tmpdir):
-    test_mm_setup.save(tmpdir / "test_mm_setup.pt")
-    mm2 = ZPP_Multigrid.load(tmpdir / "test_mm_setup.pt")
+def test_MM_state_dict_roundtrip(test_mm_setup, tmpdir):
+    torch.save(test_mm_setup.state_dict(), tmpdir / "test_mm_setup.pt")
+    mm2 = ZPP_Multigrid.from_state_dict(torch.load(tmpdir / "test_mm_setup.pt", weights_only=True))
 
     assert test_mm_setup.block_size == mm2.block_size
     assert test_mm_setup.n_basis == mm2.n_basis
     assert test_mm_setup.L_coarse == mm2.L_coarse
     assert test_mm_setup.L_fine == mm2.L_fine
     assert torch.allclose(test_mm_setup.block_basis, mm2.block_basis)
+
+
+@pytest.mark.slow
+def test_MM_load_state_dict_in_place(test_mm_setup):
+    mm2 = ZPP_Multigrid.from_state_dict(test_mm_setup.state_dict())
+    mm2.block_basis = torch.zeros_like(mm2.block_basis)
+
+    mm2.load_state_dict(test_mm_setup.state_dict())
+
+    assert torch.allclose(test_mm_setup.block_basis, mm2.block_basis)
+
+
+def test_MM_load_state_dict_rejects_bad_keys():
+    with pytest.raises(KeyError):
+        ZPP_Multigrid.from_state_dict({"block_size": (4, 4, 4, 4), "nonsense": 42})
+
+
+@pytest.mark.slow
+def test_MM_loaded_acts_identically(config_1500, test_mm_setup, rand_fine_vec, tmpdir):
+    torch.save(test_mm_setup.state_dict(), tmpdir / "test_mm_setup.pt")
+    mm2 = ZPP_Multigrid.from_state_dict(torch.load(tmpdir / "test_mm_setup.pt", weights_only=True))
+
+    coarse_vec = test_mm_setup.v_project(rand_fine_vec)
+    assert torch.equal(coarse_vec, mm2.v_project(rand_fine_vec))
+    assert torch.equal(test_mm_setup.v_prolong(coarse_vec), mm2.v_prolong(coarse_vec))
+
+    w = dirac_wilson_clover(config_1500, -0.58, 1.0)
+    assert torch.equal(
+        test_mm_setup.get_coarse_operator(w)(coarse_vec),
+        mm2.get_coarse_operator(w)(coarse_vec),
+    )
 
 
 @pytest.mark.slow

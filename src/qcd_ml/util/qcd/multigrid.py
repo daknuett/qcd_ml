@@ -4,10 +4,12 @@
 Provides Multigrid with zero point projection.
 """
 
-from typing import Callable, List, Tuple
+from typing import Any, Callable, Dict, List, Tuple
 import torch
 import itertools
 from qcd_ml.util.linear_algebra import innerproduct, norm
+
+_STATE_DICT_KEYS = frozenset(("block_size", "block_basis", "n_basis", "L_coarse", "L_fine"))
 
 def orthonormalize(vecs: List[torch.Tensor]) -> List[torch.Tensor]:
     """Orthonormalize a list of vectors using the Gram-Schmidt process.
@@ -212,15 +214,48 @@ class ZPP_Multigrid:
             return self.v_project(dst_fine)
         return operator
 
-    def save(self, filename: str) -> None:
-        """This is a stupid implementation. Saves all arguments as a list.
+    def state_dict(self) -> Dict[str, Any]:
+        """Return the state of this multigrid setup as a dictionary.
+
+        Use ``torch.save(mg.state_dict(), filename)`` to store it and
+        ``mg.load_state_dict(torch.load(filename))`` to restore it.
+
+        Returns:
+            dict: Mapping of attribute name to value, containing the keys
+                ``block_size``, ``block_basis``, ``n_basis``, ``L_coarse``
+                and ``L_fine``.
         """
-        torch.save([self.block_size, self.block_basis, self.n_basis, self.L_coarse, self.L_fine], filename)
+        return {key: getattr(self, key) for key in _STATE_DICT_KEYS}
+
+    def load_state_dict(self, state_dict: Dict[str, Any]) -> None:
+        """Load the state of a multigrid setup from a dictionary, in place.
+
+        Args:
+            state_dict: A dictionary as returned by ``state_dict``.
+
+        Raises:
+            KeyError: If ``state_dict`` misses required keys or contains
+                unexpected ones.
+        """
+        missing = _STATE_DICT_KEYS - state_dict.keys()
+        unexpected = state_dict.keys() - _STATE_DICT_KEYS
+        if missing or unexpected:
+            raise KeyError(f"missing keys: {sorted(missing)}, unexpected keys: {sorted(unexpected)}")
+
+        for key in _STATE_DICT_KEYS:
+            setattr(self, key, state_dict[key])
 
     @classmethod
-    def load(cls, filename: str) -> 'ZPP_Multigrid':
-        """This is a stupid implementation. Loads all arguments as a list.
+    def from_state_dict(cls, state_dict: Dict[str, Any]) -> 'ZPP_Multigrid':
+        """Construct a new multigrid setup from a state dictionary.
+
+        Args:
+            state_dict: A dictionary as returned by ``state_dict``.
+
+        Returns:
+            ZPP_Multigrid: A new instance holding the state.
         """
-        args = torch.load(filename)
-        return cls(*tuple(args))
+        self = cls.__new__(cls)
+        self.load_state_dict(state_dict)
+        return self
 
