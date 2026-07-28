@@ -20,7 +20,7 @@ from typing import List
 from .operations import v_gauge_transform, m_gauge_transform
 
 def v_hop(U: torch.Tensor, mu: int, direction: int, v: torch.Tensor) -> torch.Tensor:
-    """
+    r"""
     Gauge-equivariant hop for a vector-like field, i.e., fields that transform as 
 
     .. math::
