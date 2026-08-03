@@ -66,7 +66,7 @@ class PolyakovLoopGenerator(torch.nn.Module, AbstractLoopGenerator):
         if id(U) in self.cache:
             loops = self.cache[id(U)]
         else:
-            paths = [[(mu, 1) for _ in L_mu] for mu, L_mu in enumerate(U.shape[1:5])]
+            paths = [[(mu, 1) for _ in range(L_mu)] for mu, L_mu in enumerate(U.shape[1:5])]
             loops = torch.stack([PathBuffer(U, path).gauge_transport_matrix for path in paths])
             if not self.disable_cache:
                 self.cache[id(U)] = loops
