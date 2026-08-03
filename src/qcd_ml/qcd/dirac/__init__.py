@@ -14,13 +14,6 @@ from ...base.paths import PathBuffer
 from ...util.comptime import comptime
 from ..static import gamma
 
-"""
-qcd_ml.qcd.dirac
-================
-
-Dirac operators.
-"""
-
 
 @comptime([(mu, nu) for mu in range(4) for nu in range(4)])
 def sigmamunu(mu: int, nu: int) -> torch.Tensor:
@@ -41,12 +34,6 @@ class dirac_wilson:
 
     def __init__(self, U: torch.Tensor, mass_parameter: float, dag: bool = False) -> None:
         """Initialize the Wilson Dirac operator.
-
-        Args:
-            U (torch.Tensor): Gauge field configuration of shape (4, Lx, Ly, Lz, Lt, Nc, Nc)
-                where 4 is the number of spacetime dimensions.
-            mass_parameter (float): Bare mass parameter in lattice units.
-            dag (bool, optional): If True, use the adjoint operator. Defaults to False.
         """
         self.U = U
         self.mass_parameter = mass_parameter
@@ -90,10 +77,6 @@ class dirac_wilson:
         """Apply the positive hopping term in direction mu.
 
         Computes the contribution from hopping in the positive mu direction.
-
-        Args:
-            v (torch.Tensor): Input spinor field.
-            mu (int): Direction index (0-3).
         """
         sign = 1 if not self.dag else -1
         hopped = v_hop(self.U, mu, 1, v)
@@ -107,10 +90,6 @@ class dirac_wilson:
         """Apply the negative hopping term in direction mu.
 
         Computes the contribution from hopping in the negative mu direction.
-
-        Args:
-            v (torch.Tensor): Input spinor field.
-            mu (int): Direction index (0-3).
         """
         sign = 1 if not self.dag else -1
         hopped = v_hop(self.U, mu, -1, v)
@@ -129,13 +108,6 @@ class dirac_wilson_clover:
 
     def __init__(self, U: torch.Tensor, mass_parameter: float, csw: float, dag: bool = False) -> None:
         """Initialize the clover-improved Wilson Dirac operator.
-
-        Args:
-            U (torch.Tensor): Gauge field configuration of shape (4, Lx, Ly, Lz, Lt, Nc, Nc)
-                where 4 is the number of spacetime dimensions.
-            mass_parameter (float): Bare mass parameter in lattice units.
-            csw (float): Clover improvement coefficient.
-            dag (bool, optional): If True, use the adjoint operator. Defaults to False.
         """
         self.U = U
         self.mass_parameter = mass_parameter
@@ -236,10 +208,6 @@ class dirac_wilson_clover:
         """Apply the positive hopping term in direction mu.
 
         Computes the contribution from hopping in the positive mu direction.
-
-        Args:
-            v (torch.Tensor): Input spinor field.
-            mu (int): Direction index (0-3).
         """
         sign = 1 if not self.dag else -1
         hopped = v_hop(self.U, mu, 1, v)
@@ -253,10 +221,6 @@ class dirac_wilson_clover:
         """Apply the negative hopping term in direction mu.
 
         Computes the contribution from hopping in the negative mu direction.
-
-        Args:
-            v (torch.Tensor): Input spinor field.
-            mu (int): Direction index (0-3).
         """
         sign = 1 if not self.dag else -1
         hopped = v_hop(self.U, mu, -1, v)
