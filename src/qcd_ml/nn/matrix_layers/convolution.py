@@ -35,7 +35,7 @@ class LGE_Convolution(torch.nn.Module):
     where
 
     .. math::
-        (H_{\mu} M)(x) = U_{\mu}(x) M(x + \mu) U_{\mu}(x+\mu)^\dagger
+        (H_{\mu} M)(x) = U_{\mu}(x) M(x + \mu) U_{\mu}(x)^\dagger
 
     Then, the convolution is defined as
 
