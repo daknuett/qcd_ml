@@ -1,12 +1,15 @@
-import functools
-from typing import Iterable, Callable, Any, Tuple
-
 """
+qcd_ml.util.comptime
+====================
+
 Brings comptime evaluation to functions.
 
 This module provides the ``comptime`` decorator which allows functions to be
 evaluated at compile-time for known arguments, improving performance.
 """
+
+import functools
+from typing import Iterable, Callable, Any, Tuple
 
 
 class ComptimeFunc:
