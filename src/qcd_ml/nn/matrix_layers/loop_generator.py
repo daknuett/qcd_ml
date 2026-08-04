@@ -10,35 +10,18 @@ All layers inherit from ``AbstractLoopGenerator`` and provide the class property
     ...
 """
 
-from abc import ABCMeta, abstractmethod
 import torch
 from typing import Dict, Any
 from ...base.paths import PathBuffer
+from ...util.abc import ABCMetaWithProperty
 
-class AbstractLoopGenerator(metaclass=ABCMeta):
+class AbstractLoopGenerator(metaclass=ABCMetaWithProperty, abstractclassproperties={"nfeatures_out"}):
     """Abstract base class for loop generators.
 
     All loop generators must provide ``nfeatures_out`` such that
     consumers can programatically access the number of features the loop genrator produces.
     """
-    @classmethod
-    @property
-    def nfeatures_out(cls: type) -> int:
-        """The number of output features this loop generator will produce.
-        """
-        return cls.property_nfeatures_out
-
-    @property
-    @abstractmethod
-    def property_nfeatures_out(self) -> int:
-        """
-        This is the pythonic way to implement the abstract class propery.
-        Just set ``property_nfeatures_out = X`` in your class definition.
-        """
-        pass
-
-    def __init__(self):
-        self.nfeatures_out = self.property_nfeatures_out
+    pass
 
 
 class PolyakovLoopGenerator(torch.nn.Module, AbstractLoopGenerator):
@@ -51,7 +34,7 @@ class PolyakovLoopGenerator(torch.nn.Module, AbstractLoopGenerator):
     for :math:`\mu = 0,1,2,3`.
     """
 
-    property_nfeatures_out: int = 4  # XXX This expects 4D fields.
+    nfeatures_out: int = 4  # XXX This expects 4D fields.
 
     def __init__(self, disable_cache: bool = True) -> None:
         super(PolyakovLoopGenerator, self).__init__()
@@ -80,7 +63,7 @@ class PositiveOrientationPlaquetteGenerator(torch.nn.Module, AbstractLoopGenerat
         P_{\mu\nu}(x) = U_\mu(x) U_\nu(x+\mu) U_\mu^\dagger(x+\nu) U_\nu^\dagger(x)
     """
 
-    property_nfeatures_out: int = 6
+    nfeatures_out: int = 6
 
     def __init__(self, disable_cache: bool = True) -> None:
         super(PositiveOrientationPlaquetteGenerator, self).__init__()
