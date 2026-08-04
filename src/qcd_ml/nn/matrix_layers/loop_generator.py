@@ -37,6 +37,9 @@ class AbstractLoopGenerator(metaclass=ABCMeta):
         """
         pass
 
+    def __init__(self):
+        self.nfeatures_out = self.property_nfeatures_out
+
 
 class PolyakovLoopGenerator(torch.nn.Module, AbstractLoopGenerator):
     r"""
@@ -46,10 +49,6 @@ class PolyakovLoopGenerator(torch.nn.Module, AbstractLoopGenerator):
         P_\mu(x) = \prod\limits_{k=0}^{L_\mu} U_\mu(x + k\mu)
 
     for :math:`\mu = 0,1,2,3`.
-
-    Attributes:
-        cache (dict): Cache for storing computed loops.
-        disable_cache (bool): Whether to disable caching.
     """
 
     property_nfeatures_out: int = 4  # XXX This expects 4D fields.
