@@ -49,6 +49,8 @@ def test_PositiveOrientationPlaquetteGenerator_output_shape(config_1500):
     expected_shape = (PositiveOrientationPlaquetteGenerator.nfeatures_out, *config_1500.shape[1:])
     assert result.shape == expected_shape
 
+    assert generator.nfeatures_out == PositiveOrientationPlaquetteGenerator.nfeatures_out
+
 
 def test_PositiveOrientationPlaquetteGenerator_disable_cache(config_1500):
     """Test that PositiveOrientationPlaquetteGenerator cache can be disabled."""
