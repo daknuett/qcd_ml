@@ -21,10 +21,20 @@ class AbstractLoopGenerator(metaclass=ABCMeta):
     All loop generators must provide ``nfeatures_out`` such that
     consumers can programatically access the number of features the loop genrator produces.
     """
+    @classmethod
+    @property
+    def nfeatures_out(cls: type) -> int:
+        """The number of output features this loop generator will produce.
+        """
+        return cls.property_nfeatures_out
+
     @property
     @abstractmethod
-    def nfeatures_out(self) -> int:
-        """Must be implemented by subclasses."""
+    def property_nfeatures_out(self) -> int:
+        """
+        This is the pythonic way to implement the abstract class propery.
+        Just set ``property_nfeatures_out = X`` in your class definition.
+        """
         pass
 
 
@@ -36,9 +46,13 @@ class PolyakovLoopGenerator(torch.nn.Module, AbstractLoopGenerator):
         P_\mu(x) = \prod\limits_{k=0}^{L_\mu} U_\mu(x + k\mu)
 
     for :math:`\mu = 0,1,2,3`.
+
+    Attributes:
+        cache (dict): Cache for storing computed loops.
+        disable_cache (bool): Whether to disable caching.
     """
 
-    nfeatures_out = 4
+    property_nfeatures_out: int = 4  # XXX This expects 4D fields.
 
     def __init__(self, disable_cache: bool = True) -> None:
         super(PolyakovLoopGenerator, self).__init__()
@@ -67,7 +81,7 @@ class PositiveOrientationPlaquetteGenerator(torch.nn.Module, AbstractLoopGenerat
         P_{\mu\nu}(x) = U_\mu(x) U_\nu(x+\mu) U_\mu^\dagger(x+\nu) U_\nu^\dagger(x)
     """
 
-    nfeatures_out = 6
+    property_nfeatures_out: int = 6
 
     def __init__(self, disable_cache: bool = True) -> None:
         super(PositiveOrientationPlaquetteGenerator, self).__init__()
