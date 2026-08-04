@@ -19,7 +19,7 @@ class AbstractLoopGenerator(metaclass=ABCMeta):
     """Abstract base class for loop generators.
 
     All loop generators must provide ``nfeatures_out`` such that
-    consumers can programatically access the number of features the loop genrator produces.
+    consumers can programatically access the number of features the loop generator produces.
     """
     @classmethod
     @property
@@ -32,7 +32,7 @@ class AbstractLoopGenerator(metaclass=ABCMeta):
     @abstractmethod
     def property_nfeatures_out(self) -> int:
         """
-        This is the pythonic way to implement the abstract class propery.
+        This is the pythonic way to implement the abstract class property.
         Just set ``property_nfeatures_out = X`` in your class definition.
         """
         pass
