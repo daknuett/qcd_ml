@@ -21,12 +21,6 @@ def get_permutation_sign(permutation: List[int]) -> int:
     Note:
         This function modifies the input list in place.
 
-    Args:
-        permutation: A list of integers representing a permutation.
-
-    Returns:
-        The sign of the permutation: 1 for even permutations, -1 for odd permutations.
-
     Example::
 
         >>> get_permutation_sign([0, 1, 2])

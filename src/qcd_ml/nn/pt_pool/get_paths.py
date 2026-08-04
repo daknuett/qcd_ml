@@ -18,10 +18,6 @@ def get_paths_lexicographic(block_size: Tuple[int, ...], _gpt_compat: bool = Fal
         H_{-4}^{x_4} H_{-3}^{x_3} H_{-2}^{x_2} H_{-1}^{x_1}
 
     i.e., the dimension 1 is traversed first.
-
-    Args:
-        block_size: Tuple specifying the block size in each of the 4 spacetime dimensions.
-        _gpt_compat: If True, return paths in gpt-compatible order (reversed). Defaults to False.
     """
     paths = []
     for position in itertools.product(*(range(bs) for bs in block_size)):

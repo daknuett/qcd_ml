@@ -40,15 +40,6 @@ class v_PTC(torch.nn.Module):
     def __init__(self, n_feature_in: int, n_feature_out: int, paths: List[List[tuple]], U: torch.Tensor, **path_buffer_kwargs):
         """
         Initialize a Parallel Transport Convolution layer for vector-like objects.
-
-        Args:
-            n_feature_in: Number of input features.
-            n_feature_out: Number of output features.
-            paths: List of paths, where each path is a list of tuples (direction, nhops).
-                An empty list represents a path with no hops.
-            U: Gauge field tensor of shape (4, Lx, Ly, Lz, Lt, Nc, Nc) where 4 is the number
-                of spacetime dimensions.
-            **path_buffer_kwargs: Additional keyword arguments to pass to PathBuffer.
         """
         super().__init__()
         self.weights = torch.nn.Parameter(
@@ -90,10 +81,6 @@ class v_PTC(torch.nn.Module):
               Instead the layer is updated. (INPLACE)
 
         Mostly used for testing.
-
-        Args:
-            U_transformed: Transformed gauge field tensor of shape (4, Lx, Ly, Lz, Lt, Nc, Nc)
-                to replace the current gauge field.
         """
         for i, pi in enumerate(self.path_buffers):
             self.path_buffers[i] = PathBuffer(U_transformed, pi.path, **self.path_buffer_kwargs)

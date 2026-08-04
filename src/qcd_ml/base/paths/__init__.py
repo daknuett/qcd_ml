@@ -26,18 +26,6 @@ def path_get_orig_point(path: List[Tuple[int, int]]) -> List[int]:
     This function computes the origin point in 4D spacetime coordinates by
     reversing the path's displacement. Each path element (mu, nhops) contributes
     a displacement of -nhops in the mu direction.
-
-    Args:
-        path: List of path elements, where each element is a tuple (mu, nhops).
-            mu is the spacetime direction index (0-3 for x, y, z, t), and
-            nhops is the number of steps in that direction.
-
-    Returns:
-        List[int]: The origin point as a list of 4 coordinates [x, y, z, t].
-
-    Example:
-        >>> path_get_orig_point([(0, 2), (1, -1)])
-        [-2, 1, 0, 0]
     """
     point = [0] * 4
     for mu, nhops in path:

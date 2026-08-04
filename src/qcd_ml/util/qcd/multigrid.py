@@ -49,10 +49,6 @@ class ZPP_Multigrid:
     def cuda(self) -> 'ZPP_Multigrid':
         """Move all basis vectors to CUDA device.
 
-        Returns:
-            ZPP_Multigrid: A new ZPP_Multigrid instance with all basis vectors moved
-                to CUDA device. All other attributes remain the same.
-
         Note:
             This creates a new instance rather than modifying in place.
         """
@@ -198,15 +194,6 @@ class ZPP_Multigrid:
         In case of a 9-point operator, such as Wilson and Wilson-Clover Dirac operator,
         a significantly faster implementation can be achieved by using ``qcd_ml.qcd.dirac.coarsened.coarse_9point_op_NG``
         (either ``from_operator_and_multigrid`` or ``from_dirac_operator_and_multigrid``).
-
-        Args:
-            fine_operator: Operator function that takes a fine grid vector and returns
-                a fine grid vector.
-
-        Returns:
-            Callable: Coarse operator function that takes a coarse grid vector and
-                returns a coarse grid vector. The coarse operator is defined as:
-                coarse_op(v_coarse) = v_project(fine_operator(v_prolong(v_coarse)))
         """
         def operator(source_coarse: torch.Tensor) -> torch.Tensor:
             source_fine = self.v_prolong(source_coarse)
@@ -229,13 +216,6 @@ class ZPP_Multigrid:
 
     def load_state_dict(self, state_dict: Dict[str, Any]) -> None:
         """Load the state of a multigrid setup from a dictionary, in place.
-
-        Args:
-            state_dict: A dictionary as returned by ``state_dict``.
-
-        Raises:
-            KeyError: If ``state_dict`` misses required keys or contains
-                unexpected ones.
         """
         missing = _STATE_DICT_KEYS - state_dict.keys()
         unexpected = state_dict.keys() - _STATE_DICT_KEYS
@@ -248,12 +228,6 @@ class ZPP_Multigrid:
     @classmethod
     def from_state_dict(cls, state_dict: Dict[str, Any]) -> 'ZPP_Multigrid':
         """Construct a new multigrid setup from a state dictionary.
-
-        Args:
-            state_dict: A dictionary as returned by ``state_dict``.
-
-        Returns:
-            ZPP_Multigrid: A new instance holding the state.
         """
         self = cls.__new__(cls)
         self.load_state_dict(state_dict)

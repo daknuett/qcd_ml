@@ -19,27 +19,10 @@ class C_Convolution(torch.nn.Module):
 
     Note:
         Padding and stride are set automatically to preserve lattice size.
-
-    Attributes:
-        nd (int): Number of spatial dimensions.
-        n_input (int): Number of input channels.
-        n_output (int): Number of output channels.
-        kernel_size (tuple): Size of the convolution kernel.
-        padding (list): Padding size.
-        stride (list): Stride size.
-        weights (torch.nn.Parameter): Learnable convolution weights.
-        biases (torch.nn.Parameter or None): Learnable biases, or None if disabled.
     """
 
     def __init__(self, n_input: int, n_output: int, kernel_size: int, bias: bool = True, nd: int = 4) -> None:
         """Initialize the C_Convolution layer.
-
-        Args:
-            n_input: Number of input channels.
-            n_output: Number of output channels.
-            kernel_size: Size of the convolution kernel (can be a single int or a sequence).
-            bias: Whether to include a bias term. Defaults to True.
-            nd: Number of spatial dimensions. Defaults to 4.
         """
         super(C_Convolution, self).__init__()
 
@@ -77,12 +60,6 @@ class C_Convolution(torch.nn.Module):
 
         .. math::
             U_i(x) \rightarrow b_i + \sum_j \omega_{ij} \star U_j(x)
-
-        Args:
-            U: Input tensor of shape (n_input, *spatial_dims, ...).
-
-        Returns:
-            Output tensor of shape (n_output, *spatial_dims, ...).
         """
         nu = U.dim()
         assert nu > self.nd # (C, x_0, ..., x_{nd-1}, ...)
@@ -108,12 +85,6 @@ class C_Convolution(torch.nn.Module):
 
     def _circular_pad(self, U: torch.Tensor) -> torch.Tensor:
         """Apply circular padding.
-
-        Args:
-            U: Input tensor to pad.
-
-        Returns:
-            Padded tensor.
         """
         for i, ks in enumerate(self.kernel_size):
             if ks > 1:
@@ -135,9 +106,6 @@ class C_Convolution(torch.nn.Module):
 
     def _padding(self) -> list:
         """Padding size to preserve lattice size.
-
-        Returns:
-            list: List of padding sizes [left_0, right_0, left_1, right_1, ...].
         """
         padding = []
         for ks in reversed(self.kernel_size):

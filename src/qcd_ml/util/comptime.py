@@ -30,9 +30,6 @@ def comptime(comptime_args: Iterable) -> Callable[[Callable], ComptimeFunc]:
     compile-time arguments. When the wrapped function is called with these
     arguments, it returns the cached result.
 
-    Args:
-        comptime_args: Iterable of argument tuples to pre-compute.
-
     Example::
 
         @comptime([(1, 2), (3, 4)])
