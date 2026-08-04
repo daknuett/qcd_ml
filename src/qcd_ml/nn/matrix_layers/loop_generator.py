@@ -19,7 +19,7 @@ class AbstractLoopGenerator(metaclass=ABCMetaWithProperty, abstractclassproperti
     """Abstract base class for loop generators.
 
     All loop generators must provide ``nfeatures_out`` such that
-    consumers can programatically access the number of features the loop genrator produces.
+    consumers can programatically access the number of features the loop generator produces.
     """
     pass
 

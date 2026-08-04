@@ -33,19 +33,6 @@ class v_LPTC(torch.nn.Module):
     ) -> None:
         """
         Initialize the v_LPTC layer.
-
-        Args:
-            n_feature_in: Number of input features.
-            n_feature_out: Number of output features.
-            paths: List of paths. Each path is a list of tuples (direction, nhops).
-            U: Gauge field tensor.
-            **path_buffer_kwargs: Additional keyword arguments for PathBuffer initialization.
-
-        Notes:
-            Weights are initialized as a random tensor with shape
-            [n_feature_in, n_feature_out, len(paths), Lx, Ly, Lz, Lt, 4, 4]
-            and dtype torch.cdouble.
-            The path_buffers are created for each path in paths.
         """
         super().__init__()
         self.weights = torch.nn.Parameter(
@@ -82,9 +69,6 @@ class v_LPTC(torch.nn.Module):
               Instead the layer is updated.
 
         Mostly used for testing.
-
-        Args:
-            U_transformed: The new gauge field tensor to replace the old U.
         """
         for i, pi in enumerate(self.path_buffers):
             self.path_buffers[i] = PathBuffer(U_transformed, pi.path, **self.path_buffer_kwargs)
@@ -111,18 +95,6 @@ class v_LPTC_NG(torch.nn.Module):
     ) -> None:
         """
         Initialize the v_LPTC_NG layer.
-
-        Args:
-            n_feature_in: Number of input features.
-            n_feature_out: Number of output features.
-            paths: List of paths. Each path is a list of tuples (direction, nhops).
-            grid_dims: Dimensions of the grid.
-            internal_dof: Internal degrees of freedom.
-
-        Notes:
-            Weights are initialized as a random tensor with shape
-            [n_feature_in, n_feature_out, len(paths), *grid_dims, internal_dof, internal_dof]
-            and dtype torch.cdouble.
         """
         super().__init__()
         self.weights = torch.nn.Parameter(

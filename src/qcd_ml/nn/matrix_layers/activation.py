@@ -19,10 +19,6 @@ class LGE_ReTrAct(torch.nn.Module):
 
     def __init__(self, activation: torch.nn.Module, n_features: int) -> None:
         """Initialize the LGE_ReTrAct layer.
-
-        Args:
-            activation: The activation function.
-            n_features: Number of features.
         """
         super(LGE_ReTrAct, self).__init__()
         self.activation = activation
@@ -35,9 +31,6 @@ class LGE_ReTrAct(torch.nn.Module):
 
         .. math::
             W_j(x) \rightarrow F(\omega_j \mbox{Re}\mbox{Tr}(W_j(x)) \alpha_j) W_j(x)
-
-        Args:
-            features: Input features (locally transforming matrix-like fields).
         """
         re_tr = torch.einsum("...ii->...", features.real)
         prefactor = self.activation(self.weights.expand_as(re_tr) * re_tr + self.biases.expand_as(re_tr))

@@ -10,13 +10,6 @@ def v_evaluate_path(U: torch.Tensor, path: List[Tuple[int, int]], v: torch.Tenso
     An empty list is the path that does not perform any hops.
     
     If nhops is negative, the hop is made in negative mu direction.
-
-    Args:
-        U: Gauge field tensor of shape (4, Lx, Ly, Lz, Lt, 3, 3) where 4 is the number
-            of spacetime dimensions.
-        path: List of tuples (mu, nhops) specifying the path to evaluate.
-            mu is the direction index, nhops is the number of hops.
-        v: Input vector-like field tensor to evaluate the path on.
     """
     for mu, nhops in path:
         if nhops < 0:
@@ -36,11 +29,6 @@ def v_ng_evaluate_path(path: List[Tuple[int, int]], v: torch.Tensor) -> torch.Te
     An empty list is the path that does not perform any hops.
     
     If nhops is negative, the hop is made in negative mu direction.
-
-    Args:
-        path: List of tuples (mu, nhops) specifying the path to evaluate.
-            mu is the direction index, nhops is the number of hops.
-        v: Input vector-like field tensor to evaluate the path on.
     """
     if len(path) > 0:
         mus = [mu for mu,_ in path]
@@ -59,11 +47,6 @@ def slow_v_ng_evaluate_path(path: List[Tuple[int, int]], v: torch.Tensor) -> tor
     An empty list is the path that does not perform any hops.
     
     If nhops is negative, the hop is made in negative mu direction.
-
-    Args:
-        path: List of tuples (mu, nhops) specifying the path to evaluate.
-            mu is the direction index, nhops is the number of hops.
-        v: Input vector-like field tensor to evaluate the path on.
     """
     for mu, nhops in path:
         if nhops < 0:
@@ -85,13 +68,6 @@ def v_reverse_evaluate_path(U: torch.Tensor, path: List[Tuple[int, int]], v: tor
     An empty list is the path that does not perform any hops.
     
     If nhops is negative, the hop is made in negative mu direction.
-
-    Args:
-        U: Gauge field tensor of shape (4, Lx, Ly, Lz, Lt, 3, 3) where 4 is the number
-            of spacetime dimensions.
-        path: List of tuples (mu, nhops) specifying the path to evaluate in reverse.
-            mu is the direction index, nhops is the number of hops.
-        v: Input vector-like field tensor to evaluate the path on.
     """
     for mu, nhops in reversed(path):
         nhops *= -1
@@ -143,13 +119,6 @@ def m_evaluate_path(U: torch.Tensor, path: List[Tuple[int, int]], m: torch.Tenso
     An empty list is the path that does not perform any hops.
     
     If nhops is negative, the hop is made in negative mu direction.
-
-    Args:
-        U: Gauge field tensor of shape (4, Lx, Ly, Lz, Lt, 3, 3) where 4 is the number
-            of spacetime dimensions.
-        path: List of tuples (mu, nhops) specifying the path to evaluate.
-            mu is the direction index, nhops is the number of hops.
-        m: Input matrix-like field tensor to evaluate the path on.
     """
     for mu, nhops in path:
         if nhops < 0:

@@ -75,13 +75,6 @@ class coarse_9point_op_NG:
             Q = qcd_ml.qcd.dirac.dirac_wilson_clover(U, mass, 1.0)
 
             coarse_op = coarse_9point_op_NG.from_operator_and_multigrid(Q, mg)
-
-        Args:
-            operator: The fine-grid operator to coarsen.
-            mg: The multigrid object providing coarse grid information.
-
-        Returns:
-            A new coarse_9point_op_NG instance.
         """
         pseudo_gauge_forward = torch.zeros(4, *mg.L_coarse, mg.n_basis, mg.n_basis, dtype=torch.cdouble)
         pseudo_gauge_backward = torch.zeros(4, *mg.L_coarse, mg.n_basis, mg.n_basis, dtype=torch.cdouble)
@@ -129,16 +122,6 @@ class coarse_9point_op_NG:
 
             coarse_op = coarse_9point_op_NG.from_dirac_operator_and_multigrid(Q, mg)
             # coarse_op is a callable that can be applied to coarse vectors
-
-        Args:
-            fine_op: The fine-grid Wilson(-clover) Dirac operator with methods:
-                - apply_diag: Apply diagonal part
-                - apply_pos_hop: Apply positive hopping terms
-                - apply_neg_hop: Apply negative hopping terms
-            mg: The multigrid object (ZPP_Multigrid) providing coarse grid information.
-
-        Returns:
-            Callable: A function that applies the coarse operator to a coarse grid vector.
         """
         # Only works for Wilson(-clover) Dirac operator
         N = mg.n_basis
@@ -336,13 +319,6 @@ class coarse_9point_op_IFG:
             tfp = v_ProjectLayer(...)
             Q = qcd_ml.qcd.dirac.dirac_wilson_clover(U, mass, 1.0)
             coarse_op_9p = coarse_9point_op_IFG.from_operator_and_pooling(Q, tfp)
-
-        Args:
-            operator: The fine-grid operator to coarsen.
-            pooling: The pooling layer object (v_ProjectLayer) providing coarse grid information.
-
-        Returns:
-            A new coarse_9point_op_IFG instance.
         """
         pseudo_gauge_forward = torch.zeros(4, *pooling.L_coarse, 4, 4, 3, 3, dtype=torch.cdouble)
         pseudo_gauge_backward = torch.zeros(4, *pooling.L_coarse, 4, 4, 3, 3, dtype=torch.cdouble)

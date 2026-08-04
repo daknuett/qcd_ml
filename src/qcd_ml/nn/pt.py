@@ -34,16 +34,6 @@ class v_PT(torch.nn.Module):
         **path_buffer_kwargs: Any
     ) -> None:
         """Initialize the v_PT parallel transport layer.
-
-        Args:
-            paths: List of paths. Each path is a list of tuples (direction, nhops)
-                where direction is the spacetime dimension index and nhops is the
-                number of hops (positive or negative) in that direction.
-                An empty list [] represents a path with no hops.
-            U: Gauge field tensor of shape (4, Lx, Ly, Lz, Lt, 3, 3) where 4 is the
-                number of spacetime dimensions and 3x3 represents SU(3) matrices.
-            **path_buffer_kwargs: Additional keyword arguments passed to PathBuffer
-                instances for each path. Refer to the documentation of PathBuffer.
         """
         super().__init__()
         self.n_feature_in = len(paths)
@@ -58,19 +48,6 @@ class v_PT(torch.nn.Module):
 
         Each input feature is transported along its corresponding path using
         the pre-computed gauge transport matrices.
-
-        Args:
-            features_in: Input tensor of shape (n_paths, ...) where n_paths is the
-                number of paths (self.n_feature_in). Each feature corresponds to
-                one path and will be transported along that path.
-
-        Returns:
-            Output tensor of shape (n_paths, ...) containing the transported features.
-            The output at position i corresponds to the input at position i transported
-            along path i.
-
-        Raises:
-            ValueError: If the number of input features does not match the number of paths.
         """
         if features_in.shape[0] != self.n_feature_in:
             raise ValueError(
@@ -89,19 +66,6 @@ class v_PT(torch.nn.Module):
 
         Each input feature is transported in the reverse direction along its
         corresponding path using the pre-computed gauge transport matrices.
-
-        Args:
-            features_in: Input tensor of shape (n_paths, ...) where n_paths is the
-                number of paths (self.n_feature_in). Each feature corresponds to
-                one path and will be transported in reverse along that path.
-
-        Returns:
-            Output tensor of shape (n_paths, ...) containing the reverse-transported
-            features. The output at position i corresponds to the input at position i
-            transported in reverse along path i.
-
-        Raises:
-            ValueError: If the number of input features does not match the number of paths.
         """
         if features_in.shape[0] != self.n_feature_in:
             raise ValueError(
@@ -124,10 +88,6 @@ class v_PT(torch.nn.Module):
               Instead the layer is updated. (INPLACE)
 
         Mostly used for testing.
-
-        Args:
-            U_transformed: Transformed gauge field tensor of shape (4, Lx, Ly, Lz, Lt, 3, 3)
-                to replace the current gauge field.
         """
         for i, pi in enumerate(self.path_buffers):
             self.path_buffers[i] = PathBuffer(

@@ -26,12 +26,6 @@ from typing import Iterable
 def _mul(iterable: Iterable[int]) -> int:
     """
     Compute the product of all elements in an iterable.
-    
-    Args:
-        iterable: An iterable of integers.
-        
-    Returns:
-        The product of all elements.
     """
     res = 1
     for i in iterable:
