@@ -69,12 +69,11 @@ class stout:
                                 , self.rho, staples, U_tensor_adj)
 
         hermitian = Omega_mu.adjoint() - Omega_mu
-        trace = torch.einsum("mabcdii->mabcd", hermitian)
 
-        identity = torch.clone(hermitian)
-        identity[:, :, :, :, :] = torch.eye(3, dtype=torch.cdouble)
-        trace_removal = torch.einsum("mabcdij,mabcd->mabcdij"
-                                     , identity, trace)
+        trace_removal = torch.einsum("mabcdii,kl->mabcdkl",
+                                     hermitian,
+                                     torch.eye(3, dtype=torch.cdouble)
+                                    )
         traceless_hermitian = 1j/2 * (hermitian - trace_removal / 3)
 
         transform_matrix = torch.matrix_exp(1j * traceless_hermitian)
