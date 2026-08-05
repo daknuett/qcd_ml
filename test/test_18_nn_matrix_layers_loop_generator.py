@@ -33,6 +33,14 @@ def test_PolyakovLoopGenerator_disable_cache(config_1500):
     assert torch.allclose(result1, result3, atol=1e-14)
 
 
+def test_PolyakovLoopGenerator_nfeatures_out():
+    generator = PolyakovLoopGenerator()
+
+    assert generator.nfeatures_out == PolyakovLoopGenerator.nfeatures_out
+
+    assert isinstance(PolyakovLoopGenerator.nfeatures_out, int)
+
+
 def test_PolyakovLoopGenerator_cache_disabled(config_1500):
     """Test that cache is not used when disabled."""
     generator = PolyakovLoopGenerator(disable_cache=True)
@@ -48,8 +56,6 @@ def test_PositiveOrientationPlaquetteGenerator_output_shape(config_1500):
     
     expected_shape = (PositiveOrientationPlaquetteGenerator.nfeatures_out, *config_1500.shape[1:])
     assert result.shape == expected_shape
-
-    assert generator.nfeatures_out == PositiveOrientationPlaquetteGenerator.nfeatures_out
 
 
 def test_PositiveOrientationPlaquetteGenerator_disable_cache(config_1500):
