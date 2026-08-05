@@ -1,5 +1,6 @@
 """
-This module provides functions to generate complete sets of paths for a given block size.
+This module provides functions to generate complete sets of paths for a given block size,
+that is for a block all points are connected to the base point (0, 0, 0, 0) by exactly one path.
 
 See the documentation of the functions for more information.
 """
@@ -17,13 +18,6 @@ def get_paths_lexicographic(block_size: Tuple[int, ...], _gpt_compat: bool = Fal
         H_{-4}^{x_4} H_{-3}^{x_3} H_{-2}^{x_2} H_{-1}^{x_1}
 
     i.e., the dimension 1 is traversed first.
-
-    Args:
-        block_size: Tuple specifying the block size in each of the 4 spacetime dimensions.
-        _gpt_compat: If True, return paths in gpt-compatible order (reversed). Defaults to False.
-        
-    Returns:
-        List of paths, where each path is a list of tuples (mu, nhops).
     """
     paths = []
     for position in itertools.product(*(range(bs) for bs in block_size)):
@@ -38,13 +32,6 @@ def get_paths_lexicographic(block_size: Tuple[int, ...], _gpt_compat: bool = Fal
 def get_paths_reverse_lexicographic(block_size: Tuple[int, ...], _gpt_compat: bool = False) -> List[List[Tuple[int, int]]]:
     """
     Reverse order of get_paths_lexicographic.
-    
-    Args:
-        block_size: Tuple specifying the block size in each of the 4 spacetime dimensions.
-        _gpt_compat: If True, return paths in gpt-compatible order (reversed). Defaults to False.
-        
-    Returns:
-        List of paths, where each path is a list of tuples (mu, nhops).
     """
     if _gpt_compat is False:
         return [list(reversed(pth)) for pth in get_paths_lexicographic(block_size)]
@@ -59,13 +46,6 @@ def get_paths_one_step_lexicographic(block_size: Tuple[int, ...], _gpt_compat: b
     .. math::
 
         \\cdots H_{-4}H_{-3}H_{-2}H_{-1}H_{-4}H_{-3}H_{-2}H_{-1}
-    
-    Args:
-        block_size: Tuple specifying the block size in each of the 4 spacetime dimensions.
-        _gpt_compat: If True, return paths in gpt-compatible order (reversed). Defaults to False.
-        
-    Returns:
-        List of paths, where each path is a list of tuples (mu, nhops).
     """
     paths = []
     for position in itertools.product(*(range(bs) for bs in block_size)):
@@ -93,13 +73,6 @@ def get_paths_one_step_reverse_lexicographic(block_size: Tuple[int, ...], _gpt_c
     .. math::
 
         \\cdots H_{-1}H_{-2}H_{-3}H_{-4}H_{-1}H_{-2}H_{-3}H_{-4}
-    
-    Args:
-        block_size: Tuple specifying the block size in each of the 4 spacetime dimensions.
-        _gpt_compat: If True, return paths in gpt-compatible order (reversed). Defaults to False.
-        
-    Returns:
-        List of paths, where each path is a list of tuples (mu, nhops).
     """
     paths = []
     for position in itertools.product(*(range(bs) for bs in block_size)):

@@ -13,22 +13,9 @@ class LGE_Bilinear(torch.nn.Module):
         W_{x,i}, W_{x,i}' \rightarrow \sum_{j,k} \alpha_{i,j,k} W_{x,j} W_{x,k}'
 
     See 10.1103/PhysRevLett.128.032003 for more details.
-
-    Attributes:
-        n_input1 (int): Number of input features in first input.
-        n_input2 (int): Number of input features in second input.
-        n_output (int): Number of output features.
-        weights (torch.nn.Parameter): Learnable weights for the bilinear operation.
     """
 
     def __init__(self, n_input1: int, n_input2: int, n_output: int) -> None:
-        """Initialize the LGE_Bilinear layer.
-
-        Args:
-            n_input1: Number of input features in first input.
-            n_input2: Number of input features in second input.
-            n_output: Number of output features.
-        """
         super(LGE_Bilinear, self).__init__()
         self.n_input1 = n_input1
         self.n_input2 = n_input2
@@ -44,12 +31,6 @@ class LGE_Bilinear(torch.nn.Module):
         .. math::
             W_{x,i}, W_{x,i}' \rightarrow \sum_{j,k} \alpha_{i,j,k} W_{x,j} W_{x,k}'
 
-        Args:
-            features_in1: First input features tensor.
-            features_in2: Second input features tensor.
-
-        Returns:
-            Output features tensor.
         """
 
         return torch.einsum("jki,jabcdnr,kabcdrm->iabcdnm", self.weights, features_in1, features_in2)
@@ -89,23 +70,9 @@ class LGE_BilinearLM(torch.nn.Module):
         W_{x,i}, W_{x,i}' \rightarrow \sum_{j,k} \alpha_{i,j,k} W_{x,j} W_{x,k}'
 
     See 10.1103/PhysRevLett.128.032003 for more details.
-
-    Attributes:
-        n_input1 (int): Number of input features in first input.
-        n_input2 (int): Number of input features in second input.
-        n_output (int): Number of output features.
-        weights (torch.nn.Parameter): Learnable weights for the bilinear operation.
-        fn (function): The Apply_LGE_Bilinear function.
     """
 
     def __init__(self, n_input1: int, n_input2: int, n_output: int) -> None:
-        """Initialize the LGE_BilinearLM layer.
-
-        Args:
-            n_input1: Number of input features in first input.
-            n_input2: Number of input features in second input.
-            n_output: Number of output features.
-        """
         super(LGE_BilinearLM, self).__init__()
         self.n_input1 = n_input1
         self.n_input2 = n_input2
@@ -121,13 +88,6 @@ class LGE_BilinearLM(torch.nn.Module):
 
         .. math::
             W_{x,i}, W_{x,i}' \rightarrow \sum_{j,k} \alpha_{i,j,k} W_{x,j} W_{x,k}'
-
-        Args:
-            features_in1: First input features tensor.
-            features_in2: Second input features tensor.
-
-        Returns:
-            Output features tensor.
         """
 
         return self.fn(features_in1, features_in2, self.weights)

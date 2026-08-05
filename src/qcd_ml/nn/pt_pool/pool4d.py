@@ -15,18 +15,6 @@ def v_pool4d(fine_v: torch.Tensor, block_size: Tuple[int, ...]) -> torch.Tensor:
     Reduces the spatial dimensions of a 4D tensor by pooling over blocks of
     specified size. The last two dimensions (channel-like) are preserved.
 
-    Args:
-        fine_v: Input tensor with at least 4 spatial dimensions plus any trailing
-            dimensions. Shape: (D1, D2, D3, D4, ...).
-        block_size: Size of the pooling block for each of the 4 spatial dimensions.
-            Must be a tuple of 4 integers.
-
-    Returns:
-        Pooled tensor with reduced spatial dimensions. Shape:
-            (D1//block_size[0], D2//block_size[1], D3//block_size[2],
-             D4//block_size[3], ...). The last two dimensions are preserved from
-            the input. dtype is torch.cdouble.
-
     Note:
         This is a slow pure-Python implementation. For better performance,
         use the accelerated version in qcd_ml_accel.pool4d.
@@ -44,18 +32,6 @@ def v_unpool4d(coarse_v: torch.Tensor, block_size: Tuple[int, ...]) -> torch.Ten
     Expands the spatial dimensions of a 4D tensor by replicating values
     into blocks of specified size. The last two dimensions (channel-like)
     are preserved.
-
-    Args:
-        coarse_v: Input tensor with 4 spatial dimensions plus any trailing
-            dimensions. Shape: (D1, D2, D3, D4, ...).
-        block_size: Size of the unpooling block for each of the 4 spatial dimensions.
-            Must be a tuple of 4 integers.
-
-    Returns:
-        Unpooled tensor with expanded spatial dimensions. Shape:
-            (D1*block_size[0], D2*block_size[1], D3*block_size[2],
-             D4*block_size[3], ...). The last two dimensions are preserved from
-            the input. dtype is torch.cdouble.
 
     Note:
         This is a slow pure-Python implementation. For better performance,

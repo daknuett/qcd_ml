@@ -43,27 +43,11 @@ class LGE_CB(torch.nn.Module):
         W_i^o(x) &= \sum\limits_{ijj'} \alpha_{ijj'} W_j^a(x) W_{j'}^b(x)
 
     and :math:`W^o` is returned.
-
-    Attributes:
-        n_features_in (int): Number of input features.
-        n_features_out (int): Number of output features.
-        paths (list): List of paths for the convolution.
-        cache (dict): Cache for path buffers.
-        disable_cache (bool): Whether to disable caching.
-        weights (torch.nn.Parameter): Learnable weights for the layer.
     """
 
     def __init__(
         self, n_features_in: int, n_features_out: int, paths: list, disable_cache: bool = True
     ) -> None:
-        """Initialize the LGE_CB layer.
-
-        Args:
-            n_features_in: Number of input features.
-            n_features_out: Number of output features.
-            paths: List of paths for the convolution.
-            disable_cache: Whether to disable caching of path buffers. Defaults to True.
-        """
         super(LGE_CB, self).__init__()
         self.n_features_in = n_features_in
         self.n_features_out = n_features_out
@@ -76,13 +60,7 @@ class LGE_CB(torch.nn.Module):
                                                       , n_features_out, dtype=torch.cdouble))
 
     def get_path_buffers(self, U: torch.Tensor) -> List[Any]:
-        """Get path buffers for the given link field U, using cache if available.
-
-        Args:
-            U: The link field tensor.
-
-        Returns:
-            List of PathBuffer objects for the paths.
+        """Get path buffers for the paths used in the model and the given link field U, using cache if available.
         """
         if id(U) not in self.cache:
             path_buffers = [PathBuffer(U, path) for path in self.paths]
@@ -93,16 +71,6 @@ class LGE_CB(torch.nn.Module):
         return path_buffers
 
     def forward(self, U: torch.Tensor, features_in: torch.Tensor) -> torch.Tensor:
-        """Forward pass of the LGE_CB layer.
-
-        Args:
-            U: The link field tensor of shape (4, Lx, Ly, Lz, Lt, Nc, Nc).
-            features_in: Input features tensor of shape (n_features_in, ...).
-
-        Returns:
-            Output features tensor of shape (n_features_out, ...) after applying 
-            the convolution-bilinear operation.
-        """
         path_buffers = self.get_path_buffers(U)
         transported_features = torch.stack([pk.m_transport(fj) for pk, fj in itertools.product(path_buffers, features_in)])
         identity = torch.stack([torch.zeros_like(features_in[0])])

@@ -4,24 +4,15 @@
 Provides Multigrid with zero point projection.
 """
 
-from typing import Callable, List, Tuple
+from typing import Any, Callable, Dict, List, Tuple
 import torch
 import itertools
 from qcd_ml.util.linear_algebra import innerproduct, norm
 
+_STATE_DICT_KEYS = frozenset(("block_size", "block_basis", "n_basis", "L_coarse", "L_fine"))
+
 def orthonormalize(vecs: List[torch.Tensor]) -> List[torch.Tensor]:
     """Orthonormalize a list of vectors using the Gram-Schmidt process.
-
-    Args:
-        vecs: List of input vectors (tensors) to orthonormalize.
-
-    Returns:
-        List[torch.Tensor]: List of orthonormalized vectors. The output has the same
-            length as the input, and each vector is normalized to unit length and
-            orthogonal to all previous vectors in the list.
-
-    Note:
-        This implementation uses the modified Gram-Schmidt process.
     """
     basis = []
     for vec in vecs:
@@ -41,14 +32,6 @@ class ZPP_Multigrid:
 
     use ``ZPP_Multigrid.gen_from_fine_vectors([random vectors], [i, j, k, l], lambda b, xo: <solve Dx = b for x>)``
     to construct a ``ZPP_Multigrid``.
-
-    Attributes:
-        block_size: Tuple of 4 integers specifying the block size in each dimension.
-        block_basis: Tensor of shape (Lx, Ly, Lz, Lt, ..., n_basis) containing all basis vectors
-            on the fine lattice.
-        n_basis: Number of basis vectors.
-        L_coarse: Tuple of 4 integers specifying the coarse lattice dimensions.
-        L_fine: Tuple of 4 integers specifying the fine lattice dimensions.
     """
 
     def __init__(self,
@@ -57,16 +40,6 @@ class ZPP_Multigrid:
                  n_basis: int,
                  L_coarse: Tuple[int, ...],
                  L_fine: Tuple[int, ...]) -> None:
-        """Initialize the ZPP_Multigrid.
-
-        Args:
-            block_size: Size of blocks in each of the 4 spacetime dimensions.
-            block_basis: Tensor of shape (Lx, Ly, Lz, Lt, ..., n_basis) containing all basis vectors
-                on the fine lattice.
-            n_basis: Number of basis vectors per block.
-            L_coarse: Dimensions of the coarse lattice (length 4 tuple).
-            L_fine: Dimensions of the fine lattice (length 4 tuple).
-        """
         self.block_size = block_size
         self.block_basis = block_basis
         self.n_basis = n_basis
@@ -75,10 +48,6 @@ class ZPP_Multigrid:
 
     def cuda(self) -> 'ZPP_Multigrid':
         """Move all basis vectors to CUDA device.
-
-        Returns:
-            ZPP_Multigrid: A new ZPP_Multigrid instance with all basis vectors moved
-                to CUDA device. All other attributes remain the same.
 
         Note:
             This creates a new instance rather than modifying in place.
@@ -174,13 +143,6 @@ class ZPP_Multigrid:
     
     def v_project(self, v: torch.Tensor) -> torch.Tensor:
         """project fine vector ``v`` to coarse grid.
-
-        Args:
-            v: Fine grid vector with shape (Lx, Ly, Lz, Lt, ...).
-
-        Returns:
-            torch.Tensor: Coarse grid projection with shape (L_coarse[0], L_coarse[1],
-                L_coarse[2], L_coarse[3], n_basis) and dtype torch.cdouble.
         """
         # Project onto block basis modes
         # block_basis has shape (*L_fine, ..., n_basis)
@@ -210,14 +172,6 @@ class ZPP_Multigrid:
     
     def v_prolong(self, v: torch.Tensor) -> torch.Tensor:
         """prolong coarse vector ``v`` to fine grid.
-
-        Args:
-            v: Coarse grid vector with shape (L_coarse[0], L_coarse[1], L_coarse[2],
-                L_coarse[3], n_basis).
-
-        Returns:
-            torch.Tensor: Fine grid vector with shape (L_fine[0], L_fine[1], L_fine[2],
-                L_fine[3], ...) and dtype torch.cdouble.
         """
         x = v
         x = x.repeat_interleave(self.block_size[0], dim=0)
@@ -240,15 +194,6 @@ class ZPP_Multigrid:
         In case of a 9-point operator, such as Wilson and Wilson-Clover Dirac operator,
         a significantly faster implementation can be achieved by using ``qcd_ml.qcd.dirac.coarsened.coarse_9point_op_NG``
         (either ``from_operator_and_multigrid`` or ``from_dirac_operator_and_multigrid``).
-
-        Args:
-            fine_operator: Operator function that takes a fine grid vector and returns
-                a fine grid vector.
-
-        Returns:
-            Callable: Coarse operator function that takes a coarse grid vector and
-                returns a coarse grid vector. The coarse operator is defined as:
-                coarse_op(v_coarse) = v_project(fine_operator(v_prolong(v_coarse)))
         """
         def operator(source_coarse: torch.Tensor) -> torch.Tensor:
             source_fine = self.v_prolong(source_coarse)
@@ -256,24 +201,35 @@ class ZPP_Multigrid:
             return self.v_project(dst_fine)
         return operator
 
-    def save(self, filename: str) -> None:
-        """This is a stupid implementation. Saves all arguments as a list.
+    def state_dict(self) -> Dict[str, Any]:
+        """Return the state of this multigrid setup as a dictionary.
 
-        Args:
-            filename: Path to save the multigrid instance data.
-        """
-        torch.save([self.block_size, self.block_basis, self.n_basis, self.L_coarse, self.L_fine], filename)
-
-    @classmethod
-    def load(cls, filename: str) -> 'ZPP_Multigrid':
-        """This is a stupid implementation. Loads all arguments as a list.
-
-        Args:
-            filename: Path to load the multigrid instance data from.
+        Use ``torch.save(mg.state_dict(), filename)`` to store it and
+        ``mg.load_state_dict(torch.load(filename))`` to restore it.
 
         Returns:
-            ZPP_Multigrid: Loaded multigrid instance.
+            dict: Mapping of attribute name to value, containing the keys
+                ``block_size``, ``block_basis``, ``n_basis``, ``L_coarse``
+                and ``L_fine``.
         """
-        args = torch.load(filename)
-        return cls(*tuple(args))
+        return {key: getattr(self, key) for key in _STATE_DICT_KEYS}
+
+    def load_state_dict(self, state_dict: Dict[str, Any]) -> None:
+        """Load the state of a multigrid setup from a dictionary, in place.
+        """
+        missing = _STATE_DICT_KEYS - state_dict.keys()
+        unexpected = state_dict.keys() - _STATE_DICT_KEYS
+        if missing or unexpected:
+            raise KeyError(f"missing keys: {sorted(missing)}, unexpected keys: {sorted(unexpected)}")
+
+        for key in _STATE_DICT_KEYS:
+            setattr(self, key, state_dict[key])
+
+    @classmethod
+    def from_state_dict(cls, state_dict: Dict[str, Any]) -> 'ZPP_Multigrid':
+        """Construct a new multigrid setup from a state dictionary.
+        """
+        self = cls.__new__(cls)
+        self.load_state_dict(state_dict)
+        return self
 

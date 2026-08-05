@@ -11,28 +11,8 @@ class PathBuffer:
     v_reverse_evaluate_path but pre-computes the costly gauge transport matrix
     multiplications.
 
-    To access the gauge transport matrix, use
+    To access the pre-computed gauge transport matrix, use
     ``PathBuffer(U, path).gauge_transport_matrix``.
-
-    Args:
-        U: Gauge field tensor of shape (4, Lx, Ly, Lz, Lt, 3, 3) where 4 is the number
-            of spacetime dimensions.
-        path: List of path elements as tuples (mu, nhops) where mu is the
-            direction index and nhops is the number of hops.
-        gauge_group_compose: Function to compose gauge group elements.
-            Defaults to SU3_group_compose.
-        v_gauge_transform: Function to gauge transform vector-like fields.
-            Defaults to v_gauge_transform.
-        m_gauge_transform: Function to gauge transform matrix-like fields.
-            Defaults to m_gauge_transform.
-        adjoin: Function to compute the adjoint of a tensor. Defaults to
-            lambda x: x.adjoint().
-        gauge_identity: The identity element of the gauge group as a tensor.
-            Defaults to the 3x3 identity matrix.
-
-    Attributes:
-        gauge_transport_matrix: The pre-computed gauge transport matrix as a
-            torch.Tensor.
     """
 
     def __init__(
@@ -54,20 +34,21 @@ class PathBuffer:
         transport operations along the specified path.
 
         Args:
-            U: Gauge field tensor of shape (4, Lx, Ly, Lz, Lt, 3, 3) where 4 is the number
-                of spacetime dimensions.
+            U: Gauge field tensor of shape (4, Lx, Ly, Lz, Lt, Nc, Nc) where 4 is the number
+                of spacetime dimensions and Nc is the number of colors (usually 3).
             path: List of path elements as tuples (mu, nhops) where mu is the
                 direction index and nhops is the number of hops.
             gauge_group_compose: Function to compose gauge group elements.
-                Defaults to SU3_group_compose.
+                Defaults to qcd_ml.base.operations.SU3_group_compose.
             v_gauge_transform: Function to gauge transform vector-like fields.
-                Defaults to v_gauge_transform.
+                Defaults to qcd_ml.base.operations.v_gauge_transform.
             m_gauge_transform: Function to gauge transform matrix-like fields.
-                Defaults to m_gauge_transform.
-            adjoin: Function to compute the adjoint of a tensor. Defaults to
+                Defaults to qcd_ml.base.operations.m_gauge_transform.
+            adjoin: Function to compute the adjoint of a gauge group element. Defaults to
                 lambda x: x.adjoint().
             gauge_identity: The identity element of the gauge group as a tensor.
-                Defaults to the 3x3 identity matrix.
+                Defaults to the 3x3 complex identity matrix.
+
         """
         self.path = path
 
@@ -108,21 +89,12 @@ class PathBuffer:
     def gauge_transport_matrix(self) -> torch.Tensor:
         """
         Get the pre-computed gauge transport matrix.
-
-        Returns:
-            The accumulated gauge transport matrix as a torch.Tensor.
         """
         return self.accumulated_U
 
     def v_transport(self, v: torch.Tensor) -> torch.Tensor:
         """
         Gauge-equivariantly transport the vector-like field ``v`` along the path.
-
-        Args:
-            v: The vector-like field tensor to transport.
-
-        Returns:
-            The transported vector-like field tensor.
         """
         if not self._is_identity:
             v = self.v_gauge_transform(self.accumulated_U, v)
@@ -131,13 +103,7 @@ class PathBuffer:
 
     def v_reverse_transport(self, v: torch.Tensor) -> torch.Tensor:
         """
-        Inverse of ``v_transport``.
-
-        Args:
-            v: The vector-like field tensor to reverse transport.
-
-        Returns:
-            The reverse transported vector-like field tensor.
+        Inverse of ``v_transport``, i.e, transport ``v`` along the reversed path.
         """
         if not self._is_identity:
             v = v_ng_reverse_evaluate_path(self.path, v)
@@ -147,12 +113,6 @@ class PathBuffer:
     def m_transport(self, m: torch.Tensor) -> torch.Tensor:
         """
         Gauge-equivariantly transport the matrix-like field ``m`` along the path.
-
-        Args:
-            m: The matrix-like field tensor to transport.
-
-        Returns:
-            The transported matrix-like field tensor.
         """
         if not self._is_identity:
             m = self.m_gauge_transform(self.accumulated_U, m)
@@ -161,13 +121,7 @@ class PathBuffer:
 
     def m_reverse_transport(self, m: torch.Tensor) -> torch.Tensor:
         """
-        Inverse of ``m_transport``.
-
-        Args:
-            m: The matrix-like field tensor to reverse transport.
-
-        Returns:
-            The reverse transported matrix-like field tensor.
+        Inverse of ``m_transport``, i.e., transport ``m`` along the reversed path.
         """
         if not self._is_identity:
             m = v_ng_reverse_evaluate_path(self.path, m)

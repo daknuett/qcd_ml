@@ -10,6 +10,8 @@ Currently the following operators are implemented:
         - ``from_operator_and_multigrid``: Generic method that works for any operator.
         - ``from_dirac_operator_and_multigrid``: Specialized method for Wilson(-clover) Dirac operators
           that uses precomputation for better performance.
+    - ``coarse_9point_op_IFG``: Coarse 9-point operators on a coarse grid that inherits 
+      its gauge field from a fine gauge field. An example is the use of a ``v_ProjectLayer``.
 """
 import torch
 import itertools
@@ -30,24 +32,13 @@ class coarse_9point_op_NG:
     This operator is significantly faster than the operator constructed by ``ZPP_Multigrid.get_coarse_operator(Q)``.
     The ``from_dirac_operator_and_multigrid`` method is specialized for Wilson(-clover) Dirac
     operators and uses decomposed application (apply_diag, apply_pos_hop, apply_neg_hop) for
-    significantly better performance.
-
-    Attributes:
-        pseudo_gauge_forward: Forward pseudo-gauge field tensor.
-        pseudo_gauge_backward: Backward pseudo-gauge field tensor.
-        pseudo_mass: Pseudo-mass tensor.
-        L_coarse: Coarse lattice dimensions.
-        pseudo_gauge_transform: Function to apply pseudo-gauge transformation.
+    significantly better performance during initialization.
     """
 
     def __init__(self, pseudo_gauge_forward: torch.Tensor, pseudo_gauge_backward: torch.Tensor, pseudo_mass: torch.Tensor, L_coarse: Tuple[int, ...]) -> None:
-        """Initialize the coarse 9-point operator.
-
-        Args:
-            pseudo_gauge_forward: Forward pseudo-gauge field of shape (4, *L_coarse, n_basis, n_basis).
-            pseudo_gauge_backward: Backward pseudo-gauge field of shape (4, *L_coarse, n_basis, n_basis).
-            pseudo_mass: Pseudo-mass field of shape (*L_coarse, n_basis, n_basis).
-            L_coarse: Coarse lattice dimensions as a tuple.
+        """For internal use only, use ``coarse_9point_op_NG.from_operator_and_multigrid`` 
+        or ``coarse_9point_op_NG.from_dirac_operator_and_multigrid`` to obtain
+        a coarsened operator.
         """
         self.pseudo_gauge_forward = pseudo_gauge_forward
         self.pseudo_gauge_backward = pseudo_gauge_backward
@@ -55,28 +46,11 @@ class coarse_9point_op_NG:
         self.L_coarse = L_coarse
 
         def pseudo_gauge_apply(ps_gauge: torch.Tensor, vec: torch.Tensor) -> torch.Tensor:
-            """Apply pseudo-gauge transformation.
-            
-            Args:
-                ps_gauge: Pseudo-gauge field tensor.
-                vec: Vector to transform.
-                
-            Returns:
-                Transformed vector.
-            """
             return torch.einsum("abcdij,abcdj->abcdi", ps_gauge, vec)
     
         self.pseudo_gauge_transform = pseudo_gauge_apply
         
     def __call__(self, x: torch.Tensor) -> torch.Tensor:
-        """Apply the coarse 9-point operator to input tensor x.
-
-        Args:
-            x: Input tensor to apply the operator to.
-
-        Returns:
-            Result of applying the coarse operator.
-        """
         result = self.pseudo_gauge_transform(self.pseudo_mass, x)
         for mu in range(4):
             result_mu = torch.roll(self.pseudo_gauge_transform(self.pseudo_gauge_forward[mu], x), 1, mu)
@@ -101,13 +75,6 @@ class coarse_9point_op_NG:
             Q = qcd_ml.qcd.dirac.dirac_wilson_clover(U, mass, 1.0)
 
             coarse_op = coarse_9point_op_NG.from_operator_and_multigrid(Q, mg)
-
-        Args:
-            operator: The fine-grid operator to coarsen.
-            mg: The multigrid object providing coarse grid information.
-
-        Returns:
-            A new coarse_9point_op_NG instance.
         """
         pseudo_gauge_forward = torch.zeros(4, *mg.L_coarse, mg.n_basis, mg.n_basis, dtype=torch.cdouble)
         pseudo_gauge_backward = torch.zeros(4, *mg.L_coarse, mg.n_basis, mg.n_basis, dtype=torch.cdouble)
@@ -117,27 +84,9 @@ class coarse_9point_op_NG:
         vec = torch.zeros(*mg.L_coarse, mg.n_basis, dtype=torch.cdouble)
 
         def update_idx_p(idx: list, mu: int) -> Tuple:
-            """Update index in positive direction.
-            
-            Args:
-                idx: Current index as a list.
-                mu: Direction index to increment.
-                
-            Returns:
-                Updated index as a tuple.
-            """
             idx[mu] = (idx[mu] + 1) % mg.L_coarse[mu]
             return tuple(idx)
         def update_idx_m(idx: list, mu: int) -> Tuple:
-            """Update index in negative direction.
-            
-            Args:
-                idx: Current index as a list.
-                mu: Direction index to decrement.
-                
-            Returns:
-                Updated index as a tuple.
-            """
             idx[mu] = (idx[mu] + mg.L_coarse[mu] - 1) % mg.L_coarse[mu]
             return tuple(idx)
         
@@ -173,16 +122,6 @@ class coarse_9point_op_NG:
 
             coarse_op = coarse_9point_op_NG.from_dirac_operator_and_multigrid(Q, mg)
             # coarse_op is a callable that can be applied to coarse vectors
-
-        Args:
-            fine_op: The fine-grid Wilson(-clover) Dirac operator with methods:
-                - apply_diag: Apply diagonal part
-                - apply_pos_hop: Apply positive hopping terms
-                - apply_neg_hop: Apply negative hopping terms
-            mg: The multigrid object (ZPP_Multigrid) providing coarse grid information.
-
-        Returns:
-            Callable: A function that applies the coarse operator to a coarse grid vector.
         """
         # Only works for Wilson(-clover) Dirac operator
         N = mg.n_basis
@@ -338,22 +277,13 @@ class coarse_9point_op_IFG:
         with torch.no_grad():
             coarse_op_9p = coarse_9point_op_IFG.from_operator_and_pooling(Q, tfp)
 
-    Attributes:
-        pseudo_gauge_forward: Forward pseudo-gauge field tensor.
-        pseudo_gauge_backward: Backward pseudo-gauge field tensor.
-        pseudo_mass: Pseudo-mass tensor.
-        L_coarse: Coarse lattice dimensions.
-        pseudo_gauge_transform: Function to apply pseudo-gauge transformation.
+    The operator has two effective pseudo-gauge fields (forward and backward directions)
+    that define how information is transferred between the coarse sites.
     """
 
     def __init__(self, pseudo_gauge_forward: torch.Tensor, pseudo_gauge_backward: torch.Tensor, pseudo_mass: torch.Tensor, L_coarse: Tuple[int, ...]) -> None:
-        """Initialize the coarse 9-point operator with inherited fine gauge.
-
-        Args:
-            pseudo_gauge_forward: Forward pseudo-gauge field of shape (4, *L_coarse, 4, 4, 3, 3).
-            pseudo_gauge_backward: Backward pseudo-gauge field of shape (4, *L_coarse, 4, 4, 3, 3).
-            pseudo_mass: Pseudo-mass field of shape (*L_coarse, 4, 4, 3, 3).
-            L_coarse: Coarse lattice dimensions as a tuple.
+        """For internal use only, to construct the operator use 
+        ``coarse_9point_op_IFG.from_operator_and_pooling``.
         """
         self.pseudo_gauge_forward = pseudo_gauge_forward
         self.pseudo_gauge_backward = pseudo_gauge_backward
@@ -361,28 +291,11 @@ class coarse_9point_op_IFG:
         self.L_coarse = L_coarse
 
         def pseudo_gauge_apply(ps_gauge: torch.Tensor, vec: torch.Tensor) -> torch.Tensor:
-            """Apply pseudo-gauge transformation.
-            
-            Args:
-                ps_gauge: Pseudo-gauge field tensor.
-                vec: Vector to transform.
-                
-            Returns:
-                Transformed vector.
-            """
             return torch.einsum("abcdijkl,abcdjl->abcdik", ps_gauge, vec)
     
         self.pseudo_gauge_transform = pseudo_gauge_apply
         
     def __call__(self, x: torch.Tensor) -> torch.Tensor:
-        """Apply the coarse 9-point operator to input tensor x.
-
-        Args:
-            x: Input tensor to apply the operator to.
-
-        Returns:
-            Result of applying the coarse operator.
-        """
         result = self.pseudo_gauge_transform(self.pseudo_mass, x)
         for mu in range(4):
             result_mu = torch.roll(self.pseudo_gauge_transform(self.pseudo_gauge_forward[mu], x), 1, mu)
@@ -406,13 +319,6 @@ class coarse_9point_op_IFG:
             tfp = v_ProjectLayer(...)
             Q = qcd_ml.qcd.dirac.dirac_wilson_clover(U, mass, 1.0)
             coarse_op_9p = coarse_9point_op_IFG.from_operator_and_pooling(Q, tfp)
-
-        Args:
-            operator: The fine-grid operator to coarsen.
-            pooling: The pooling layer object (v_ProjectLayer) providing coarse grid information.
-
-        Returns:
-            A new coarse_9point_op_IFG instance.
         """
         pseudo_gauge_forward = torch.zeros(4, *pooling.L_coarse, 4, 4, 3, 3, dtype=torch.cdouble)
         pseudo_gauge_backward = torch.zeros(4, *pooling.L_coarse, 4, 4, 3, 3, dtype=torch.cdouble)
@@ -422,27 +328,9 @@ class coarse_9point_op_IFG:
         vec = torch.zeros(*pooling.L_coarse, 4,3, dtype=torch.cdouble)
 
         def update_idx_p(idx: list, mu: int) -> Tuple:
-            """Update index in positive direction.
-            
-            Args:
-                idx: Current index as a list.
-                mu: Direction index to increment.
-                
-            Returns:
-                Updated index as a tuple.
-            """
             idx[mu] = (idx[mu] + 1) % pooling.L_coarse[mu]
             return tuple(idx)
         def update_idx_m(idx: list, mu: int) -> Tuple:
-            """Update index in negative direction.
-            
-            Args:
-                idx: Current index as a list.
-                mu: Direction index to decrement.
-                
-            Returns:
-                Updated index as a tuple.
-            """
             idx[mu] = (idx[mu] + pooling.L_coarse[mu] - 1) % pooling.L_coarse[mu]
             return tuple(idx)
         

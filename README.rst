@@ -88,3 +88,24 @@ Compatibility
 
 - Compatibility layer for `lehner/gpt <https://github.com/lehner/gpt>`_
 
+How to Cite
+===========
+
+Currently you should cite the version frozen by Zenodo:
+
+.. code::
+
+    @software{qcd_ml_2026_21397754,
+      author       = {Daniel Knuettel and
+                      Simon Pfahler and
+                      Riccardo Costantini and
+                      Raphael Lehner},
+      title        = {daknuett/qcd\_ml: v0.5.2},
+      month        = jul,
+      year         = 2026,
+      publisher    = {Zenodo},
+      version      = {v0.5.2},
+      doi          = {10.5281/zenodo.21397754},
+      url          = {https://doi.org/10.5281/zenodo.21397754},
+    }
+
