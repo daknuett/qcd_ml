@@ -70,7 +70,7 @@ def topological_charge_density_clover(U: torch.Tensor, _gpt_compat: bool = False
         q_field += sgn * torch.einsum("abcdii->abcd", identity - SU3_group_compose(Fmunu[mu][nu], Fmunu[rho][sigma]))
 
     if not _gpt_compat:
-        rescale = 1 / 32 / torch.pi**2
+        rescale = 16.0 / (32.0 * torch.pi**2) * (0.125**2.0)
     else:
         rescale = 16.0 / (32.0 * torch.pi**2) * (0.125**2.0) * _mul(U.shape[1:5])
     return q_field * rescale
