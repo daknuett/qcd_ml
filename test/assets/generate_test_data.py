@@ -60,3 +60,12 @@ w = g.qcd.fermion.wilson_clover(U1, {"mass": -0.5,
 
 psi_Dwc_m0p5_psitest = w(psi)
 np.save("psi_Dwc1500_m0p5_psitest.npy", lattice2ndarray(psi_Dwc_m0p5_psitest))
+
+
+
+eps = 0.1
+U_flow = g.qcd.gauge.smear.wilson_flow(U1, eps)
+np.save(f"1500_wilson_flow_eps{eps}.npy", [lattice2ndarray(U_mu) for U_mu in U_flow])
+for _ in range(9):
+    U_flow = g.qcd.gauge.smear.wilson_flow(U_flow, eps)
+np.save(f"1500_wilson_flow_eps{eps}_10.npy", [lattice2ndarray(U_mu) for U_mu in U_flow])
