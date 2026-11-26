@@ -2,11 +2,15 @@
 
     - Stout smearing (``stout``) [1]_ [2]_
     - Wilson gradient flow (``wilson_flow``) [3]_
+    - Plaquette-plus-rectangle gradient flow (``improved_flow``) [3]_ [4]_ [5]_ [6]_
 
 
-.. [1]: 10.1103/PhysRevD.69.054501
-.. [2]: 10.1007/978-3-642-01850-3
-.. [3]: 10.1007/JHEP08(2010)071
+.. [1] 10.1103/PhysRevD.69.054501
+.. [2] 10.1007/978-3-642-01850-3
+.. [3] 10.1007/JHEP08(2010)071
+.. [4] 10.1007/BF01206178
+.. [5] arXiv:1111.7054 
+.. [6] 10.1016/S0550-3213(00)00145-0
 
 
 """
@@ -15,6 +19,9 @@ import torch
 
 from ...base.paths  import PathBuffer
 from ...base.operations import SU3_group_compose
+
+
+# Shared helper functions
 
 
 def _staple_generator(U: torch.Tensor, rho: torch.Tensor = None) -> torch.Tensor:
@@ -40,6 +47,7 @@ def _staple_generator(U: torch.Tensor, rho: torch.Tensor = None) -> torch.Tensor
     If ``rho`` is ``None``, unit weights are used for all
     :math:`\mu \neq \nu`.
     """
+
     Hp = lambda mu, lst: lst + [(mu, 1)]
     Hm = lambda mu, lst: lst + [(mu, -1)]
 
@@ -65,14 +73,69 @@ def _staple_generator(U: torch.Tensor, rho: torch.Tensor = None) -> torch.Tensor
     Omega_mu = torch.einsum("mn,mnabcdij,mabcdjk->mabcdik"
                                 , weights, staples, U.adjoint())
 
-    hermitian = Omega_mu.adjoint() - Omega_mu
-    trace = torch.einsum("mabcdii->mabcd", hermitian)
+    antihermitian = Omega_mu.adjoint() - Omega_mu
+    trace = torch.einsum("mabcdii->mabcd", antihermitian)
 
-    identity = torch.clone(hermitian)
-    identity[:, :, :, :, :] = torch.eye(3, dtype=torch.cdouble)
-    trace_removal = torch.einsum("mabcdij,mabcd->mabcdij"
-                                 , identity, trace)
-    return 1j/2 * (hermitian - trace_removal / 3)
+    identity = torch.eye(3, dtype=U.dtype, device=U.device)
+    trace_removal = trace[..., None, None] * identity
+
+    return 1j/2 * (antihermitian - trace_removal / 3)
+
+
+def _rectangle_staple_generator(U: torch.Tensor) -> torch.Tensor:
+    r"""Compute the traceless Hermitian rectangle generator :math:`Q_\mu(x)`.
+
+    The generator is constructed from the sum of rectangular staples as
+
+    .. math::
+
+        C_\mu(x) &= \sum_{\nu \neq \mu} C_{\mu\nu}^{\mathrm{rect}}(x), \\
+        \Omega_\mu(x) &= C_\mu(x) U_\mu^\dagger(x), \\
+        Q_\mu(x) &= \frac{i}{2} \left[
+            \Omega_\mu^\dagger(x) - \Omega_\mu(x)
+            - \frac{1}{N_c} \mathrm{Tr}\left(
+                \Omega_\mu^\dagger(x) - \Omega_\mu(x)
+            \right) \mathbb{1}
+        \right].
+
+    Here, :math:`C_{\mu\nu}^{\mathrm{rect}}(x)` is the sum of the six
+    five-link staples associated with the :math:`1\times2` and
+    :math:`2\times1` rectangles in the :math:`\mu\nu`-plane.
+    """
+
+    Hp = lambda mu, lst: lst + [(mu, 1)]
+    Hm = lambda mu, lst: lst + [(mu, -1)]
+
+    rectangle_paths = [[[
+        Hm(mu, Hm(nu, Hp(mu, Hp(mu, Hp(nu, []))))),
+        Hm(nu, Hp(mu, Hp(mu, Hp(nu, Hm(mu, []))))),
+        Hm(mu, Hp(nu, Hp(mu, Hp(mu, Hm(nu, []))))),
+        Hp(nu, Hp(mu, Hp(mu, Hm(nu, Hm(mu, []))))),
+        Hm(nu, Hm(nu, Hp(mu, Hp(nu, Hp(nu, []))))),
+        Hp(nu, Hp(nu, Hp(mu, Hm(nu, Hm(nu, [])))))
+    ] for nu in range(4) if nu != mu] for mu in range(4)]
+
+    rectangle_staples = [[
+        sum(PathBuffer(U, p).accumulated_U.adjoint() for p in pnu)
+        for pnu in pmu
+    ] for pmu in rectangle_paths]
+
+    C_mu = torch.stack([
+        torch.stack(rectmu).sum(dim=0)
+        for rectmu in rectangle_staples
+    ])
+
+    Omega_mu = torch.einsum(
+        "mabcdij,mabcdjk->mabcdik", C_mu, U.adjoint()
+    )
+
+    antihermitian = Omega_mu.adjoint() - Omega_mu
+    trace = torch.einsum("mabcdii->mabcd", antihermitian)
+
+    identity = torch.eye(3, dtype=U.dtype, device=U.device)
+    trace_removal = trace[..., None, None] * identity
+
+    return 1j/2 * (antihermitian - trace_removal / 3)
 
 
 def _exp_update(
@@ -92,6 +155,9 @@ def _exp_update(
             SU3_group_compose(exp_iQ[mu], U[mu])
             for mu in range(4)
         ])
+
+
+# Stout smearing
 
 
 class stout:
@@ -150,38 +216,63 @@ class stout:
         return cls(rho_tensor)
 
 
-class wilson_flow:
-    r"""This class is used to construct the Wilson gradient flow.
-    See [3]_ for details of the flow equation and integration algorithm.
+# Gradient flows
 
-    performed as such::
 
-        flow = wilson_flow(epsilon)
+class improved_flow:
+    r"""Gradient flow using a plaquette-plus-rectangle gauge action.
 
-        for i in range(n_flow_steps):
-            U = flow(U)
+    The flow action is defined by
+
+    .. math::
+
+        S = c_0 S_{\mathrm{plaq}} + c_1 S_{\mathrm{rect}},
+        \qquad c_0 = 1 - 8c_1.
+
+    Common choices for :math:`c_1` are:
+
+    - Wilson: :math:`c_1 = 0` [3]_
+    - Tree-level Symanzik: :math:`c_1 = -1/12` [4]_
+    - Iwasaki: :math:`c_1 = -0.331` [5]_
+    - DBW2: :math:`c_1 = -1.4088` [6]_
+
+    The flow is integrated using a third-order Runge-Kutta integrator.
     """
 
-    def __init__(self, epsilon: float) -> None:
+    def __init__(self, epsilon: float, c1: float) -> None:
         if epsilon <= 0.0:
             raise ValueError(f"epsilon > 0 required, got {epsilon}")
+
         self.epsilon = epsilon
+        self.c1 = c1
+        self.c0 = 1.0 - 8.0 * c1
+
+    def _generator(self, U: torch.Tensor) -> torch.Tensor:
+        """Compute the generator of the flow action.
+        """
+
+        Q = self.c0 * _staple_generator(U)
+
+        if self.c1 != 0.0:
+            Q += self.c1 * _rectangle_staple_generator(U)
+
+        return Q
 
     def __call__(self, U: torch.Tensor) -> torch.Tensor:
-        """Apply Wilson flow to the gauge field.
+        """Apply one gradient-flow step to the gauge field.
         """
-        V = U.clone()
+
         eps = self.epsilon
 
-        Q0 = _staple_generator(V)
-        V1 = _exp_update(V, Q0, eps / 4.0)
+        Q0 = self._generator(U)
+        V1 = _exp_update(U, Q0, eps / 4.0)
 
-        Q1 = _staple_generator(V1)
+        Q1 = self._generator(V1)
         V2 = _exp_update(
             V1, (8.0 / 9.0) * Q1 - (17.0 / 36.0) * Q0, eps
         )
 
-        Q2 = _staple_generator(V2)
+        Q2 = self._generator(V2)
         V = _exp_update(
             V2,
             (3.0 / 4.0) * Q2
@@ -191,3 +282,13 @@ class wilson_flow:
         )
 
         return V
+
+
+class wilson_flow(improved_flow):
+    r"""Wilson gradient flow.
+
+    See [3]_ for details of the flow equation and integration algorithm.
+    """
+
+    def __init__(self, epsilon: float) -> None:
+        super().__init__(epsilon, c1=0.0)

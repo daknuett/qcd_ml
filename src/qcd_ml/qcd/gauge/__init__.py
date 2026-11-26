@@ -6,4 +6,4 @@ Gauge field operations.
 """
 
 from . import observables
-from .smear import stout, wilson_flow
+from .smear import stout, wilson_flow, improved_flow

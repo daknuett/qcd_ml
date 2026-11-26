@@ -69,3 +69,9 @@ np.save(f"1500_wilson_flow_eps{eps}.npy", [lattice2ndarray(U_mu) for U_mu in U_f
 for _ in range(9):
     U_flow = g.qcd.gauge.smear.wilson_flow(U_flow, eps)
 np.save(f"1500_wilson_flow_eps{eps}_10.npy", [lattice2ndarray(U_mu) for U_mu in U_flow])
+
+eps = 0.1
+c1 = -1.0 / 12.0
+action = g.qcd.gauge.action.improved_with_rectangle(beta=6.0, c1=c1)
+U_flow = g.qcd.gauge.smear.gradient_flow(U1, eps, action)
+np.save(f"1500_symanzik_flow_eps{eps}.npy", [lattice2ndarray(U_mu) for U_mu in U_flow])

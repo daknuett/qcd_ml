@@ -98,6 +98,11 @@ def config_1500_wilson_flow_eps0p1_10():
     return torch.tensor(np.load(os.path.join(os.path.dirname(__file__), "assets", "1500_wilson_flow_eps0.1_10.npy")))
 
 
+@pytest.fixture
+def config_1500_symanzik_flow_eps0p1():
+    return torch.tensor(np.load(os.path.join(os.path.dirname(__file__), "assets", "1500_symanzik_flow_eps0.1.npy")))
+
+
 @pytest.fixture 
 def psi_Dw1500_m0p5_psitest():
     return torch.tensor(np.load(os.path.join(os.path.dirname(__file__), "assets","psi_Dw1500_m0p5_psitest.npy")))
