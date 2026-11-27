@@ -82,7 +82,7 @@ def topological_charge_density_plaquette(U: torch.Tensor) -> torch.Tensor:
 
     .. math::
 
-        q(n) = \frac{1}{32\pi} \epsilon_{\mu\nu\rho\sigma} \mbox{Tr}\left(\frac{U_{\mu\nu}(x) - U_{\mu\nu}^\dagger(x)}{2i}\frac{U_{\rho\sigma}(x) - U_{\rho\sigma}^\dagger(x)}{2i}\right)
+        q(n) = \frac{1}{32\pi^2} \epsilon_{\mu\nu\rho\sigma} \mbox{Tr}\left(\frac{U_{\mu\nu}(x) - U_{\mu\nu}^\dagger(x)}{2i}\frac{U_{\rho\sigma}(x) - U_{\rho\sigma}^\dagger(x)}{2i}\right)
 
     See 10.1103/PhysRevLett.128.032003.
     """
