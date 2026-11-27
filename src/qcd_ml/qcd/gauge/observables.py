@@ -39,6 +39,13 @@ def plaquette_field(U: torch.Tensor, _gpt_compat: bool = False) -> torch.Tensor:
     else:
         return plaquette_field
 
+def _traceless(M: torch.Tensor) -> torch.Tensor:
+    """Subtract the color trace from a matrix-valued field."""
+    Nc = M.shape[-1]
+    trace = M.diagonal(dim1=-2, dim2=-1).sum(dim=-1)
+    identity = torch.eye(Nc, dtype=M.dtype, device=M.device)
+    return M - trace[..., None, None] / Nc * identity
+
 def topological_charge_density_clover(U: torch.Tensor, _gpt_compat: bool = False) -> torch.Tensor:
     """
     The topological charge density field :math:`q(n)` [1]_ [2]_ using the clover
@@ -60,7 +67,7 @@ def topological_charge_density_clover(U: torch.Tensor, _gpt_compat: bool = False
 
     clover_terms = [[[PathBuffer(U, pi).gauge_transport_matrix for pi in pnu] for pnu in pmu] for pmu in clover_paths]
     Qmunu = [[sum(pnu) / 4 for pnu in pmu] for pmu in clover_terms]
-    Fmunu = [[Qmunu[mu][nu] - Qmunu[nu][mu] for nu in range(4)] for mu in range(4)]
+    Fmunu = [[_traceless(Qmunu[mu][nu] - Qmunu[nu][mu]) for nu in range(4)] for mu in range(4)]
 
     identity = torch.zeros_like(Fmunu[0][0])
     identity[:,:,:,:] = torch.eye(3,3, dtype=torch.cdouble)
@@ -101,8 +108,8 @@ def topological_charge_density_plaquette(U: torch.Tensor) -> torch.Tensor:
 
     q_field = 0
     for (mu,nu,rho,sigma), sgn in levi_civita_index_and_sign_iterator(4):
-        term_a = (untraced_plaquettes[mu][nu] - untraced_plaquettes[mu][nu].adjoint()) / (2j)
-        term_b = (untraced_plaquettes[rho][sigma] - untraced_plaquettes[rho][sigma].adjoint()) / (2j)
+        term_a = _traceless((untraced_plaquettes[mu][nu] - untraced_plaquettes[mu][nu].adjoint()) / (2j))
+        term_b = _traceless((untraced_plaquettes[rho][sigma] - untraced_plaquettes[rho][sigma].adjoint()) / (2j))
         q_field += sgn * torch.einsum("abcdii->abcd", SU3_group_compose(term_a, term_b))
 
     return q_field / 32 / torch.pi**2
